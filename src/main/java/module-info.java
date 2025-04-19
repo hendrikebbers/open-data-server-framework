@@ -2,11 +2,14 @@ module com.openelements.data {
     requires jakarta.persistence;
     requires com.google.gson;
     requires io.helidon.webserver.cors;
-    requires io.helidon.webserver;
     requires org.jspecify;
     requires org.slf4j;
     requires org.hibernate.orm.core;
     requires io.helidon.webclient;
+    requires io.swagger.v3.oas.models;
+    requires com.fasterxml.jackson.databind;
+    requires io.helidon.webserver.staticcontent;
+    requires io.helidon.webserver;
 
     exports com.openelements.data.db to org.hibernate.orm.core;
     opens com.openelements.data.db to org.hibernate.orm.core;

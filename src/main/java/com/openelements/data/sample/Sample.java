@@ -26,12 +26,13 @@ public class Sample {
     }
 
     private static Set<DataEndpointMetadata<?>> getEndpoints(DbHandler dbHandler) {
-        final DataAttribute<Employee, String> firstNameAttribute = new DataAttribute<>("firstName",
+        final DataAttribute<Employee, String> firstNameAttribute = new DataAttribute<>("firstName", "The first name",
                 AttributeType.STRING,
                 Employee::getFirstName);
-        final DataAttribute<Employee, String> lastNameAttribute = new DataAttribute<>("lastName", AttributeType.STRING,
+        final DataAttribute<Employee, String> lastNameAttribute = new DataAttribute<>("lastName", "The last name",
+                AttributeType.STRING,
                 Employee::getLastName);
-        final DataType<Employee> employeeType = new DataType<>("employee", Employee.class,
+        final DataType<Employee> employeeType = new DataType<>("employee", "An employee", Employee.class,
                 List.of(firstNameAttribute, lastNameAttribute));
         final DataProvider<Employee> dataProvider = dbHandler.createDataProvider(Employee.class);
         final DataEndpointMetadata<Employee> endpoint = new DataEndpointMetadata<>("employees", employeeType,

@@ -26,6 +26,11 @@
       <version>3.2.12</version>
     </dependency>
     <dependency>
+      <groupId>io.helidon.webserver</groupId>
+      <artifactId>helidon-webserver-static-content</artifactId>
+      <version>3.2.12</version>
+    </dependency>
+    <dependency>
       <groupId>io.helidon.webclient</groupId>
       <artifactId>helidon-webclient</artifactId>
       <version>3.2.12</version>
@@ -41,20 +46,25 @@
       <version>2.12.1</version>
     </dependency>
     <dependency>
-      <groupId>org.jspecify</groupId>
-      <artifactId>jspecify</artifactId>
-      <version>1.0.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>2.0.17</version>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-core</artifactId>
       <version>6.6.13.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-core</artifactId>
+      <version>2.2.30</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+      <version>1.0.0</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
