@@ -50,9 +50,9 @@ public class DataServer {
     private Routing createRouting(Set<DataEndpointMetadata<?>> endpoints) {
         final Routing.Builder routingBuilder = Routing.builder();
         endpoints.forEach(endpoint -> {
-            routingBuilder.get("/" + endpoint.path(), new GetAllHandler<>(endpoint));
-            routingBuilder.get("/" + endpoint.path() + "/count", new GetCountHandler<>(endpoint));
-            routingBuilder.get("/" + endpoint.path() + "/page", new GetPageHandler<>(endpoint));
+            routingBuilder.get("/api/" + endpoint.path(), new GetAllHandler<>(endpoint));
+            routingBuilder.get("/api/" + endpoint.path() + "/count", new GetCountHandler<>(endpoint));
+            routingBuilder.get("/api/" + endpoint.path() + "/page", new GetPageHandler<>(endpoint));
         });
         OpenAPI openAPI = OpenApiFactory.createOpenApi(endpoints);
         routingBuilder.get("/openapi", new OpenApiHandler(openAPI));

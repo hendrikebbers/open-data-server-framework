@@ -65,7 +65,7 @@ public class OpenApiFactory {
         final PathItem pathItem = new PathItem().get(getAllOperation)
                 .summary("Get all " + metadata.dataType().name())
                 .description("Get all " + metadata.dataType().name());
-        return new OpenApiPath("/" + metadata.path(), pathItem);
+        return new OpenApiPath("/api/" + metadata.path(), pathItem);
     }
 
     @NonNull
@@ -81,7 +81,7 @@ public class OpenApiFactory {
         final PathItem pathItem = new PathItem().get(getCountOperation)
                 .summary("Get count of " + metadata.dataType().name())
                 .description("Get count of " + metadata.dataType().name());
-        return new OpenApiPath("/" + metadata.path() + "/count", pathItem);
+        return new OpenApiPath("/api/" + metadata.path() + "/count", pathItem);
     }
 
     @NonNull
