@@ -16,7 +16,7 @@ public class PullRequest extends AbstractEntity {
     private String repository;
 
     @Column(nullable = false)
-    private long gitHubId;
+    private int gitHubId;
 
     @Column(nullable = false)
     private String title;
@@ -55,11 +55,11 @@ public class PullRequest extends AbstractEntity {
         this.repository = repository;
     }
 
-    public long getGitHubId() {
+    public int getGitHubId() {
         return gitHubId;
     }
 
-    public void setGitHubId(@NonNull final long gitHubId) {
+    public void setGitHubId(@NonNull final int gitHubId) {
         this.gitHubId = gitHubId;
     }
 
