@@ -1,4 +1,4 @@
-package com.openelements.data.server;
+package com.openelements.data.server.internal;
 
 import com.google.gson.JsonObject;
 import com.openelements.data.data.AttributeType;
@@ -6,13 +6,14 @@ import com.openelements.data.data.DataAttribute;
 import com.openelements.data.data.DataType;
 import com.openelements.data.data.I18nString;
 import com.openelements.data.data.Language;
+import com.openelements.data.db.AbstractEntity;
 import io.helidon.common.http.HttpRequest;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
 public class JsonFactory {
 
-    public <E> JsonObject createJsonObject(HttpRequest request, Language language, E entity,
+    public <E extends AbstractEntity> JsonObject createJsonObject(HttpRequest request, Language language, E entity,
             DataType<E> dataType) {
         final JsonObject jsonObject = new JsonObject();
         for (final DataAttribute<E, ?> attribute : dataType.attributes()) {

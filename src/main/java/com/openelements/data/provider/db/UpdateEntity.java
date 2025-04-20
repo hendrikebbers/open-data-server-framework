@@ -1,4 +1,4 @@
-package com.openelements.data.provider;
+package com.openelements.data.provider.db;
 
 import com.openelements.data.db.AbstractEntity;
 import jakarta.persistence.Column;
@@ -29,5 +29,10 @@ public class UpdateEntity extends AbstractEntity {
 
     public void setLastUpdate(final @NonNull ZonedDateTime lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    @Override
+    protected String calculateUUID() {
+        return type;
     }
 }

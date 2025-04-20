@@ -7,10 +7,10 @@ import org.jspecify.annotations.NonNull;
 public record OpenApiPath(@NonNull String path, @NonNull PathItem pathItem) {
 
     public OpenApiPath {
-        Objects.requireNonNull(path, "path is null");
+        Objects.requireNonNull(path, "pathName is null");
         Objects.requireNonNull(pathItem, "pathItem is null");
         if (path.isBlank()) {
-            throw new IllegalArgumentException("path must not be blank");
+            throw new IllegalArgumentException("pathName must not be blank");
         }
     }
 }

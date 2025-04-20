@@ -6,9 +6,12 @@ import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Persistence;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DbHandler {
 
+    private final static Logger log = LoggerFactory.getLogger(DbHandler.class);
 
     private final EntityManagerFactory entityManagerFactory;
 
@@ -17,7 +20,7 @@ public class DbHandler {
     }
 
     public <E extends AbstractEntity> DbBasedDataProvider<E> createDataProvider(Class<E> entityClass) {
-        return new DbBasedDataProvider<>(entityClass, new Repository(this));
+        return new DbBasedDataProvider<>(entityClass, createRepository());
     }
 
     public Repository createRepository() {
@@ -56,8 +59,14 @@ public class DbHandler {
             transaction.commit();
             return result;
         } catch (Exception e) {
+            log.error("Transaction failed, rolling back", e);
             if (transaction.isActive()) {
-                transaction.rollback();
+                try {
+                    transaction.rollback();
+                } catch (Exception rollbackException) {
+                    log.error("Rollback failed", rollbackException);
+                    throw rollbackException;
+                }
             }
             throw e;
         } finally {

@@ -18,7 +18,7 @@ public class Employee extends AbstractEntity {
     @Column(nullable = false)
     private String lastName;
 
-    @OneToOne(cascade = {CascadeType.ALL})
+    @OneToOne(cascade = {CascadeType.ALL}, orphanRemoval = true)
     private I18nStringEntity role;
 
     @Column
@@ -54,5 +54,10 @@ public class Employee extends AbstractEntity {
 
     public void setGitHubUsername(@Nullable final String gitHubUsername) {
         this.gitHubUsername = gitHubUsername;
+    }
+
+    @Override
+    protected String calculateUUID() {
+        return firstName + lastName;
     }
 }

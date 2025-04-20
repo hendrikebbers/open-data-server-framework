@@ -118,4 +118,9 @@ public class PullRequest extends AbstractEntity {
     public void setDraft(boolean draft) {
         this.draft = draft;
     }
+
+    @Override
+    protected String calculateUUID() {
+        return org + "/" + repository + "/" + gitHubId;
+    }
 }

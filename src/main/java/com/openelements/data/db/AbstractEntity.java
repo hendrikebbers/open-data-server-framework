@@ -23,11 +23,15 @@ public abstract class AbstractEntity {
     @Column(nullable = false)
     private ZonedDateTime createdAt;
 
+    @Column(nullable = false)
+    private ZonedDateTime updatedAt;
+
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {
             createdAt = ZonedDateTime.now();
         }
+        updatedAt = ZonedDateTime.now();
     }
 
     public UUID getId() {
@@ -53,4 +57,18 @@ public abstract class AbstractEntity {
     public void setCreatedAt(@NonNull final ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public ZonedDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(ZonedDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void updateUUID() {
+        this.uuid = calculateUUID();
+    }
+
+    protected abstract String calculateUUID();
 }

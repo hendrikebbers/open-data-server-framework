@@ -1,4 +1,4 @@
-package com.openelements.data.provider;
+package com.openelements.data.provider.db;
 
 import com.openelements.data.db.EntityMapper;
 

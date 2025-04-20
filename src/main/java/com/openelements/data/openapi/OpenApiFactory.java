@@ -2,7 +2,8 @@ package com.openelements.data.openapi;
 
 import com.openelements.data.data.AttributeType;
 import com.openelements.data.data.DataType;
-import com.openelements.data.server.DataEndpointMetadata;
+import com.openelements.data.db.AbstractEntity;
+import com.openelements.data.server.internal.OpenDataDefinition;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
@@ -29,7 +31,7 @@ public class OpenApiFactory {
     private final static String MEDIA_PLAIN = "text/plain";
 
     @NonNull
-    public static OpenAPI createOpenApi(@NonNull final Set<DataEndpointMetadata<?>> endpoints) {
+    public static OpenAPI createOpenApi(@NonNull final Collection<OpenDataDefinition<?>> endpoints) {
         Objects.requireNonNull(endpoints, "endpoints is null");
         final OpenAPI openAPI = new OpenAPI();
         openAPI.info(new Info()
@@ -47,12 +49,14 @@ public class OpenApiFactory {
     }
 
     @NonNull
-    public static <T> Set<OpenApiPath> createPaths(@NonNull final DataEndpointMetadata<T> metadata) {
+    public static <E extends AbstractEntity> Set<OpenApiPath> createPaths(
+            @NonNull final OpenDataDefinition<E> metadata) {
         return Set.of(createGetAllPath(metadata), createCountPath(metadata));
     }
 
     @NonNull
-    public static <T> OpenApiPath createGetAllPath(@NonNull final DataEndpointMetadata<T> metadata) {
+    public static <E extends AbstractEntity> OpenApiPath createGetAllPath(
+            @NonNull final OpenDataDefinition<E> metadata) {
         Objects.requireNonNull(metadata, "metadata is null");
         final ObjectSchema dataSchema = createSchema(metadata.dataType());
         final ApiResponse successResponse = getSuccessResponse(MEDIA_JSON, new ArraySchema().items(dataSchema));
@@ -65,11 +69,12 @@ public class OpenApiFactory {
         final PathItem pathItem = new PathItem().get(getAllOperation)
                 .summary("Get all " + metadata.dataType().name())
                 .description("Get all " + metadata.dataType().name());
-        return new OpenApiPath("/api/" + metadata.path(), pathItem);
+        return new OpenApiPath("/api/" + metadata.pathName(), pathItem);
     }
 
     @NonNull
-    public static <T> OpenApiPath createCountPath(@NonNull final DataEndpointMetadata<T> metadata) {
+    public static <E extends AbstractEntity> OpenApiPath createCountPath(
+            @NonNull final OpenDataDefinition<E> metadata) {
         Objects.requireNonNull(metadata, "metadata is null");
         final ApiResponse successResponse = getSuccessResponse(MEDIA_PLAIN, new IntegerSchema());
         final ApiResponses apiResponses = new ApiResponses()
@@ -81,7 +86,7 @@ public class OpenApiFactory {
         final PathItem pathItem = new PathItem().get(getCountOperation)
                 .summary("Get count of " + metadata.dataType().name())
                 .description("Get count of " + metadata.dataType().name());
-        return new OpenApiPath("/api/" + metadata.path() + "/count", pathItem);
+        return new OpenApiPath("/api/" + metadata.pathName() + "/count", pathItem);
     }
 
     @NonNull
@@ -97,7 +102,7 @@ public class OpenApiFactory {
     }
 
     @NonNull
-    public static <T> ObjectSchema createSchema(@NonNull final DataType<T> dataType) {
+    public static <E extends AbstractEntity> ObjectSchema createSchema(@NonNull final DataType<E> dataType) {
         Objects.requireNonNull(dataType, "dataType is null");
         final ObjectSchema schema = new ObjectSchema();
         schema.setName(dataType.name());

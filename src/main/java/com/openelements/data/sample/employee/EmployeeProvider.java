@@ -4,18 +4,18 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.openelements.data.db.I18nStringEntity;
-import com.openelements.data.provider.DataProvider;
+import com.openelements.data.provider.DataProviderContext;
+import com.openelements.data.provider.EntityUpdatesProvider;
 import io.helidon.webclient.WebClient;
-import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class EmployeeProvider implements DataProvider<Employee> {
+public class EmployeeProvider implements EntityUpdatesProvider<Employee> {
 
     @Override
-    public Set<Employee> loadUpdateData(ZonedDateTime lastUpdate) {
+    public Set<Employee> loadUpdatedData(DataProviderContext context) {
         final WebClient client = WebClient.builder()
                 .baseUri("https://raw.githubusercontent.com")
                 .build();
@@ -46,7 +46,8 @@ public class EmployeeProvider implements DataProvider<Employee> {
                                 final JsonArray socials = element.getAsJsonObject().get("socials").getAsJsonArray();
                                 for (JsonElement socialElement : socials) {
                                     if (socialElement.isJsonObject() && socialElement.getAsJsonObject().has("name")) {
-                                        if (Objects.equals(socialElement.getAsJsonObject().get("name"), "GitHub")) {
+                                        if (Objects.equals(socialElement.getAsJsonObject().get("name").getAsString(),
+                                                "GitHub")) {
                                             gitHubUsername = socialElement.getAsJsonObject().get("link").getAsString()
                                                     .substring("https://github.com/".length());
                                         }

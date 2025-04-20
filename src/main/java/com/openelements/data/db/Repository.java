@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 
-public class Repository {
+public class Repository implements ReadOnlyRepository {
 
     private final Logger log = getLogger(getClass());
 
@@ -27,6 +27,7 @@ public class Repository {
 
     private <E extends AbstractEntity> E storeImpl(EntityManager entityManager, E entity,
             EntityMapper<E> entityMapper) {
+        entity.updateUUID();
         if (entity.getUuid() == null) {
             throw new IllegalArgumentException("UUID cannot be null");
         }

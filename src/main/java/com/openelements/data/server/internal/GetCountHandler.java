@@ -1,14 +1,15 @@
-package com.openelements.data.server;
+package com.openelements.data.server.internal;
 
+import com.openelements.data.db.AbstractEntity;
 import io.helidon.webserver.Handler;
 import io.helidon.webserver.ServerRequest;
 import io.helidon.webserver.ServerResponse;
 
-public class GetCountHandler<ENTITY> implements Handler {
+public class GetCountHandler<E extends AbstractEntity> implements Handler {
 
-    private final DataEndpointMetadata<ENTITY> endpoint;
+    private final OpenDataDefinition<E> endpoint;
 
-    public GetCountHandler(DataEndpointMetadata<ENTITY> endpoint) {
+    public GetCountHandler(OpenDataDefinition<E> endpoint) {
         this.endpoint = endpoint;
     }
 

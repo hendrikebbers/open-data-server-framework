@@ -1,4 +1,4 @@
-package com.openelements.data.server;
+package com.openelements.data.server.internal;
 
 import com.openelements.data.data.Language;
 import io.helidon.webserver.ServerRequest;
