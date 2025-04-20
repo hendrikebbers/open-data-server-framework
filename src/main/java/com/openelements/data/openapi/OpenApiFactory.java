@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.DateTimeSchema;
@@ -34,17 +35,26 @@ public class OpenApiFactory {
     public static OpenAPI createOpenApi(@NonNull final Collection<OpenDataDefinition<?>> endpoints) {
         Objects.requireNonNull(endpoints, "endpoints is null");
         final OpenAPI openAPI = new OpenAPI();
-        openAPI.info(new Info()
+        final License license = new License()
+                .name("Data licence Germany - Zero - Version 2.0")
+                .url("https://www.govdata.de/dl-de/zero-2-0")
+                .identifier("DL-DE->Zero-2.0");
+        final Info info = new Info()
                 .title("Meine Minimal-API")
                 .version("1.0")
-                .description("Programmgenerierte OpenAPI ohne Framework"));
-
+                .description("Programmgenerierte OpenAPI ohne Framework")
+                .license(license);
         final Paths paths = new Paths();
         endpoints.stream()
                 .map(OpenApiFactory::createPaths)
                 .flatMap(Set::stream)
                 .forEach(path -> paths.addPathItem(path.path(), path.pathItem()));
-        openAPI.paths(paths);
+        openAPI.info(info)
+                .paths(paths);
+        endpoints.stream()
+                .map(endpoint -> endpoint.dataType())
+                .map(OpenApiFactory::createSchema)
+                .forEach(schema -> openAPI.schema(schema.getName(), schema));
         return openAPI;
     }
 
@@ -107,21 +117,35 @@ public class OpenApiFactory {
         final ObjectSchema schema = new ObjectSchema();
         schema.setName(dataType.name());
         schema.setDescription(dataType.description());
+        schema.setType("object");
         dataType.attributes().forEach(attribute -> {
             final String attributeName = attribute.name();
             final Schema<?> attributeSchema;
             if (attribute.type() == AttributeType.BOOLEAN) {
-                attributeSchema = new BooleanSchema().description(attribute.description());
+                attributeSchema = new BooleanSchema()
+                        .description(attribute.description())
+                        .type("boolean");
             } else if (attribute.type() == AttributeType.STRING) {
-                attributeSchema = new StringSchema().description(attribute.description());
+                attributeSchema = new StringSchema()
+                        .description(attribute.description())
+                        .type("string");
             } else if (attribute.type() == AttributeType.I18N_STRING) {
-                attributeSchema = new StringSchema().description(attribute.description());
+                attributeSchema = new StringSchema()
+                        .description(attribute.description())
+                        .type("string");
             } else if (attribute.type() == AttributeType.NUMBER) {
-                attributeSchema = new NumberSchema().description(attribute.description());
+                attributeSchema = new NumberSchema()
+                        .description(attribute.description())
+                        .type("number");
             } else if (attribute.type() == AttributeType.DATE_TIME) {
-                attributeSchema = new DateTimeSchema().description(attribute.description());
+                attributeSchema = new DateTimeSchema()
+                        .description(attribute.description())
+                        .type("string")
+                        .format("date-time");
             } else if (attribute.type() == AttributeType.FILE) {
-                attributeSchema = new StringSchema().description(attribute.description());
+                attributeSchema = new StringSchema()
+                        .description(attribute.description())
+                        .type("string");
             } else {
                 throw new IllegalArgumentException("Unsupported attribute type: " + attribute.type());
             }
