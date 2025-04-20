@@ -1,9 +1,8 @@
-package com.openelements.data.provider;
+package com.openelements.data.provider.db;
 
 import com.openelements.data.data.AttributeType;
 import com.openelements.data.data.DataAttribute;
 import com.openelements.data.data.DataType;
-import com.openelements.data.provider.db.UpdateRunEntity;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;

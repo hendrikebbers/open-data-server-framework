@@ -20,4 +20,6 @@ module com.openelements.data {
     opens com.openelements.data.provider to org.hibernate.orm.core;
     opens com.openelements.data.sample.employee to org.hibernate.orm.core;
     opens com.openelements.data.provider.db to org.hibernate.orm.core;
+    exports com.openelements.data.db.internal to org.hibernate.orm.core;
+    opens com.openelements.data.db.internal to org.hibernate.orm.core;
 }

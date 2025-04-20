@@ -2,8 +2,8 @@ package com.openelements.data.server.internal;
 
 import com.openelements.data.data.DataType;
 import com.openelements.data.db.AbstractEntity;
-import com.openelements.data.db.DbHandler;
-import com.openelements.data.provider.UpdateRunMetadataFactory;
+import com.openelements.data.db.internal.DbHandler;
+import com.openelements.data.provider.db.UpdateRunMetadataFactory;
 import io.helidon.webserver.Routing;
 import java.util.Collections;
 import java.util.Set;
@@ -29,7 +29,7 @@ public class OpenDataDefinitionHandler {
             throw new IllegalStateException("Cannot register data definition after the handler has started");
         }
         dataDefinitions.add(
-                new OpenDataDefinition<>(path, dataType, dbHandler.createDataProvider(dataType.entityClass())));
+                new OpenDataDefinition<>(path, dataType, dbHandler.createRepository(dataType.entityClass())));
     }
 
     public void createRouting(Routing.Builder routingBuilder) {

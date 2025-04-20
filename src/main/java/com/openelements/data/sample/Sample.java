@@ -5,10 +5,8 @@ import com.openelements.data.data.DataAttribute;
 import com.openelements.data.data.DataType;
 import com.openelements.data.data.I18nString;
 import com.openelements.data.sample.employee.Employee;
-import com.openelements.data.sample.employee.EmployeeEntityMapper;
 import com.openelements.data.sample.employee.EmployeeProvider;
 import com.openelements.data.sample.pullrequest.PullRequest;
-import com.openelements.data.sample.pullrequest.PullRequestEntityMapper;
 import com.openelements.data.sample.pullrequest.PullRequestProvider;
 import com.openelements.data.server.DataServer;
 import java.time.ZonedDateTime;
@@ -19,12 +17,11 @@ public class Sample {
     public static void main(String[] args) {
         DataServer dataServer = new DataServer(8080);
 
-        dataServer.addDataProvider(Employee.class, new EmployeeProvider(), new EmployeeEntityMapper(), 60 * 60);
-        dataServer.addDataProvider(PullRequest.class, new PullRequestProvider(), new PullRequestEntityMapper(),
-                60 * 60);
+        dataServer.addDataProvider(Employee.class, new EmployeeProvider());
+        dataServer.addDataProvider(PullRequest.class, new PullRequestProvider());
 
-        dataServer.registerEntityDefinitions("employees", getEmployeeType());
-        dataServer.registerEntityDefinitions("pullRequests", getPullRequestType());
+        dataServer.registerEntityDefinition("employees", getEmployeeType());
+        dataServer.registerEntityDefinition("pullRequests", getPullRequestType());
 
         dataServer.start();
     }

@@ -2,8 +2,8 @@ package com.openelements.data.server;
 
 import com.openelements.data.data.DataType;
 import com.openelements.data.db.AbstractEntity;
-import com.openelements.data.db.DbHandler;
 import com.openelements.data.db.EntityMapper;
+import com.openelements.data.db.internal.DbHandler;
 import com.openelements.data.openapi.OpenApiFactory;
 import com.openelements.data.openapi.OpenApiHandler;
 import com.openelements.data.provider.EntityUpdatesProvider;
@@ -34,16 +34,25 @@ public class DataServer {
         this.port = port;
         this.dbHandler = new DbHandler("my-unit");
         this.openDataDefinitionHandler = new OpenDataDefinitionHandler(dbHandler);
-        this.providerHandler = new ProviderHandler(dbHandler.createRepository());
+        this.providerHandler = new ProviderHandler(dbHandler);
     }
 
-    public <E extends AbstractEntity> void registerEntityDefinitions(String path, DataType<E> dataType) {
+    public <E extends AbstractEntity> void registerEntityDefinition(String path, DataType<E> dataType) {
         openDataDefinitionHandler.registerDataDefinition(path, dataType);
     }
 
     public <T extends AbstractEntity> void addDataProvider(Class<T> entityClass, EntityUpdatesProvider<T> provider,
             EntityMapper<T> entityMapper, long periodInSeconds) {
         providerHandler.add(entityClass, provider, entityMapper, periodInSeconds);
+    }
+
+    public <T extends AbstractEntity> void addDataProvider(Class<T> entityClass, EntityUpdatesProvider<T> provider,
+            long periodInSeconds) {
+        providerHandler.add(entityClass, provider, periodInSeconds);
+    }
+
+    public <T extends AbstractEntity> void addDataProvider(Class<T> entityClass, EntityUpdatesProvider<T> provider) {
+        providerHandler.add(entityClass, provider);
     }
 
     public void start() {
