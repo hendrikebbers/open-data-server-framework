@@ -19,17 +19,20 @@ public class JsonFactory {
         for (final DataAttribute<E, ?> attribute : dataType.attributes()) {
             final AttributeType attributeType = attribute.type();
             switch (attributeType) {
-                case STRING -> jsonObject.addProperty(attribute.name(), (String) attribute.supplier().apply(entity));
-                case NUMBER -> jsonObject.addProperty(attribute.name(), (Number) attribute.supplier().apply(entity));
-                case BOOLEAN -> jsonObject.addProperty(attribute.name(), (Boolean) attribute.supplier().apply(entity));
-                case DATE_TIME -> jsonObject.addProperty(attribute.name(),
+                case STRING ->
+                        jsonObject.addProperty(attribute.identifier(), (String) attribute.supplier().apply(entity));
+                case NUMBER ->
+                        jsonObject.addProperty(attribute.identifier(), (Number) attribute.supplier().apply(entity));
+                case BOOLEAN ->
+                        jsonObject.addProperty(attribute.identifier(), (Boolean) attribute.supplier().apply(entity));
+                case DATE_TIME -> jsonObject.addProperty(attribute.identifier(),
                         toJson((TemporalAccessor) attribute.supplier().apply(entity)));
                 case I18N_STRING -> {
                     final I18nStringEntity i18nString = (I18nStringEntity) attribute.supplier().apply(entity);
                     if (i18nString != null) {
-                        jsonObject.addProperty(attribute.name(), i18nString.resolve(language));
+                        jsonObject.addProperty(attribute.identifier(), i18nString.resolve(language));
                     } else {
-                        jsonObject.addProperty(attribute.name(), (String) null);
+                        jsonObject.addProperty(attribute.identifier(), (String) null);
                     }
                 }
                 default -> throw new IllegalArgumentException("Unsupported attribute type: " + attributeType);

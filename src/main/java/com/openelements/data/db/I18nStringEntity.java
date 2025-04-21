@@ -1,5 +1,6 @@
 package com.openelements.data.db;
 
+import com.openelements.data.data.I18nString;
 import com.openelements.data.data.Language;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -9,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,6 +40,13 @@ public class I18nStringEntity {
 
     public I18nStringEntity(String value) {
         this(Language.EN, value);
+    }
+
+    public I18nStringEntity(I18nString i18nString) {
+        Objects.requireNonNull(i18nString, "i18nString must be null");
+        i18nString.translations().forEach((language, message) -> {
+            translations.add(new TranslationMessage(language, message));
+        });
     }
 
     public String resolve(Language language) {

@@ -2,6 +2,7 @@ package com.openelements.data.openapi;
 
 import com.openelements.data.data.AttributeType;
 import com.openelements.data.data.DataType;
+import com.openelements.data.data.Language;
 import com.openelements.data.db.AbstractEntity;
 import com.openelements.data.server.internal.OpenDataDefinition;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -119,32 +120,32 @@ public class OpenApiFactory {
         schema.setDescription(dataType.description());
         schema.setType("object");
         dataType.attributes().forEach(attribute -> {
-            final String attributeName = attribute.name();
+            final String attributeName = attribute.identifier();
             final Schema<?> attributeSchema;
             if (attribute.type() == AttributeType.BOOLEAN) {
                 attributeSchema = new BooleanSchema()
-                        .description(attribute.description())
+                        .description(attribute.description().resolve(Language.EN))
                         .type("boolean");
             } else if (attribute.type() == AttributeType.STRING) {
                 attributeSchema = new StringSchema()
-                        .description(attribute.description())
+                        .description(attribute.description().resolve(Language.EN))
                         .type("string");
             } else if (attribute.type() == AttributeType.I18N_STRING) {
                 attributeSchema = new StringSchema()
-                        .description(attribute.description())
+                        .description(attribute.description().resolve(Language.EN))
                         .type("string");
             } else if (attribute.type() == AttributeType.NUMBER) {
                 attributeSchema = new NumberSchema()
-                        .description(attribute.description())
+                        .description(attribute.description().resolve(Language.EN))
                         .type("number");
             } else if (attribute.type() == AttributeType.DATE_TIME) {
                 attributeSchema = new DateTimeSchema()
-                        .description(attribute.description())
+                        .description(attribute.description().resolve(Language.EN))
                         .type("string")
                         .format("date-time");
             } else if (attribute.type() == AttributeType.FILE) {
                 attributeSchema = new StringSchema()
-                        .description(attribute.description())
+                        .description(attribute.description().resolve(Language.EN))
                         .type("string");
             } else {
                 throw new IllegalArgumentException("Unsupported attribute type: " + attribute.type());

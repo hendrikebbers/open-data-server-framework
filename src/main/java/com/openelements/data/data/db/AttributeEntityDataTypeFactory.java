@@ -3,6 +3,7 @@ package com.openelements.data.data.db;
 import com.openelements.data.data.AttributeType;
 import com.openelements.data.data.DataAttribute;
 import com.openelements.data.data.DataType;
+import com.openelements.data.data.I18nString;
 import java.util.List;
 
 public class AttributeEntityDataTypeFactory {
@@ -14,17 +15,28 @@ public class AttributeEntityDataTypeFactory {
                 AttributeEntity.class,
                 List.of(
                         new DataAttribute<>("dataIdentifier",
-                                "The identifier/name of the data type this attribute belongs to",
+                                I18nString.of("Data Identifier"),
+                                I18nString.of("The identifier/name of the data type this attribute belongs to"),
                                 AttributeType.STRING,
                                 AttributeEntity::getDataIdentifier),
-                        new DataAttribute<>("attributeIdentifier", "The identifier/name of the attribute",
+                        new DataAttribute<>("attributeIdentifier",
+                                I18nString.of("Attribute Identifier"),
+                                I18nString.of("The identifier/name of the attribute"),
                                 AttributeType.STRING,
                                 AttributeEntity::getAttributeIdentifier),
-                        new DataAttribute<>("type", "The type of the attribute", AttributeType.STRING,
+                        new DataAttribute<>("type",
+                                I18nString.of("Type"),
+                                I18nString.of("The type of the attribute"),
+                                AttributeType.STRING,
                                 AttributeEntity::getAttributeType),
-                        new DataAttribute<>("name", "The name of the attribute", AttributeType.I18N_STRING,
+                        new DataAttribute<>("name",
+                                I18nString.of("Name"),
+                                I18nString.of("The name of the attribute"),
+                                AttributeType.I18N_STRING,
                                 AttributeEntity::getName),
-                        new DataAttribute<>("description", "The description of the attribute",
+                        new DataAttribute<>("description",
+                                I18nString.of("Description"),
+                                I18nString.of("The description of the attribute"),
                                 AttributeType.I18N_STRING,
                                 AttributeEntity::getDescription)
                 )

@@ -39,7 +39,7 @@ public class OpenDataDefinitionHandler {
         dataType.attributes().forEach(attribute -> {
             final AttributeEntity entity = new AttributeEntity();
             entity.setDataIdentifier(dataType.name());
-            entity.setAttributeIdentifier(attribute.name());
+            entity.setAttributeIdentifier(attribute.identifier());
             entity.setAttributeType(attribute.type().name());
             entity.setName(new I18nStringEntity(attribute.name()));
             entity.setDescription(new I18nStringEntity(attribute.description()));
