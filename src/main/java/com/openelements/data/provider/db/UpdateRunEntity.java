@@ -7,12 +7,16 @@ import jakarta.persistence.Transient;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 @Entity
 public class UpdateRunEntity extends AbstractEntity {
 
     @Column(nullable = false)
     private String type;
+
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false)
     private ZonedDateTime startOfUpdate;
@@ -28,6 +32,14 @@ public class UpdateRunEntity extends AbstractEntity {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setStartOfUpdate(ZonedDateTime startOfUpdate) {
@@ -75,6 +87,22 @@ public class UpdateRunEntity extends AbstractEntity {
     @Override
     protected String calculateUUID() {
         return type + "-" + startOfUpdate.toInstant().toEpochMilli();
+    }
+
+    public void setClassType(final @NonNull Class<?> type) {
+        this.type = type.getName();
+        this.name = type.getSimpleName();
+    }
+
+    public Class<?> getClassForType() throws RuntimeException {
+        if (type == null) {
+            throw new RuntimeException("Type is null");
+        }
+        try {
+            return Class.forName(type);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Class not found for type: " + type, e);
+        }
     }
 }
 

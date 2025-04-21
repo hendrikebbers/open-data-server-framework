@@ -3,6 +3,7 @@ package com.openelements.data.server.internal;
 import com.openelements.data.data.DataType;
 import com.openelements.data.data.db.AttributeEntity;
 import com.openelements.data.data.db.AttributeEntityDataTypeFactory;
+import com.openelements.data.data.db.DataTypeEntityTypeFactory;
 import com.openelements.data.db.AbstractEntity;
 import com.openelements.data.db.EntityMapper;
 import com.openelements.data.db.I18nStringEntity;
@@ -24,8 +25,8 @@ public class OpenDataDefinitionHandler {
 
     public OpenDataDefinitionHandler(DbHandler dbHandler) {
         this.dbHandler = dbHandler;
-        registerDataDefinition("updates",
-                UpdateRunMetadataFactory.createUpdateRunMetadata());
+        registerDataDefinition("updates", UpdateRunMetadataFactory.createUpdateRunMetadata());
+        registerDataDefinition("dataTypes", DataTypeEntityTypeFactory.createDataType());
         registerDataDefinition("attributes", AttributeEntityDataTypeFactory.createDataType());
     }
 
