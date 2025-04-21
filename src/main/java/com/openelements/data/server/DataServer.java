@@ -7,6 +7,7 @@ import com.openelements.data.db.internal.DbHandler;
 import com.openelements.data.provider.EntityUpdatesProvider;
 import com.openelements.data.provider.internal.ProviderHandler;
 import com.openelements.data.server.internal.OpenDataDefinitionStore;
+import com.openelements.data.server.internal.handler.FileDownloadHandler;
 import com.openelements.data.server.internal.handler.SwaggerInitHandler;
 import com.openelements.data.server.internal.openapi.OpenApiFactory;
 import com.openelements.data.server.internal.openapi.OpenApiHandler;
@@ -77,6 +78,7 @@ public class DataServer {
         return routingBuilder.get("/openapi", new OpenApiHandler(openAPI))
                 .register("/swagger-ui", StaticContentSupport.builder("public/swagger-ui").build())
                 .get("/swagger-ui/swagger-initializer.js", new SwaggerInitHandler())
+                .get("/files/", new FileDownloadHandler(dbHandler))
                 .register(createCorsSupport())
                 .build();
     }

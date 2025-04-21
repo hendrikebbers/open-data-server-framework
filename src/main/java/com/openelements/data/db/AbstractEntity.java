@@ -1,21 +1,13 @@
 package com.openelements.data.db;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 
 @MappedSuperclass
-public abstract class AbstractEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+public abstract class AbstractEntity extends EntityWithId {
 
     @Column(nullable = false, unique = true)
     private String uuid;
@@ -32,14 +24,6 @@ public abstract class AbstractEntity {
             createdAt = ZonedDateTime.now();
         }
         updatedAt = ZonedDateTime.now();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public String getUuid() {

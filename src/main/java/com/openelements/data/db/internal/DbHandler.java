@@ -4,6 +4,7 @@ import com.openelements.data.db.AbstractEntity;
 import com.openelements.data.db.EntityMapper;
 import com.openelements.data.db.EntityRepository;
 import com.openelements.data.db.EntityRepositoryFactory;
+import com.openelements.data.db.EntityWithId;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
@@ -18,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
@@ -167,6 +169,20 @@ public class DbHandler implements EntityRepositoryFactory {
             Root<E> root = cq.from(entityClass);
             cq.select(cb.count(root));
             return entityManager.createQuery(cq).getSingleResult();
+        });
+    }
+
+    public <E extends EntityWithId> Optional<E> getEntityById(UUID id, Class<E> entityClass) {
+        return runInTransaction(entityManager -> {
+            final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            final CriteriaQuery<E> cq = cb.createQuery(entityClass);
+            final Root<E> rootEntry = cq.from(entityClass);
+            cq.select(rootEntry).where(cb.equal(rootEntry.get("id"), id));
+            try {
+                return Optional.ofNullable(entityManager.createQuery(cq).getSingleResult());
+            } catch (final NoResultException e) {
+                return Optional.empty();
+            }
         });
     }
 }
