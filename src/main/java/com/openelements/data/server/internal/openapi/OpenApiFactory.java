@@ -1,4 +1,4 @@
-package com.openelements.data.openapi;
+package com.openelements.data.server.internal.openapi;
 
 import com.openelements.data.data.AttributeType;
 import com.openelements.data.data.DataType;

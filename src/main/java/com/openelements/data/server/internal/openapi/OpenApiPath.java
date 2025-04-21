@@ -1,4 +1,4 @@
-package com.openelements.data.openapi;
+package com.openelements.data.server.internal.openapi;
 
 import io.swagger.v3.oas.models.PathItem;
 import java.util.Objects;

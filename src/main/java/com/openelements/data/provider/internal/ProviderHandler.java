@@ -1,9 +1,11 @@
-package com.openelements.data.provider;
+package com.openelements.data.provider.internal;
 
 import com.openelements.data.db.AbstractEntity;
 import com.openelements.data.db.EntityMapper;
 import com.openelements.data.db.internal.DbHandler;
-import com.openelements.data.provider.db.UpdateRunEntity;
+import com.openelements.data.provider.DataProviderContext;
+import com.openelements.data.provider.EntityUpdatesProvider;
+import com.openelements.data.provider.internal.db.UpdateRunEntity;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;

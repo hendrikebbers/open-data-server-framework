@@ -4,12 +4,12 @@ import com.openelements.data.data.DataType;
 import com.openelements.data.db.AbstractEntity;
 import com.openelements.data.db.EntityMapper;
 import com.openelements.data.db.internal.DbHandler;
-import com.openelements.data.openapi.OpenApiFactory;
-import com.openelements.data.openapi.OpenApiHandler;
 import com.openelements.data.provider.EntityUpdatesProvider;
-import com.openelements.data.provider.ProviderHandler;
-import com.openelements.data.server.internal.OpenDataDefinitionHandler;
-import com.openelements.data.server.internal.SwaggerInitHandler;
+import com.openelements.data.provider.internal.ProviderHandler;
+import com.openelements.data.server.internal.OpenDataDefinitionStore;
+import com.openelements.data.server.internal.handler.SwaggerInitHandler;
+import com.openelements.data.server.internal.openapi.OpenApiFactory;
+import com.openelements.data.server.internal.openapi.OpenApiHandler;
 import io.helidon.webserver.Routing;
 import io.helidon.webserver.WebServer;
 import io.helidon.webserver.cors.CorsSupport;
@@ -22,7 +22,7 @@ public class DataServer {
 
     private final static Logger log = LoggerFactory.getLogger(DataServer.class);
 
-    private final OpenDataDefinitionHandler openDataDefinitionHandler;
+    private final OpenDataDefinitionStore openDataDefinitionHandler;
 
     private final ProviderHandler providerHandler;
 
@@ -33,7 +33,7 @@ public class DataServer {
     public DataServer(int port) {
         this.port = port;
         this.dbHandler = new DbHandler("my-unit");
-        this.openDataDefinitionHandler = new OpenDataDefinitionHandler(dbHandler);
+        this.openDataDefinitionHandler = new OpenDataDefinitionStore(dbHandler);
         this.providerHandler = new ProviderHandler(dbHandler);
     }
 

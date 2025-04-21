@@ -1,4 +1,4 @@
-package com.openelements.data.openapi;
+package com.openelements.data.server.internal.openapi;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;

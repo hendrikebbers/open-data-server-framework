@@ -1,21 +1,24 @@
 package com.openelements.data.server.internal;
 
 import com.openelements.data.data.DataType;
-import com.openelements.data.data.db.AttributeEntity;
-import com.openelements.data.data.db.AttributeEntityDataTypeFactory;
-import com.openelements.data.data.db.DataTypeEntityTypeFactory;
+import com.openelements.data.data.internal.db.AttributeEntity;
+import com.openelements.data.data.internal.db.AttributeEntityDataTypeFactory;
+import com.openelements.data.data.internal.db.DataTypeEntityTypeFactory;
 import com.openelements.data.db.AbstractEntity;
 import com.openelements.data.db.EntityMapper;
 import com.openelements.data.db.I18nStringEntity;
 import com.openelements.data.db.internal.DbHandler;
-import com.openelements.data.provider.db.UpdateRunMetadataFactory;
+import com.openelements.data.provider.internal.db.UpdateRunMetadataFactory;
+import com.openelements.data.server.internal.handler.GetAllHandler;
+import com.openelements.data.server.internal.handler.GetCountHandler;
+import com.openelements.data.server.internal.handler.GetPageHandler;
 import io.helidon.webserver.Routing;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class OpenDataDefinitionHandler {
+public class OpenDataDefinitionStore {
 
     private final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -23,7 +26,7 @@ public class OpenDataDefinitionHandler {
 
     private final DbHandler dbHandler;
 
-    public OpenDataDefinitionHandler(DbHandler dbHandler) {
+    public OpenDataDefinitionStore(DbHandler dbHandler) {
         this.dbHandler = dbHandler;
         registerDataDefinition("updates", UpdateRunMetadataFactory.createUpdateRunMetadata());
         registerDataDefinition("dataTypes", DataTypeEntityTypeFactory.createDataType());

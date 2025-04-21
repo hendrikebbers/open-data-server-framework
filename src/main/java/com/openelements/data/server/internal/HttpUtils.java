@@ -7,7 +7,19 @@ public class HttpUtils {
 
     public static Language getLanguage(ServerRequest request) {
         final String languageHeader = request.headers().first("Accept-Language").orElse("en");
-        return Language.fromString(languageHeader);
+        if (languageHeader == null) {
+            return null;
+        }
+        String[] parts = languageHeader.split(",");
+        for (String part : parts) {
+            String trimmedPart = part.trim();
+            if (trimmedPart.equalsIgnoreCase("de")) {
+                return Language.DE;
+            } else if (trimmedPart.equalsIgnoreCase("en")) {
+                return Language.EN;
+            }
+        }
+        return Language.EN;
     }
 
     public static String getContentLanguageString(Language language) {

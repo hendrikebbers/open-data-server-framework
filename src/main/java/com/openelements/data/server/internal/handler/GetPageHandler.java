@@ -1,31 +1,40 @@
-package com.openelements.data.server.internal;
+package com.openelements.data.server.internal.handler;
 
 import com.google.gson.JsonArray;
 import com.openelements.data.data.DataType;
 import com.openelements.data.data.Language;
 import com.openelements.data.db.AbstractEntity;
+import com.openelements.data.server.internal.HttpUtils;
+import com.openelements.data.server.internal.JsonFactory;
+import com.openelements.data.server.internal.OpenDataDefinition;
 import io.helidon.common.http.MediaType;
 import io.helidon.webserver.Handler;
 import io.helidon.webserver.ServerRequest;
 import io.helidon.webserver.ServerResponse;
 
-public class GetAllHandler<E extends AbstractEntity> implements Handler {
+public class GetPageHandler<E extends AbstractEntity> implements Handler {
 
     private final OpenDataDefinition<E> endpoint;
 
     private final JsonFactory jsonFactory;
 
-    public GetAllHandler(OpenDataDefinition<E> endpoint) {
+    public GetPageHandler(OpenDataDefinition<E> endpoint) {
         this.endpoint = endpoint;
         this.jsonFactory = new JsonFactory();
     }
 
     @Override
     public void accept(ServerRequest req, ServerResponse res) {
+        final int page = req.queryParams().first("page")
+                .map(Integer::parseInt)
+                .orElse(0);
+        final int pageSize = req.queryParams().first("size")
+                .map(Integer::parseInt)
+                .orElse(10);
         final Language requestedLanguage = HttpUtils.getLanguage(req);
         final JsonArray result = new JsonArray();
         final DataType<E> dataType = endpoint.dataType();
-        endpoint.dataProvider().getAll().stream()
+        endpoint.dataProvider().getPage(page, pageSize).stream()
                 .map(entity -> {
                     return jsonFactory.createJsonObject(req, requestedLanguage, entity, dataType);
                 })
@@ -34,5 +43,6 @@ public class GetAllHandler<E extends AbstractEntity> implements Handler {
         res.headers().add("Content-Language", HttpUtils.getContentLanguageString(requestedLanguage));
         res.send(result.toString());
     }
+
 
 }

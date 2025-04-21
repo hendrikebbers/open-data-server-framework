@@ -9,5 +9,6 @@ public enum AttributeType {
     DATE,
     TIME,
     DURATION,
+    GEOLOCATION,
     FILE;
 }

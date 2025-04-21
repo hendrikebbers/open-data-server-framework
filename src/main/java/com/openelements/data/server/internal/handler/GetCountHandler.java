@@ -1,6 +1,7 @@
-package com.openelements.data.server.internal;
+package com.openelements.data.server.internal.handler;
 
 import com.openelements.data.db.AbstractEntity;
+import com.openelements.data.server.internal.OpenDataDefinition;
 import io.helidon.webserver.Handler;
 import io.helidon.webserver.ServerRequest;
 import io.helidon.webserver.ServerResponse;
