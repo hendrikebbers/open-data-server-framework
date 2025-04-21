@@ -50,7 +50,7 @@ public class ProviderHandler {
                         .stream()
                         .filter(e -> Objects.equals(e.getClassForType(), entityClass))
                         .map(UpdateRunEntity::getStartOfUpdate)
-                        .sorted()
+                        .sorted((t1, t2) -> t2.compareTo(t1))
                         .findFirst()
                         .orElse(MIN_TIME);
                 final ZonedDateTime startOfUpdate = ZonedDateTime.now();
