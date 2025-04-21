@@ -6,5 +6,8 @@ public enum AttributeType {
     NUMBER,
     BOOLEAN,
     DATE_TIME,
+    DATE,
+    TIME,
+    DURATION,
     FILE;
 }

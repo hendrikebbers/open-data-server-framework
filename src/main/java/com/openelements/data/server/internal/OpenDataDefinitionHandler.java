@@ -1,7 +1,11 @@
 package com.openelements.data.server.internal;
 
 import com.openelements.data.data.DataType;
+import com.openelements.data.data.db.AttributeEntity;
+import com.openelements.data.data.db.AttributeEntityDataTypeFactory;
 import com.openelements.data.db.AbstractEntity;
+import com.openelements.data.db.EntityMapper;
+import com.openelements.data.db.I18nStringEntity;
 import com.openelements.data.db.internal.DbHandler;
 import com.openelements.data.provider.db.UpdateRunMetadataFactory;
 import io.helidon.webserver.Routing;
@@ -22,6 +26,7 @@ public class OpenDataDefinitionHandler {
         this.dbHandler = dbHandler;
         registerDataDefinition("updates",
                 UpdateRunMetadataFactory.createUpdateRunMetadata());
+        registerDataDefinition("attributes", AttributeEntityDataTypeFactory.createDataType());
     }
 
     public <E extends AbstractEntity> void registerDataDefinition(String path, DataType<E> dataType) {
@@ -30,6 +35,16 @@ public class OpenDataDefinitionHandler {
         }
         dataDefinitions.add(
                 new OpenDataDefinition<>(path, dataType, dbHandler.createRepository(dataType.entityClass())));
+
+        dataType.attributes().forEach(attribute -> {
+            final AttributeEntity entity = new AttributeEntity();
+            entity.setDataIdentifier(dataType.name());
+            entity.setAttributeIdentifier(attribute.name());
+            entity.setAttributeType(attribute.type().name());
+            entity.setName(new I18nStringEntity(attribute.name()));
+            entity.setDescription(new I18nStringEntity(attribute.description()));
+            dbHandler.store(entity, EntityMapper.createDefaultMapper());
+        });
     }
 
     public void createRouting(Routing.Builder routingBuilder) {

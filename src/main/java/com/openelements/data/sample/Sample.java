@@ -3,7 +3,7 @@ package com.openelements.data.sample;
 import com.openelements.data.data.AttributeType;
 import com.openelements.data.data.DataAttribute;
 import com.openelements.data.data.DataType;
-import com.openelements.data.data.I18nString;
+import com.openelements.data.db.I18nStringEntity;
 import com.openelements.data.sample.employee.Employee;
 import com.openelements.data.sample.employee.EmployeeProvider;
 import com.openelements.data.sample.pullrequest.PullRequest;
@@ -33,7 +33,7 @@ public class Sample {
         final DataAttribute<Employee, String> lastNameAttribute = new DataAttribute<>("lastName", "The last name",
                 AttributeType.STRING,
                 Employee::getLastName);
-        final DataAttribute<Employee, I18nString> roleAttribute = new DataAttribute<>("role", "The role",
+        final DataAttribute<Employee, I18nStringEntity> roleAttribute = new DataAttribute<>("role", "The role",
                 AttributeType.I18N_STRING,
                 Employee::getRole);
         return new DataType<>("employee", "An employee", Employee.class,

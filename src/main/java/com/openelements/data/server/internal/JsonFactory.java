@@ -4,9 +4,9 @@ import com.google.gson.JsonObject;
 import com.openelements.data.data.AttributeType;
 import com.openelements.data.data.DataAttribute;
 import com.openelements.data.data.DataType;
-import com.openelements.data.data.I18nString;
 import com.openelements.data.data.Language;
 import com.openelements.data.db.AbstractEntity;
+import com.openelements.data.db.I18nStringEntity;
 import io.helidon.common.http.HttpRequest;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
@@ -25,7 +25,7 @@ public class JsonFactory {
                 case DATE_TIME -> jsonObject.addProperty(attribute.name(),
                         toJson((TemporalAccessor) attribute.supplier().apply(entity)));
                 case I18N_STRING -> {
-                    final I18nString i18nString = (I18nString) attribute.supplier().apply(entity);
+                    final I18nStringEntity i18nString = (I18nStringEntity) attribute.supplier().apply(entity);
                     if (i18nString != null) {
                         jsonObject.addProperty(attribute.name(), i18nString.resolve(language));
                     } else {

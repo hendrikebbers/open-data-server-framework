@@ -1,6 +1,5 @@
 package com.openelements.data.db;
 
-import com.openelements.data.data.I18nString;
 import com.openelements.data.data.Language;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -14,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-public class I18nStringEntity implements I18nString {
+public class I18nStringEntity {
 
     @Id
     @GeneratedValue
