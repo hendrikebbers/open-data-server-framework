@@ -2,8 +2,20 @@ package com.openelements.data.server.internal;
 
 import com.openelements.data.data.Language;
 import io.helidon.webserver.ServerRequest;
+import java.util.Optional;
 
 public class HttpUtils {
+
+    public static Optional<ContentTypes> getContentType(ServerRequest request) {
+        return request.headers().first("Content-Type").map(contentType -> {
+            for (ContentTypes type : ContentTypes.values()) {
+                if (type.getContentType().equalsIgnoreCase(contentType)) {
+                    return type;
+                }
+            }
+            return null;
+        });
+    }
 
     public static Language getLanguage(ServerRequest request) {
         final String languageHeader = request.headers().first("Accept-Language").orElse("en");
