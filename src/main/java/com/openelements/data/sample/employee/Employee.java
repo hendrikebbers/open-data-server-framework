@@ -1,6 +1,7 @@
 package com.openelements.data.sample.employee;
 
 import com.openelements.data.db.AbstractEntity;
+import com.openelements.data.db.FileEntity;
 import com.openelements.data.db.I18nStringEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,6 +24,9 @@ public class Employee extends AbstractEntity {
 
     @Column
     private String gitHubUsername;
+
+    @OneToOne(cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private FileEntity profilePicture;
 
     public String getFirstName() {
         return firstName;
