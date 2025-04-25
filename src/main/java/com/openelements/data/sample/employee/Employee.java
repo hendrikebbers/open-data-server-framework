@@ -60,6 +60,14 @@ public class Employee extends AbstractEntity {
         this.gitHubUsername = gitHubUsername;
     }
 
+    public FileEntity getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(FileEntity profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
     @Override
     protected String calculateUUID() {
         return firstName + lastName;

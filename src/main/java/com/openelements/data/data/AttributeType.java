@@ -10,5 +10,5 @@ public enum AttributeType {
     TIME,
     DURATION,
     GEOLOCATION,
-    FILE;
+    FILE, FILE_URL;
 }

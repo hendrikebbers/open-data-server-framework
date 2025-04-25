@@ -1,4 +1,4 @@
-package com.openelements.data.data.internal.db;
+package com.openelements.data.internal;
 
 import com.openelements.data.db.AbstractEntity;
 import com.openelements.data.db.I18nStringEntity;

@@ -1,4 +1,4 @@
-package com.openelements.data.data.internal.db;
+package com.openelements.data.internal;
 
 import com.openelements.data.data.AttributeType;
 import com.openelements.data.data.DataAttribute;

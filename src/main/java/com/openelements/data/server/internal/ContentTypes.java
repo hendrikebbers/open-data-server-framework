@@ -5,7 +5,8 @@ public enum ContentTypes {
     APPLICATION_XML("application/xml"),
     TEXT_PLAIN("text/plain"),
     TEXT_CSV("text/csv"),
-    APPLICATION_OCTET_STREAM("application/octet-stream");
+    APPLICATION_OCTET_STREAM("application/octet-stream"),
+    JPEG("image/jpeg");
 
     private final String contentType;
 

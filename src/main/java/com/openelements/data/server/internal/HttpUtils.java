@@ -1,6 +1,7 @@
 package com.openelements.data.server.internal;
 
 import com.openelements.data.data.Language;
+import io.helidon.common.http.MediaType;
 import io.helidon.webserver.ServerRequest;
 import io.helidon.webserver.ServerResponse;
 import java.util.Objects;
@@ -8,8 +9,8 @@ import java.util.Optional;
 
 public class HttpUtils {
 
-    public static void setContentDispositionAsAttachment(ServerRequest request, String filename) {
-        request.headers().add("Content-Disposition", "Content-Disposition: attachment; filename=\"" + filename + "\"");
+    public static void setContentDispositionAsAttachment(ServerResponse response, String filename) {
+        response.headers().add("Content-Disposition", "Content-Disposition: attachment; filename=\"" + filename + "\"");
     }
 
     public static Optional<ContentTypes> getContentType(ServerRequest request) {
@@ -47,14 +48,6 @@ public class HttpUtils {
     public static void setContentType(ServerResponse res, ContentTypes contentType) {
         Objects.requireNonNull(res, "res must not be null");
         Objects.requireNonNull(contentType, "contentType must not be null");
-        if (contentType == ContentTypes.APPLICATION_JSON) {
-            res.headers().contentType(io.helidon.common.http.MediaType.APPLICATION_JSON);
-        } else if (contentType == ContentTypes.APPLICATION_XML) {
-            res.headers().contentType(io.helidon.common.http.MediaType.APPLICATION_XML);
-        } else if (contentType == ContentTypes.TEXT_PLAIN) {
-            res.headers().contentType(io.helidon.common.http.MediaType.TEXT_PLAIN);
-        } else {
-            res.headers().contentType(io.helidon.common.http.MediaType.APPLICATION_OCTET_STREAM);
-        }
+        res.headers().contentType(MediaType.parseRelaxed(contentType.getContentType()));
     }
 }

@@ -1,13 +1,14 @@
 package com.openelements.data.server.internal;
 
 import com.openelements.data.data.DataType;
-import com.openelements.data.data.internal.db.AttributeEntity;
-import com.openelements.data.data.internal.db.AttributeEntityDataTypeFactory;
-import com.openelements.data.data.internal.db.DataTypeEntityTypeFactory;
 import com.openelements.data.db.AbstractEntity;
 import com.openelements.data.db.EntityMapper;
 import com.openelements.data.db.I18nStringEntity;
 import com.openelements.data.db.internal.DbHandler;
+import com.openelements.data.internal.AttributeEntity;
+import com.openelements.data.internal.AttributeEntityDataTypeFactory;
+import com.openelements.data.internal.DataTypeEntityTypeFactory;
+import com.openelements.data.internal.FileEntityDataTypeFactory;
 import com.openelements.data.provider.internal.db.UpdateRunMetadataFactory;
 import com.openelements.data.server.internal.handler.GetAllHandler;
 import com.openelements.data.server.internal.handler.GetCountHandler;
@@ -31,6 +32,8 @@ public class OpenDataDefinitionStore {
         registerDataDefinition("updates", UpdateRunMetadataFactory.createUpdateRunMetadata());
         registerDataDefinition("dataTypes", DataTypeEntityTypeFactory.createDataType());
         registerDataDefinition("attributes", AttributeEntityDataTypeFactory.createDataType());
+        registerDataDefinition("files", FileEntityDataTypeFactory.createDataType());
+
     }
 
     public <E extends AbstractEntity> void registerDataDefinition(String path, DataType<E> dataType) {

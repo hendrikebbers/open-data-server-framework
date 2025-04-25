@@ -4,11 +4,11 @@ import com.openelements.data.data.AttributeType;
 import com.openelements.data.data.DataAttribute;
 import com.openelements.data.data.DataType;
 import com.openelements.data.data.I18nString;
+import com.openelements.data.db.FileEntity;
 import com.openelements.data.db.I18nStringEntity;
 import com.openelements.data.sample.employee.Employee;
 import com.openelements.data.sample.employee.EmployeeProvider;
 import com.openelements.data.sample.pullrequest.PullRequest;
-import com.openelements.data.sample.pullrequest.PullRequestProvider;
 import com.openelements.data.server.DataServer;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -19,10 +19,10 @@ public class Sample {
         DataServer dataServer = new DataServer(8080);
 
         dataServer.addDataProvider(Employee.class, new EmployeeProvider());
-        dataServer.addDataProvider(PullRequest.class, new PullRequestProvider());
+        //dataServer.addDataProvider(PullRequest.class, new PullRequestProvider());
 
         dataServer.registerEntityDefinition("employees", getEmployeeType());
-        dataServer.registerEntityDefinition("pullRequests", getPullRequestType());
+        //dataServer.registerEntityDefinition("pullRequests", getPullRequestType());
 
         dataServer.start();
     }
@@ -43,8 +43,13 @@ public class Sample {
                 I18nString.of("The role"),
                 AttributeType.I18N_STRING,
                 Employee::getRole);
+        final DataAttribute<Employee, FileEntity> imageAttribute = new DataAttribute<>("image",
+                I18nString.of("Image"),
+                I18nString.of("The profile image of the employee"),
+                AttributeType.FILE,
+                Employee::getProfilePicture);
         return new DataType<>("employee", "An employee", Employee.class,
-                List.of(firstNameAttribute, lastNameAttribute, roleAttribute));
+                List.of(firstNameAttribute, lastNameAttribute, roleAttribute, imageAttribute));
     }
 
     private static DataType<PullRequest> getPullRequestType() {

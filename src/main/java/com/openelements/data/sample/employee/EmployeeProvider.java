@@ -3,16 +3,24 @@ package com.openelements.data.sample.employee;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.openelements.data.db.FileEntity;
 import com.openelements.data.db.I18nStringEntity;
 import com.openelements.data.provider.DataProviderContext;
 import com.openelements.data.provider.EntityUpdatesProvider;
+import com.openelements.data.server.internal.ContentTypes;
 import io.helidon.webclient.WebClient;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EmployeeProvider implements EntityUpdatesProvider<Employee> {
+
+    private final static Logger log = LoggerFactory.getLogger(EmployeeProvider.class);
 
     @Override
     public Set<Employee> loadUpdatedData(DataProviderContext context) {
@@ -54,12 +62,31 @@ public class EmployeeProvider implements EntityUpdatesProvider<Employee> {
                                     }
                                 }
                             }
+
+                            final FileEntity fileEntity = new FileEntity();
+                            fileEntity.setName(id + ".jpg");
+                            fileEntity.setContentType(ContentTypes.JPEG);
+                            final String path = id + ".jpg";
+                            final URL resource = EmployeeProvider.class
+                                    .getResource(path);
+                            if (resource != null) {
+                                try (final InputStream inputStream = resource.openStream()) {
+                                    final byte[] content = inputStream.readAllBytes();
+                                    fileEntity.setContent(content);
+                                } catch (Exception e) {
+                                    log.error("Can not load avatar for " + id, e);
+                                }
+                            }
+
                             Employee employee = new Employee();
                             employee.setUuid(id);
                             employee.setFirstName(firstName);
                             employee.setLastName(lastName);
                             employee.setRole(new I18nStringEntity(role));
                             employee.setGitHubUsername(gitHubUsername);
+                            if (fileEntity.getContent() != null) {
+                                employee.setProfilePicture(fileEntity);
+                            }
                             employees.add(employee);
                         }
                     }

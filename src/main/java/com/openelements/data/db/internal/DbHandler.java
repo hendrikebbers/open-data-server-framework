@@ -89,7 +89,7 @@ public class DbHandler implements EntityRepositoryFactory {
 
     private <E extends AbstractEntity> E storeImpl(EntityManager entityManager, E entity,
             EntityMapper<E> entityMapper) {
-        entity.updateUUID();
+        entityMapper.updateUUUIDs(entity);
         if (entity.getUuid() == null) {
             throw new IllegalArgumentException("UUID cannot be null");
         }
