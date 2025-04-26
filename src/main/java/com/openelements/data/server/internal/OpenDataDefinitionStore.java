@@ -15,6 +15,7 @@ import com.openelements.data.server.internal.handler.GetCountHandler;
 import com.openelements.data.server.internal.handler.GetPageHandler;
 import io.helidon.webserver.Routing;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,17 +30,27 @@ public class OpenDataDefinitionStore {
 
     public OpenDataDefinitionStore(DbHandler dbHandler) {
         this.dbHandler = dbHandler;
-        registerDataDefinition("updates", UpdateRunMetadataFactory.createUpdateRunMetadata());
-        registerDataDefinition("dataTypes", DataTypeEntityTypeFactory.createDataType());
-        registerDataDefinition("attributes", AttributeEntityDataTypeFactory.createDataType());
-        registerDataDefinition("files", FileEntityDataTypeFactory.createDataType());
+        registerDataDefinition("metadata/updates", UpdateRunMetadataFactory.createUpdateRunMetadata());
+        registerDataDefinition("metadata/dataTypes", DataTypeEntityTypeFactory.createDataType());
+        registerDataDefinition("metadata/attributes", AttributeEntityDataTypeFactory.createDataType());
+        registerDataDefinition("metadata/files", FileEntityDataTypeFactory.createDataType());
 
     }
 
-    public <E extends AbstractEntity> void registerDataDefinition(String path, DataType<E> dataType) {
+    public <E extends AbstractEntity> void registerApiDataDefinition(String path, DataType<E> dataType) {
+        registerDataDefinition("/api/", dataType);
+    }
+
+    private <E extends AbstractEntity> void registerDataDefinition(String path, DataType<E> dataType) {
         if (started.get()) {
             throw new IllegalStateException("Cannot register data definition after the handler has started");
         }
+        if (dataDefinitions.stream().map(d -> d.pathName())
+                .anyMatch(p -> Objects.equals(p, path))) {
+            throw new IllegalStateException(
+                    "Cannot register data definition since path '" + path + "' already registered");
+        }
+
         dataDefinitions.add(
                 new OpenDataDefinition<>(path, dataType, dbHandler.createRepository(dataType.entityClass())));
 
@@ -69,8 +80,8 @@ public class OpenDataDefinitionStore {
     }
 
     private void registerAllEndpointForDefinition(Routing.Builder routingBuilder, OpenDataDefinition<?> endpoint) {
-        routingBuilder.get("/api/" + endpoint.pathName(), new GetAllHandler<>(endpoint));
-        routingBuilder.get("/api/" + endpoint.pathName() + "/count", new GetCountHandler<>(endpoint));
-        routingBuilder.get("/api/" + endpoint.pathName() + "/page", new GetPageHandler<>(endpoint));
+        routingBuilder.get(endpoint.pathName(), new GetAllHandler<>(endpoint));
+        routingBuilder.get(endpoint.pathName() + "/count", new GetCountHandler<>(endpoint));
+        routingBuilder.get(endpoint.pathName() + "/page", new GetPageHandler<>(endpoint));
     }
 }

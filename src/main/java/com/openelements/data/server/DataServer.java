@@ -39,7 +39,7 @@ public class DataServer {
     }
 
     public <E extends AbstractEntity> void registerEntityDefinition(String path, DataType<E> dataType) {
-        openDataDefinitionHandler.registerDataDefinition(path, dataType);
+        openDataDefinitionHandler.registerApiDataDefinition(path, dataType);
     }
 
     public <T extends AbstractEntity> void addDataProvider(Class<T> entityClass, EntityUpdatesProvider<T> provider,

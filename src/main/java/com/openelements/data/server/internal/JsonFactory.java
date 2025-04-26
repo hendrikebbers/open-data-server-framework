@@ -30,6 +30,8 @@ public class JsonFactory {
                             (Boolean) attribute.supplier().apply(entity));
                     case DATE_TIME -> jsonObject.addProperty(attribute.identifier(),
                             toJson((TemporalAccessor) attribute.supplier().apply(entity)));
+                    case YEAR_MONTH -> jsonObject.addProperty(attribute.identifier(),
+                            attribute.supplier().apply(entity).toString());
                     case I18N_STRING -> {
                         final I18nStringEntity i18nString = (I18nStringEntity) attribute.supplier().apply(entity);
                         if (i18nString != null) {

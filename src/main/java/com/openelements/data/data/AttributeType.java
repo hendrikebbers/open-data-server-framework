@@ -7,6 +7,7 @@ public enum AttributeType {
     BOOLEAN,
     DATE_TIME,
     DATE,
+    YEAR_MONTH,
     TIME,
     DURATION,
     GEOLOCATION,

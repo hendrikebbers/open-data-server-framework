@@ -12,6 +12,7 @@ module com.openelements.data {
     requires io.helidon.webserver;
     requires org.kohsuke.github.api;
     requires io.github.cdimascio.dotenv.java;
+    requires org.apache.commons.csv;
 
     exports com.openelements.data.db to org.hibernate.orm.core;
     exports com.openelements.data.db.internal to org.hibernate.orm.core;
@@ -24,4 +25,5 @@ module com.openelements.data {
     opens com.openelements.data.db.internal to org.hibernate.orm.core;
     opens com.openelements.data.provider.internal to org.hibernate.orm.core;
     opens com.openelements.data.internal to org.hibernate.orm.core;
+    opens com.openelements.data.sample.maven to org.hibernate.orm.core;
 }

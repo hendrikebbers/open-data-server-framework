@@ -144,6 +144,11 @@ public class OpenApiFactory {
                         .description(attribute.description().resolve(language))
                         .type("string")
                         .format("date-time");
+            } else if (attribute.type() == AttributeType.YEAR_MONTH) {
+                attributeSchema = new DateTimeSchema()
+                        .description(attribute.description().resolve(language))
+                        .type("string")
+                        .format("year-month");
             } else if (attribute.type() == AttributeType.FILE) {
                 attributeSchema = new StringSchema()
                         .description(attribute.description().resolve(language))
