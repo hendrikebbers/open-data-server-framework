@@ -8,7 +8,7 @@ import com.openelements.data.data.Language;
 import com.openelements.data.db.AbstractEntity;
 import com.openelements.data.db.FileEntity;
 import com.openelements.data.db.I18nStringEntity;
-import io.helidon.webserver.ServerRequest;
+import io.helidon.webserver.http.ServerRequest;
 import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;

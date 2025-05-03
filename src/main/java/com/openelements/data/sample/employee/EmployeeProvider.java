@@ -8,13 +8,12 @@ import com.openelements.data.db.I18nStringEntity;
 import com.openelements.data.provider.DataProviderContext;
 import com.openelements.data.provider.EntityUpdatesProvider;
 import com.openelements.data.server.internal.ContentTypes;
-import io.helidon.webclient.WebClient;
+import io.helidon.webclient.api.WebClient;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,71 +26,66 @@ public class EmployeeProvider implements EntityUpdatesProvider<Employee> {
         final WebClient client = WebClient.builder()
                 .baseUri("https://raw.githubusercontent.com")
                 .build();
-        return client.get()
+        final String body = client.get()
                 .path("/OpenElements/open-elements-website/refs/heads/main/data/en/team.json")
                 .request(String.class)
-                .map(body -> {
-                    final JsonElement jsonElement = JsonParser.parseString(body);
-                    if (jsonElement.isJsonArray()) {
-                        return jsonElement.getAsJsonArray();
-                    } else {
-                        throw new IllegalArgumentException("Expected a JSON array");
-                    }
-                }).map(jsonArray -> {
-                    Set<Employee> employees = new HashSet<>();
-                    for (JsonElement element : jsonArray) {
-                        if (element.isJsonObject()) {
-                            final String id = element.getAsJsonObject().get("id").getAsString();
-                            final String firstName = element.getAsJsonObject().get("firstName").getAsString();
-                            final String lastName = element.getAsJsonObject().get("lastName").getAsString();
-                            final String role =
-                                    element.getAsJsonObject().has("role") ? element.getAsJsonObject().get("role")
-                                            .getAsString()
-                                            : null;
-                            String gitHubUsername = null;
-                            if (element.getAsJsonObject().has("socials") && element.getAsJsonObject().get("socials")
-                                    .isJsonArray()) {
-                                final JsonArray socials = element.getAsJsonObject().get("socials").getAsJsonArray();
-                                for (JsonElement socialElement : socials) {
-                                    if (socialElement.isJsonObject() && socialElement.getAsJsonObject().has("name")) {
-                                        if (Objects.equals(socialElement.getAsJsonObject().get("name").getAsString(),
-                                                "GitHub")) {
-                                            gitHubUsername = socialElement.getAsJsonObject().get("link").getAsString()
-                                                    .substring("https://github.com/".length());
-                                        }
-                                    }
-                                }
+                .entity();
+        final JsonElement jsonElement = JsonParser.parseString(body);
+        if (!jsonElement.isJsonArray()) {
+            throw new IllegalArgumentException("Expected a JSON array");
+        }
+        final JsonArray jsonArray = jsonElement.getAsJsonArray();
+        final Set<Employee> employees = new HashSet<>();
+        for (final JsonElement element : jsonArray) {
+            if (element.isJsonObject()) {
+                final String id = element.getAsJsonObject().get("id").getAsString();
+                final String firstName = element.getAsJsonObject().get("firstName").getAsString();
+                final String lastName = element.getAsJsonObject().get("lastName").getAsString();
+                final String role =
+                        element.getAsJsonObject().has("role") ? element.getAsJsonObject().get("role")
+                                .getAsString()
+                                : null;
+                String gitHubUsername = null;
+                if (element.getAsJsonObject().has("socials") && element.getAsJsonObject().get("socials")
+                        .isJsonArray()) {
+                    final JsonArray socials = element.getAsJsonObject().get("socials").getAsJsonArray();
+                    for (JsonElement socialElement : socials) {
+                        if (socialElement.isJsonObject() && socialElement.getAsJsonObject().has("name")) {
+                            if (Objects.equals(socialElement.getAsJsonObject().get("name").getAsString(),
+                                    "GitHub")) {
+                                gitHubUsername = socialElement.getAsJsonObject().get("link").getAsString()
+                                        .substring("https://github.com/".length());
                             }
-
-                            final FileEntity fileEntity = new FileEntity();
-                            fileEntity.setName(id + ".jpg");
-                            fileEntity.setContentType(ContentTypes.JPEG);
-                            final String path = id + ".jpg";
-                            final URL resource = EmployeeProvider.class
-                                    .getResource(path);
-                            if (resource != null) {
-                                try (final InputStream inputStream = resource.openStream()) {
-                                    final byte[] content = inputStream.readAllBytes();
-                                    fileEntity.setContent(content);
-                                } catch (Exception e) {
-                                    log.error("Can not load avatar for " + id, e);
-                                }
-                            }
-
-                            Employee employee = new Employee();
-                            employee.setUuid(id);
-                            employee.setFirstName(firstName);
-                            employee.setLastName(lastName);
-                            employee.setRole(new I18nStringEntity(role));
-                            employee.setGitHubUsername(gitHubUsername);
-                            if (fileEntity.getContent() != null) {
-                                employee.setProfilePicture(fileEntity);
-                            }
-                            employees.add(employee);
                         }
                     }
-                    return employees;
-                })
-                .await(10, TimeUnit.SECONDS);
+                }
+                final FileEntity fileEntity = new FileEntity();
+                fileEntity.setName(id + ".jpg");
+                fileEntity.setContentType(ContentTypes.JPEG);
+                final String path = id + ".jpg";
+                final URL resource = EmployeeProvider.class
+                        .getResource(path);
+                if (resource != null) {
+                    try (final InputStream inputStream = resource.openStream()) {
+                        final byte[] content = inputStream.readAllBytes();
+                        fileEntity.setContent(content);
+                    } catch (Exception e) {
+                        log.error("Can not load avatar for " + id, e);
+                    }
+                }
+
+                final Employee employee = new Employee();
+                employee.setUuid(id);
+                employee.setFirstName(firstName);
+                employee.setLastName(lastName);
+                employee.setRole(new I18nStringEntity(role));
+                employee.setGitHubUsername(gitHubUsername);
+                if (fileEntity.getContent() != null) {
+                    employee.setProfilePicture(fileEntity);
+                }
+                employees.add(employee);
+            }
+        }
+        return employees;
     }
 }

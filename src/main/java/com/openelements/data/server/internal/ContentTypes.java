@@ -1,20 +1,40 @@
 package com.openelements.data.server.internal;
 
-public enum ContentTypes {
-    APPLICATION_JSON("application/json"),
-    APPLICATION_XML("application/xml"),
-    TEXT_PLAIN("text/plain"),
-    TEXT_CSV("text/csv"),
-    APPLICATION_OCTET_STREAM("application/octet-stream"),
-    JPEG("image/jpeg");
+import io.helidon.common.media.type.MediaType;
 
-    private final String contentType;
+public enum ContentTypes implements MediaType {
+    APPLICATION_JSON("application", "json"),
+    APPLICATION_XML("application", "xml"),
+    TEXT_PLAIN("text", "plain"),
+    TEXT_CSV("text", "csv"),
+    APPLICATION_OCTET_STREAM("application", "octet-stream"),
+    JPEG("image", "jpeg");
 
-    ContentTypes(String contentType) {
-        this.contentType = contentType;
+    private final String type;
+
+    private final String subtype;
+
+    ContentTypes(String type, String subtype) {
+        this.type = type;
+        this.subtype = subtype;
     }
 
     public String getContentType() {
-        return contentType;
+        return text();
+    }
+
+    @Override
+    public String type() {
+        return type;
+    }
+
+    @Override
+    public String subtype() {
+        return subtype;
+    }
+
+    @Override
+    public String text() {
+        return type + "/" + subtype;
     }
 }

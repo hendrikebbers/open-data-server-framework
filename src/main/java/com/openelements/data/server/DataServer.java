@@ -11,10 +11,12 @@ import com.openelements.data.server.internal.handler.FileHandler;
 import com.openelements.data.server.internal.handler.SwaggerInitHandler;
 import com.openelements.data.server.internal.openapi.OpenApiFactory;
 import com.openelements.data.server.internal.openapi.OpenApiHandler;
-import io.helidon.webserver.Routing;
 import io.helidon.webserver.WebServer;
 import io.helidon.webserver.cors.CorsSupport;
-import io.helidon.webserver.staticcontent.StaticContentSupport;
+import io.helidon.webserver.http.HttpRouting;
+import io.helidon.webserver.http.HttpService;
+import io.helidon.webserver.staticcontent.ClasspathHandlerConfig;
+import io.helidon.webserver.staticcontent.StaticContentFeature;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,26 +63,22 @@ public class DataServer {
                 .port(port)
                 .addRouting(createRouting())
                 .build();
-        webServer.start()
-                .thenAccept(ws -> {
-                    System.out.println("Server started at: http://localhost:" + ws.port());
-                })
-                .exceptionally(ex -> {
-                    System.err.println("Failed to start server: " + ex.getMessage());
-                    return null;
-                });
+        webServer.start();
     }
 
-    private Routing createRouting() {
+    private HttpRouting.Builder createRouting() {
+
+        final ClasspathHandlerConfig classpathHandlerConfig = ClasspathHandlerConfig.create("public/swagger-ui");
+        final HttpService service = StaticContentFeature.createService(classpathHandlerConfig);
+
         final OpenAPI openAPI = OpenApiFactory.createOpenApi(openDataDefinitionHandler.getDataDefinitions());
-        final Routing.Builder routingBuilder = Routing.builder();
+        final HttpRouting.Builder routingBuilder = HttpRouting.builder();
         openDataDefinitionHandler.createRouting(routingBuilder);
         return routingBuilder.get("/openapi", new OpenApiHandler(openAPI))
-                .register("/swagger-ui", StaticContentSupport.builder("public/swagger-ui").build())
+                .register("/swagger-ui", service)
                 .get("/swagger-ui/swagger-initializer.js", new SwaggerInitHandler())
                 .get("/files/*", new FileHandler(dbHandler))
-                .register(createCorsSupport())
-                .build();
+                .register(createCorsSupport());
     }
 
     private static CorsSupport createCorsSupport() {

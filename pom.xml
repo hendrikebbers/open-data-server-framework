@@ -12,28 +12,29 @@
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <helidon.version>4.2.1</helidon.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>io.helidon.webserver</groupId>
       <artifactId>helidon-webserver</artifactId>
-      <version>3.2.12</version>
+      <version>${helidon.version}</version>
     </dependency>
     <dependency>
       <groupId>io.helidon.webserver</groupId>
       <artifactId>helidon-webserver-cors</artifactId>
-      <version>3.2.12</version>
+      <version>${helidon.version}</version>
     </dependency>
     <dependency>
       <groupId>io.helidon.webserver</groupId>
       <artifactId>helidon-webserver-static-content</artifactId>
-      <version>3.2.12</version>
+      <version>${helidon.version}</version>
     </dependency>
     <dependency>
       <groupId>io.helidon.webclient</groupId>
       <artifactId>helidon-webclient</artifactId>
-      <version>3.2.12</version>
+      <version>${helidon.version}</version>
     </dependency>
     <dependency>
       <groupId>jakarta.persistence</groupId>

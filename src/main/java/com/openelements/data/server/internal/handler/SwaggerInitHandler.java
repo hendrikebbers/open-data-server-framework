@@ -1,13 +1,15 @@
 package com.openelements.data.server.internal.handler;
 
-import io.helidon.webserver.Handler;
-import io.helidon.webserver.ServerRequest;
-import io.helidon.webserver.ServerResponse;
+
+import com.openelements.data.server.internal.ContentTypes;
+import io.helidon.webserver.http.Handler;
+import io.helidon.webserver.http.ServerRequest;
+import io.helidon.webserver.http.ServerResponse;
 
 public class SwaggerInitHandler implements Handler {
 
     @Override
-    public void accept(ServerRequest req, ServerResponse res) {
+    public void handle(ServerRequest req, ServerResponse res) throws Exception {
         String apiUrl = "/openapi";
         String script = """
                 window.onload = () => {
@@ -22,7 +24,7 @@ public class SwaggerInitHandler implements Handler {
                   });
                 };
                 """.formatted(apiUrl);
-        res.headers().add("Content-Type", "application/javascript");
+        res.headers().contentType(ContentTypes.APPLICATION_JSON);
         res.send(script);
     }
 }

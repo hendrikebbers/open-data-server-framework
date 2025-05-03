@@ -8,10 +8,9 @@ import com.openelements.data.server.internal.ContentTypes;
 import com.openelements.data.server.internal.HttpUtils;
 import com.openelements.data.server.internal.JsonFactory;
 import com.openelements.data.server.internal.OpenDataDefinition;
-import io.helidon.common.http.MediaType;
-import io.helidon.webserver.Handler;
-import io.helidon.webserver.ServerRequest;
-import io.helidon.webserver.ServerResponse;
+import io.helidon.webserver.http.Handler;
+import io.helidon.webserver.http.ServerRequest;
+import io.helidon.webserver.http.ServerResponse;
 
 public class GetAllHandler<E extends AbstractEntity> implements Handler {
 
@@ -25,23 +24,23 @@ public class GetAllHandler<E extends AbstractEntity> implements Handler {
     }
 
     @Override
-    public void accept(ServerRequest req, ServerResponse res) {
-        final Language requestedLanguage = HttpUtils.getLanguage(req);
+    public void handle(ServerRequest serverRequest, ServerResponse serverResponse) throws Exception {
+        final Language requestedLanguage = HttpUtils.getLanguage(serverRequest);
         final JsonArray result = new JsonArray();
-        final ContentTypes contentType = HttpUtils.getContentType(req)
+        final ContentTypes contentType = HttpUtils.getContentType(serverRequest)
                 .orElse(ContentTypes.APPLICATION_JSON);
         if (contentType == ContentTypes.APPLICATION_JSON) {
             final DataType<E> dataType = endpoint.dataType();
             endpoint.dataProvider().getAll().stream()
                     .map(entity -> {
-                        return jsonFactory.createJsonObject(req, requestedLanguage, entity, dataType);
+                        return jsonFactory.createJsonObject(serverRequest, requestedLanguage, entity, dataType);
                     })
                     .forEach(result::add);
-            res.headers().contentType(MediaType.APPLICATION_JSON);
-            res.headers().add("Content-Language", HttpUtils.getContentLanguageString(requestedLanguage));
-            res.send(result.toString());
+            serverResponse.headers().contentType(ContentTypes.APPLICATION_JSON);
+            serverResponse.header("Content-Language", HttpUtils.getContentLanguageString(requestedLanguage));
+            serverResponse.send(result.toString());
         } else {
-            res.send("Unsupported content type: " + contentType.getContentType());
+            serverResponse.send("Unsupported content type: " + contentType.getContentType());
         }
     }
 }

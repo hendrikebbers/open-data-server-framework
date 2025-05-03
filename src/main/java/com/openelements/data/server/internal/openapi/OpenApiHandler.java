@@ -3,10 +3,10 @@ package com.openelements.data.server.internal.openapi;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.helidon.common.http.MediaType;
-import io.helidon.webserver.Handler;
-import io.helidon.webserver.ServerRequest;
-import io.helidon.webserver.ServerResponse;
+import com.openelements.data.server.internal.ContentTypes;
+import io.helidon.webserver.http.Handler;
+import io.helidon.webserver.http.ServerRequest;
+import io.helidon.webserver.http.ServerResponse;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
@@ -27,8 +27,8 @@ public class OpenApiHandler implements Handler {
     }
 
     @Override
-    public void accept(@NonNull final ServerRequest req, @NonNull final ServerResponse res) {
-        res.headers().contentType(MediaType.APPLICATION_JSON);
+    public void handle(ServerRequest req, ServerResponse res) throws Exception {
+        res.headers().contentType(ContentTypes.APPLICATION_JSON);
         res.send(openApiJson);
     }
 }

@@ -13,7 +13,7 @@ import com.openelements.data.provider.internal.db.UpdateRunMetadataFactory;
 import com.openelements.data.server.internal.handler.GetAllHandler;
 import com.openelements.data.server.internal.handler.GetCountHandler;
 import com.openelements.data.server.internal.handler.GetPageHandler;
-import io.helidon.webserver.Routing;
+import io.helidon.webserver.http.HttpRouting;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -30,15 +30,15 @@ public class OpenDataDefinitionStore {
 
     public OpenDataDefinitionStore(DbHandler dbHandler) {
         this.dbHandler = dbHandler;
-        registerDataDefinition("metadata/updates", UpdateRunMetadataFactory.createUpdateRunMetadata());
-        registerDataDefinition("metadata/dataTypes", DataTypeEntityTypeFactory.createDataType());
-        registerDataDefinition("metadata/attributes", AttributeEntityDataTypeFactory.createDataType());
-        registerDataDefinition("metadata/files", FileEntityDataTypeFactory.createDataType());
+        registerDataDefinition("/metadata/updates", UpdateRunMetadataFactory.createUpdateRunMetadata());
+        registerDataDefinition("/metadata/dataTypes", DataTypeEntityTypeFactory.createDataType());
+        registerDataDefinition("/metadata/attributes", AttributeEntityDataTypeFactory.createDataType());
+        registerDataDefinition("/metadata/files", FileEntityDataTypeFactory.createDataType());
 
     }
 
     public <E extends AbstractEntity> void registerApiDataDefinition(String path, DataType<E> dataType) {
-        registerDataDefinition("/api/", dataType);
+        registerDataDefinition("/api/" + path, dataType);
     }
 
     private <E extends AbstractEntity> void registerDataDefinition(String path, DataType<E> dataType) {
@@ -65,7 +65,7 @@ public class OpenDataDefinitionStore {
         });
     }
 
-    public void createRouting(Routing.Builder routingBuilder) {
+    public void createRouting(HttpRouting.Builder routingBuilder) {
         if (started.get()) {
             throw new IllegalStateException("Handler has already started");
         }
@@ -79,7 +79,7 @@ public class OpenDataDefinitionStore {
         return Collections.unmodifiableSet(dataDefinitions);
     }
 
-    private void registerAllEndpointForDefinition(Routing.Builder routingBuilder, OpenDataDefinition<?> endpoint) {
+    private void registerAllEndpointForDefinition(HttpRouting.Builder routingBuilder, OpenDataDefinition<?> endpoint) {
         routingBuilder.get(endpoint.pathName(), new GetAllHandler<>(endpoint));
         routingBuilder.get(endpoint.pathName() + "/count", new GetCountHandler<>(endpoint));
         routingBuilder.get(endpoint.pathName() + "/page", new GetPageHandler<>(endpoint));
