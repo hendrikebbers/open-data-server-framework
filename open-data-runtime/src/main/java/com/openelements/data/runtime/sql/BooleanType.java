@@ -4,6 +4,8 @@ import com.openelements.data.runtime.SqlDataType;
 
 public class BooleanType implements SqlDataType<Boolean> {
 
+    public static final BooleanType INSTANCE = new BooleanType();
+
     @Override
     public String getSqlType() {
         return "BOOLEAN";

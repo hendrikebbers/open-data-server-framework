@@ -19,7 +19,7 @@ public class BooleanSupport implements DataAttributeTypeSupport<Boolean, Boolean
 
     @Override
     public SqlDataType getSqlDataType() {
-        return new BooleanType();
+        return BooleanType.INSTANCE;
     }
 
     @Override
