@@ -61,7 +61,7 @@ public class ProviderHandler {
                 final Duration duration = Duration.between(startOfUpdate, ZonedDateTime.now());
                 log.info("Loaded {} new entities", newEntities.size());
                 dbHandler.store(newEntities, entityMapper);
-                log.info("Stored {} new entities", newEntities.size());
+                log.info("Stored/Updated {} entities", newEntities.size());
                 final UpdateRunEntity updateRunEntity = new UpdateRunEntity();
                 updateRunEntity.setClassType(entityClass);
                 updateRunEntity.setStartOfUpdate(startOfUpdate);

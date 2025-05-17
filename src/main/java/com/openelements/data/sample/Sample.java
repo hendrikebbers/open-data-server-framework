@@ -9,6 +9,9 @@ import com.openelements.data.sample.maven.MavenCoreDownloadEntityProvider;
 import com.openelements.data.sample.maven.MavenPluginDownloadEntity;
 import com.openelements.data.sample.maven.MavenPluginDownloadEntityDataTypeFactory;
 import com.openelements.data.sample.maven.MavenPluginDownloadEntityProvider;
+import com.openelements.data.sample.pullrequest.PullRequest;
+import com.openelements.data.sample.pullrequest.PullRequestDataTypeFactory;
+import com.openelements.data.sample.pullrequest.PullRequestProvider;
 import com.openelements.data.server.DataServer;
 
 public class Sample {
@@ -16,7 +19,7 @@ public class Sample {
     public static void main(String[] args) {
         DataServer dataServer = new DataServer(8080);
 
-        dataServer.addDataProvider(Employee.class, new EmployeeProvider());
+        dataServer.addDataProvider(Employee.class, new EmployeeProvider(), 2);
         dataServer.registerEntityDefinition("employees", EmployeeDataTypeFactory.createDataType());
 
         dataServer.addDataProvider(MavenCoreDownloadEntity.class, new MavenCoreDownloadEntityProvider());
@@ -27,8 +30,8 @@ public class Sample {
         dataServer.registerEntityDefinition("maven-plugin-downloads",
                 MavenPluginDownloadEntityDataTypeFactory.createDataType());
 
-        //dataServer.addDataProvider(PullRequest.class, new PullRequestProvider());
-        //dataServer.registerEntityDefinition("pullRequests", PullRequestDataTypeFactory.createDataType());
+        dataServer.addDataProvider(PullRequest.class, new PullRequestProvider());
+        dataServer.registerEntityDefinition("pullRequests", PullRequestDataTypeFactory.createDataType());
 
         dataServer.start();
     }

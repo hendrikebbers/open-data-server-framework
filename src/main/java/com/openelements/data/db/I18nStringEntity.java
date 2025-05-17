@@ -5,24 +5,17 @@ import com.openelements.data.data.Language;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
-public class I18nStringEntity {
-
-    @Id
-    @GeneratedValue
-    private UUID id;
+public class I18nStringEntity extends EntityWithId {
 
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, orphanRemoval = true)
-    private Set<TranslationMessage> translations = new HashSet<>();
+    private Set<TranslationMessageEntity> translations = new HashSet<>();
 
     @Transient
     private String value;
@@ -35,7 +28,7 @@ public class I18nStringEntity {
     }
 
     public I18nStringEntity(Language language, String value) {
-        translations.add(new TranslationMessage(language, value));
+        translations.add(new TranslationMessageEntity(language, value));
     }
 
     public I18nStringEntity(String value) {
@@ -45,7 +38,7 @@ public class I18nStringEntity {
     public I18nStringEntity(I18nString i18nString) {
         Objects.requireNonNull(i18nString, "i18nString must be null");
         i18nString.translations().forEach((language, message) -> {
-            translations.add(new TranslationMessage(language, message));
+            translations.add(new TranslationMessageEntity(language, message));
         });
     }
 
@@ -63,24 +56,16 @@ public class I18nStringEntity {
         return value;
     }
 
-    public Set<TranslationMessage> getTranslations() {
+    public Set<TranslationMessageEntity> getTranslations() {
         return translations;
     }
 
-    public void setTranslations(Set<TranslationMessage> translations) {
+    public void setTranslations(Set<TranslationMessageEntity> translations) {
         this.translations = translations;
     }
 
     public String getValue() {
         return value;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public boolean isResolved() {
