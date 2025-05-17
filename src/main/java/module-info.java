@@ -26,4 +26,5 @@ module com.openelements.data {
     opens com.openelements.data.provider.internal to org.hibernate.orm.core;
     opens com.openelements.data.internal to org.hibernate.orm.core;
     opens com.openelements.data.sample.maven to org.hibernate.orm.core;
+    opens com.openelements.data.sample.projects to org.hibernate.orm.core;
 }

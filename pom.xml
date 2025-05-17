@@ -98,7 +98,12 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.5.0</version>
         <configuration>
-          <mainClass>com.openelements.data.sample.Sample</mainClass>
+          <executable>java</executable>
+          <arguments>
+            <argument>-classpath</argument>
+            <classpath/>
+            <argument>com.openelements.data.sample.Sample</argument>
+          </arguments>
         </configuration>
       </plugin>
     </plugins>
