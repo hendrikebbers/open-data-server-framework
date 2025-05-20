@@ -12,4 +12,6 @@ import java.lang.annotation.Target;
 public @interface Data {
 
     String name() default "";
+
+    boolean publiclyAvailable() default true;
 }

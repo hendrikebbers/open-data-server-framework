@@ -16,25 +16,32 @@ public class DataLoader {
         final Set<DataTypesProvider> instances = DataTypesProvider.getInstances();
         instances.stream().flatMap(provider -> provider.getDataTypes(dataContext).stream())
                 .forEach(dataType -> {
-                    final String dataTypeName;
-                    if (dataType.isAnnotationPresent(Data.class)) {
-                        final Data data = dataType.getAnnotation(Data.class);
-                        if (data.name() != null && !data.name().isEmpty()) {
-                            dataTypeName = data.name();
-                        } else {
-                            dataTypeName = dataType.getSimpleName();
-                        }
-                    } else {
-                        dataTypeName = dataType.getSimpleName();
-                    }
-                    Set<DataAttribute> attributes = loadAttributes(dataType);
-                    final DataType dataTypeInstance = new DataType(dataTypeName, dataType, attributes);
+                    final DataType dataTypeInstance = load(dataType);
                     dataTypes.add(dataTypeInstance);
                 });
         return Collections.unmodifiableSet(dataTypes);
     }
 
-    private Set<DataAttribute> loadAttributes(Class<? extends Record> dataType) {
+    public DataType load(Class<? extends Record> dataType) {
+        final String dataTypeName;
+        final boolean publiclyAvailable;
+        if (dataType.isAnnotationPresent(Data.class)) {
+            final Data data = dataType.getAnnotation(Data.class);
+            if (data.name() != null && !data.name().isEmpty()) {
+                dataTypeName = data.name();
+            } else {
+                dataTypeName = dataType.getSimpleName();
+            }
+            publiclyAvailable = data.publiclyAvailable();
+        } else {
+            dataTypeName = dataType.getSimpleName();
+            publiclyAvailable = true;
+        }
+        Set<DataAttribute> attributes = loadAttributes(dataType);
+        return new DataType(dataTypeName, publiclyAvailable, dataType, attributes);
+    }
+
+    public Set<DataAttribute> loadAttributes(Class<? extends Record> dataType) {
         final Set<DataAttribute> attributes = new HashSet<>();
         Arrays.asList(dataType.getRecordComponents()).forEach(component -> {
             final String name;
@@ -75,9 +82,7 @@ public class DataLoader {
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + component.getType()));
 
-            final DataAttribute attribute = new DataAttribute(name, component.getType(), typeSupport.getUniqueName(),
-                    order, required,
-                    partOfIdentifier);
+            final DataAttribute attribute = new DataAttribute(name, order, required, partOfIdentifier, typeSupport);
             attributes.add(attribute);
         });
         return Collections.unmodifiableSet(attributes);

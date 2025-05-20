@@ -1,29 +1,11 @@
 package com.openelements.data.runtime.impl;
 
-import com.openelements.data.runtime.DataAttributeTypeSupport;
-import com.openelements.data.runtime.QueryContext;
-import com.openelements.data.runtime.SqlDataType;
 import com.openelements.data.runtime.sql.BooleanType;
 
-public class BooleanSupport implements DataAttributeTypeSupport<Boolean, Boolean> {
+public class BooleanSupport extends AbstractMatchingDataAttributeTypeSupport<Boolean> {
 
-    @Override
-    public String getUniqueName() {
-        return "Boolean";
+    public BooleanSupport() {
+        super("Boolean", BooleanType.INSTANCE);
     }
 
-    @Override
-    public Class<Boolean> getJavaType() {
-        return Boolean.class;
-    }
-
-    @Override
-    public SqlDataType getSqlDataType() {
-        return BooleanType.INSTANCE;
-    }
-
-    @Override
-    public Boolean convertValueFromSqlResult(Boolean sqlValue, QueryContext queryContext) {
-        return sqlValue;
-    }
 }
