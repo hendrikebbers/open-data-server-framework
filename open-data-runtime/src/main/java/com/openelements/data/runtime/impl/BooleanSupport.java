@@ -1,6 +1,6 @@
 package com.openelements.data.runtime.impl;
 
-import com.openelements.data.runtime.sql.BooleanType;
+import com.openelements.data.runtime.sql.types.BooleanType;
 
 public class BooleanSupport extends AbstractMatchingDataAttributeTypeSupport<Boolean> {
 

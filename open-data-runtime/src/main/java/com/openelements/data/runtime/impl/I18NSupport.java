@@ -4,7 +4,7 @@ import com.openelements.data.api.types.I18nString;
 import com.openelements.data.runtime.PersistenceContext;
 import com.openelements.data.runtime.QueryContext;
 import com.openelements.data.runtime.repositories.I18nStringRepository;
-import com.openelements.data.runtime.sql.ReferenceType;
+import com.openelements.data.runtime.sql.types.ReferenceType;
 
 public class I18NSupport extends AbstractDataAttributeTypeSupport<I18nString, Long> {
 

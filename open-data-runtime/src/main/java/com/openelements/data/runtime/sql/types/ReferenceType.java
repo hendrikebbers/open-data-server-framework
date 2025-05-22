@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.sql;
+package com.openelements.data.runtime.sql.types;
 
 public class ReferenceType extends AbstractSqlDataType<Long> {
 

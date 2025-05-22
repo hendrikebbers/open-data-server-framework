@@ -17,6 +17,7 @@ public class I18nStringRepository {
     public I18nString load(Long id) throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SET * FROM I18N WHERE id = " + id);
+        
         return null;
     }
 
