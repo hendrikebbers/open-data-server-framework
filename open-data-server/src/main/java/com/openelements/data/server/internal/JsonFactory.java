@@ -1,5 +1,6 @@
 package com.openelements.data.server.internal;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.openelements.data.api.data.Language;
 import java.time.format.DateTimeFormatter;
@@ -12,7 +13,8 @@ public class JsonFactory {
     }
 
     public <E extends Record> JsonElement createJsonObject(E entry, Class<E> dataType, Language requestedLanguage) {
-        return null;
+        Gson gson = new Gson();
+        return gson.toJsonTree(entry);
     }
 
 }

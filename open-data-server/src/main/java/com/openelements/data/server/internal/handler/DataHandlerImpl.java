@@ -41,4 +41,9 @@ public class DataHandlerImpl<E extends Record, D extends DataType<E>> implements
     public boolean isPubliclyAvailable() {
         return dataType.publiclyAvailable();
     }
+
+    @Override
+    public String getName() {
+        return dataType.name();
+    }
 }

@@ -67,7 +67,8 @@ public class DataServer {
                 throw new RuntimeException("Error creating table", e);
             }
             DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
-            routingBuilder.get("/", new GetAllHandler<>(handler));
+            routingBuilder.get("/" + handler.getName(), new GetAllHandler<>(handler));
+            log.info("Registered handler: {}", "/" + handler.getName());
 
             final DataContext dataContext = DataContextImpl.getInstance();
             final Set<DataSource> instances = DataSource.getInstances();

@@ -15,4 +15,6 @@ public interface DataHandler<E extends Record, D extends DataType<E>> {
     Class<E> getDataClass();
 
     boolean isPubliclyAvailable();
+
+    String getName();
 }
