@@ -1,46 +1,45 @@
 package com.openelements.data.server.internal.handler;
 
 import com.google.gson.JsonArray;
-import com.openelements.data.data.DataType;
-import com.openelements.data.data.Language;
-import com.openelements.data.db.AbstractEntity;
+import com.openelements.data.api.data.Language;
+import com.openelements.data.runtime.DataType;
 import com.openelements.data.server.internal.ContentTypes;
 import com.openelements.data.server.internal.HttpUtils;
 import com.openelements.data.server.internal.JsonFactory;
-import com.openelements.data.server.internal.OpenDataDefinition;
-import io.helidon.webserver.http.Handler;
 import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.http.ServerResponse;
+import java.util.List;
 
-public class GetAllHandler<E extends AbstractEntity> implements Handler {
+public class GetAllHandler<E extends Record, D extends DataType<E>> extends AbstractHandler {
 
-    private final OpenDataDefinition<E> endpoint;
+    private final DataHandler<E, D> dataHandler;
 
     private final JsonFactory jsonFactory;
 
-    public GetAllHandler(OpenDataDefinition<E> endpoint) {
-        this.endpoint = endpoint;
+    public GetAllHandler(DataHandler<E, D> dataHandler) {
+        this.dataHandler = dataHandler;
         this.jsonFactory = new JsonFactory();
     }
 
     @Override
-    public void handle(ServerRequest serverRequest, ServerResponse serverResponse) throws Exception {
-        final Language requestedLanguage = HttpUtils.getLanguage(serverRequest);
-        final JsonArray result = new JsonArray();
-        final ContentTypes contentType = HttpUtils.getContentType(serverRequest)
-                .orElse(ContentTypes.APPLICATION_JSON);
-        if (contentType == ContentTypes.APPLICATION_JSON) {
-            final DataType<E> dataType = endpoint.dataType();
-            endpoint.dataProvider().getAll().stream()
-                    .map(entity -> {
-                        return jsonFactory.createJsonObject(serverRequest, requestedLanguage, entity, dataType);
-                    })
-                    .forEach(result::add);
+    protected boolean isPubliclyAvailable() {
+        return dataHandler.isPubliclyAvailable();
+    }
+
+    @Override
+    protected void handle(ServerRequest serverRequest, ContentTypes requestedContentType,
+            Language requestedLanguage, ServerResponse serverResponse) {
+        if (requestedContentType == ContentTypes.APPLICATION_JSON) {
+            final JsonArray result = new JsonArray();
+            final List<E> data = dataHandler.getAll();
+            for (E entry : data) {
+                result.add(jsonFactory.createJsonObject(entry, dataHandler.getDataClass(), requestedLanguage));
+            }
             serverResponse.headers().contentType(ContentTypes.APPLICATION_JSON);
             serverResponse.header("Content-Language", HttpUtils.getContentLanguageString(requestedLanguage));
             serverResponse.send(result.toString());
         } else {
-            serverResponse.send("Unsupported content type: " + contentType.getContentType());
+            serverResponse.send("Unsupported content type: " + requestedContentType.getContentType());
         }
     }
 }

@@ -1,19 +1,19 @@
 package com.openelements.data.runtime.sql.tables;
 
-import com.openelements.data.runtime.sql.types.AbstractSqlDataType;
+import com.openelements.data.runtime.sql.SqlDataType;
 
 public class TableColumn<D> {
 
-    private final AbstractSqlDataType<D> type;
+    private final SqlDataType<D> type;
 
     private final String name;
 
-    public TableColumn(String name, AbstractSqlDataType<D> type) {
+    public TableColumn(String name, SqlDataType<D> type) {
         this.type = type;
         this.name = name;
     }
 
-    public AbstractSqlDataType<D> getType() {
+    public SqlDataType<D> getType() {
         return type;
     }
 

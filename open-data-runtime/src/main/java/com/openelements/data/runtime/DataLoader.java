@@ -4,6 +4,7 @@ import com.openelements.data.api.DataTypesProvider;
 import com.openelements.data.api.context.DataContext;
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
+import com.openelements.data.runtime.sql.DataAttributeTypeSupport;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;

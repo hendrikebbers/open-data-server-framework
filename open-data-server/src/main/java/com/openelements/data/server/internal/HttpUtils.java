@@ -1,8 +1,9 @@
 package com.openelements.data.server.internal;
 
-import com.openelements.data.data.Language;
+import com.openelements.data.api.data.Language;
 import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.http.ServerResponse;
+import java.util.Objects;
 import java.util.Optional;
 
 public class HttpUtils {
@@ -50,4 +51,13 @@ public class HttpUtils {
         return language.toString();
     }
 
+    public static String getBearerToken(ServerRequest serverRequest) {
+        Objects.requireNonNull(serverRequest, "serverRequest cannot be null");
+        return serverRequest.headers().stream()
+                .filter(h -> h.name().equalsIgnoreCase("Authorization"))
+                .map(h -> h.value())
+                .map(h -> h.substring("Bearer ".length()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Authorization header is missing"));
+    }
 }
