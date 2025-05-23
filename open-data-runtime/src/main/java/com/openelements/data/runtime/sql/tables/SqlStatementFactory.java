@@ -2,9 +2,9 @@ package com.openelements.data.runtime.sql.tables;
 
 public class SqlStatementFactory {
 
-    public static String createSelectStatement(SqlTable table) {
+    public static <E extends Record> String createSelectStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("SELECT ");
-        for (TableColumn<?> column : table.getColumns()) {
+        for (TableColumn<E, ?> column : table.getColumns()) {
             sql.append(column.getName()).append(", ");
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
@@ -12,33 +12,34 @@ public class SqlStatementFactory {
         return sql.toString();
     }
 
-    public static String createSelectPageStatement(SqlTable table, int pageNumber, int pageSize) {
+    public static <E extends Record> String createSelectPageStatement(SqlDataTable<E> table, int pageNumber,
+            int pageSize) {
         final StringBuilder sql = new StringBuilder(createSelectStatement(table));
         sql.append(" LIMIT ").append(pageSize).append(" OFFSET ").append((pageNumber) * pageSize);
         return sql.toString();
     }
 
-    public static String createQueryCountStatement(SqlTable table) {
+    public static <E extends Record> String createQueryCountStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ");
         sql.append(table.getName());
         return sql.toString();
     }
 
-    public static String createFindStatement(SqlTable table) {
+    public static <E extends Record> String createFindStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder(createSelectStatement(table));
         sql.append(" WHERE ");
-        for (TableColumn<?> column : table.getKeyColumns()) {
+        for (TableColumn<E, ?> column : table.getKeyColumns()) {
             sql.append(column.getName()).append(" = ? AND ");
         }
         sql.setLength(sql.length() - 5); // Remove the last " AND "
         return sql.toString();
     }
 
-    public static String createTableCreateStatement(SqlTable table) {
+    public static <E extends Record> String createTableCreateStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         sql.append(table.getName());
         sql.append(" (");
-        for (TableColumn<?> column : table.getColumns()) {
+        for (TableColumn<E, ?> column : table.getColumns()) {
             sql.append(column.getName()).append(" ").append(column.getType().getSqlType()).append(", ");
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
@@ -49,14 +50,14 @@ public class SqlStatementFactory {
     public static <E extends Record> String createUpdateStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("UPDATE ");
         sql.append(table.getName()).append(" SET ");
-        for (TableColumn<?> column : table.getColumns()) {
+        for (TableColumn<E, ?> column : table.getColumns()) {
             if (!table.getKeyColumns().contains(column)) {
                 sql.append(column.getName()).append(" = ?, ");
             }
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
         sql.append(" WHERE ");
-        for (TableColumn<?> column : table.getKeyColumns()) {
+        for (TableColumn<E, ?> column : table.getKeyColumns()) {
             sql.append(column.getName()).append(" = ? AND ");
         }
         sql.setLength(sql.length() - 5); // Remove the last " AND "
@@ -66,7 +67,7 @@ public class SqlStatementFactory {
     public static <E extends Record> String createInsertStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("INSERT INTO ");
         sql.append(table.getName()).append(" (");
-        for (TableColumn<?> column : table.getColumns()) {
+        for (TableColumn<E, ?> column : table.getColumns()) {
             sql.append(column.getName()).append(", ");
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space

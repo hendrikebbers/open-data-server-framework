@@ -41,8 +41,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-            final Map<TableColumn<?>, Object> row = new HashMap<>();
-            for (TableColumn<?> column : table.getColumns()) {
+            final Map<TableColumn<E, ?>, Object> row = new HashMap<>();
+            for (TableColumn<E, ?> column : table.getColumns()) {
                 row.put(column, resultSet.getObject(column.getName()));
             }
             final E entry = table.convertRow(row, connection);
@@ -59,8 +59,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-            final Map<TableColumn<?>, Object> row = new HashMap<>();
-            for (TableColumn<?> column : table.getColumns()) {
+            final Map<TableColumn<E, ?>, Object> row = new HashMap<>();
+            for (TableColumn<E, ?> column : table.getColumns()) {
                 row.put(column, resultSet.getObject(column.getName()));
             }
             final E entry = table.convertRow(row, connection);
@@ -96,13 +96,13 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     @Override
     public void store(List<E> data) throws SQLException {
-        data.forEach(e -> {
+        for (E e : data) {
             try {
                 store(e);
-            } catch (SQLException e1) {
-                throw new RuntimeException("Error storing data", e1);
+            } catch (Exception e1) {
+                throw new SQLException("Error storing data", e1);
             }
-        });
+        }
     }
 
     @Override
@@ -118,18 +118,18 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         final String sqlStatement = SqlStatementFactory.createUpdateStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         int index = 1;
-        for (TableColumn<?> column : table.getDataColumns()) {
-            final Object value = null;
+        for (TableColumn<E, ?> column : table.getDataColumnsWithoutKeys()) {
+            final Object value = column.getValueFor(data);
             preparedStatement.setObject(index, value);
             index++;
         }
-        for (TableColumn<?> column : table.getMetadataColumns()) {
-            final Object value = null;
+        for (TableColumn<E, ?> column : table.getMetadataColumns()) {
+            final Object value = column.getValueFor(data);
             preparedStatement.setObject(index, value);
             index++;
         }
-        for (TableColumn<?> column : table.getKeyColumns()) {
-            final Object value = null;
+        for (TableColumn<E, ?> column : table.getKeyColumns()) {
+            final Object value = column.getValueFor(data);
             preparedStatement.setObject(index, value);
             index++;
         }
@@ -140,29 +140,30 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         final String sqlStatement = SqlStatementFactory.createInsertStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         int index = 1;
-        for (TableColumn<?> column : table.getDataColumns()) {
-            final Object value = null;
+        for (TableColumn<E, ?> column : table.getDataColumns()) {
+            final Object value = column.getValueFor(data);
             preparedStatement.setObject(index, value);
             index++;
         }
-        for (TableColumn<?> column : table.getMetadataColumns()) {
-            final Object value = null;
+        for (TableColumn<E, ?> column : table.getMetadataColumns()) {
+            final Object value = column.getValueFor(data);
             preparedStatement.setObject(index, value);
             index++;
         }
-        preparedStatement.executeQuery();
+        preparedStatement.executeUpdate();
     }
 
     private boolean contains(E data) throws SQLException {
         final String sqlStatement = SqlStatementFactory.createFindStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         int index = 1;
-        for (TableColumn<?> column : table.getKeyColumns()) {
-            final Object value = null;
+        for (TableColumn<E, ?> column : table.getKeyColumns()) {
+            final Object value = column.getValueFor(data);
             preparedStatement.setObject(index, value);
             index++;
         }
         final ResultSet resultSet = preparedStatement.executeQuery();
+        resultSet.next();
         if (resultSet.next()) {
             return true;
         }

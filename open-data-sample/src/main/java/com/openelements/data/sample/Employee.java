@@ -1,5 +1,7 @@
 package com.openelements.data.sample;
 
-public record Employee(String firstname, String lastname, String email) {
+import com.openelements.data.api.data.Attribute;
+
+public record Employee(String firstname, String lastname, @Attribute(partOfIdentifier = true) String email) {
 
 }

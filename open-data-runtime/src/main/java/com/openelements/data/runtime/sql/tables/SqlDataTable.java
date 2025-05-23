@@ -10,15 +10,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class SqlDataTable<E extends Record> implements SqlTable {
+public class SqlDataTable<E extends Record> {
 
     private final DataType<E> dataType;
 
     private final String uniqueName;
 
-    final List<TableColumn<?>> dataColumns;
+    final List<TableColumn<E, ?>> dataColumns;
 
-    final List<TableColumn<?>> keyColumns;
+    final List<TableColumn<E, ?>> keyColumns;
 
     public SqlDataTable(DataType<E> dataType) {
         this.dataType = dataType;
@@ -28,7 +28,7 @@ public class SqlDataTable<E extends Record> implements SqlTable {
         keyColumns = new ArrayList<>();
         dataType.attributes().forEach(attribute -> {
             final DataAttributeTypeSupport typeSupport = getTypeSupport(attribute.type());
-            TableColumn column = new TableColumn<>(attribute.name(), typeSupport.getSqlDataType());
+            TableColumn column = new TableColumn<>(attribute, typeSupport.getSqlDataType());
             dataColumns.add(column);
             if (attribute.partOfIdentifier()) {
                 keyColumns.add(column);
@@ -36,7 +36,7 @@ public class SqlDataTable<E extends Record> implements SqlTable {
         });
     }
 
-    private DataAttribute getAttribute(TableColumn<?> column) {
+    private DataAttribute getAttribute(TableColumn<E, ?> column) {
         return dataType.attributes().stream()
                 .filter(attribute -> attribute.name().equals(column.getName()))
                 .findFirst()
@@ -48,22 +48,25 @@ public class SqlDataTable<E extends Record> implements SqlTable {
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + type));
     }
 
-    @Override
     public String getName() {
         return uniqueName;
     }
 
-    @Override
-    public List<TableColumn<?>> getDataColumns() {
+    public List<TableColumn<E, ?>> getDataColumns() {
         return Collections.unmodifiableList(dataColumns);
     }
 
-    @Override
-    public List<TableColumn<?>> getKeyColumns() {
+    public List<TableColumn<E, ?>> getDataColumnsWithoutKeys() {
+        final List<TableColumn<E, ?>> dataColumnsCopy = new ArrayList<>(getDataColumns());
+        dataColumnsCopy.removeAll(getKeyColumns());
+        return Collections.unmodifiableList(dataColumnsCopy);
+    }
+
+    public List<TableColumn<E, ?>> getKeyColumns() {
         return Collections.unmodifiableList(keyColumns);
     }
 
-    public E convertRow(Map<TableColumn<?>, Object> row, SqlConnection connection)
+    public E convertRow(Map<TableColumn<E, ?>, Object> row, SqlConnection connection)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         List<Object> constructorParams = new ArrayList<>();
         getDataColumns().stream()
@@ -75,5 +78,16 @@ public class SqlDataTable<E extends Record> implements SqlTable {
                     constructorParams.add(value);
                 });
         return dataType.createInstance(constructorParams);
+    }
+
+    public List<TableColumn<E, ?>> getColumns() {
+        final List<TableColumn<E, ?>> columns = new ArrayList<>();
+        columns.addAll(getDataColumns());
+        columns.addAll(getMetadataColumns());
+        return Collections.unmodifiableList(columns);
+    }
+
+    public List<TableColumn<E, ?>> getMetadataColumns() {
+        return List.of();
     }
 }
