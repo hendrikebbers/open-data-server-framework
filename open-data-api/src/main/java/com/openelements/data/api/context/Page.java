@@ -2,21 +2,19 @@ package com.openelements.data.api.context;
 
 import java.util.List;
 
-public interface Page<T extends Record> {
+public interface Page<E extends Record> {
 
-    int getPageIndex();
+    List<E> getContent();
 
-    int getSize();
+    int getCount();
 
-    List<T> getData();
+    int getPageNumber();
 
-    boolean hasNext();
-
-    Page<T> next();
-
-    Page<T> first();
+    int getPageSize();
 
     boolean isFirst();
 
-    boolean isLast();
+    boolean hasNext();
+
+    Page<E> nextPage();
 }

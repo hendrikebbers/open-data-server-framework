@@ -1,9 +1,9 @@
 package com.openelements.data.runtime.sql.repositories;
 
+import com.openelements.data.api.context.Page;
 import com.openelements.data.runtime.DataType;
 import com.openelements.data.runtime.sql.ConnectionProvider;
 import com.openelements.data.runtime.sql.DataRepository;
-import com.openelements.data.runtime.sql.Page;
 import com.openelements.data.runtime.sql.PageImpl;
 import com.openelements.data.runtime.sql.QueryContext;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
@@ -11,6 +11,7 @@ import com.openelements.data.runtime.sql.tables.SqlStatementFactory;
 import com.openelements.data.runtime.sql.tables.TableColumn;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -107,5 +108,73 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         final String sqlStatement = SqlStatementFactory.createTableCreateStatement(table);
         final Connection connection = connectionProvider.getConnection();
         connection.createStatement().execute(sqlStatement);
+    }
+
+    @Override
+    public void store(List<E> data) throws SQLException {
+        data.forEach(e -> {
+            try {
+                store(e);
+            } catch (SQLException e1) {
+                throw new RuntimeException("Error storing data", e1);
+            }
+        });
+    }
+
+    @Override
+    public void store(E data) throws SQLException {
+        if (contains(data)) {
+            //Update
+        } else {
+            //Insert
+        }
+    }
+
+    private void update(E data) throws SQLException {
+        final String sqlStatement = SqlStatementFactory.createUpdateStatement(table);
+        final Connection connection = connectionProvider.getConnection();
+        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+        int index = 1;
+        for (TableColumn<?> column : table.getColumns()) {
+            final Object value = null;
+            preparedStatement.setObject(index, value);
+            index++;
+        }
+        for (TableColumn<?> column : table.getKeyColumns()) {
+            final Object value = null;
+            preparedStatement.setObject(index, value);
+            index++;
+        }
+        preparedStatement.executeUpdate();
+    }
+
+    private void insert(E data) throws SQLException {
+        final String sqlStatement = SqlStatementFactory.createInsertStatement(table);
+        final Connection connection = connectionProvider.getConnection();
+        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+        int index = 1;
+        for (TableColumn<?> column : table.getColumns()) {
+            final Object value = null;
+            preparedStatement.setObject(index, value);
+            index++;
+        }
+        preparedStatement.executeUpdate();
+    }
+
+    private boolean contains(E data) throws SQLException {
+        final String sqlStatement = SqlStatementFactory.createFindStatement(table);
+        final Connection connection = connectionProvider.getConnection();
+        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+        int index = 1;
+        for (TableColumn<?> column : table.getKeyColumns()) {
+            final Object value = null;
+            preparedStatement.setObject(index, value);
+            index++;
+        }
+        final ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            return true;
+        }
+        return false;
     }
 }

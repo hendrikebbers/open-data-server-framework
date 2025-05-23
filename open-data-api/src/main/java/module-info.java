@@ -7,7 +7,7 @@ module com.openelements.data.api {
     exports com.openelements.data.api.translation;
     exports com.openelements.data.api.types;
 
-    uses com.openelements.data.api.DataSourceProvider;
-    uses com.openelements.data.api.DataTypesProvider;
+    uses com.openelements.data.api.DataSource;
+    uses com.openelements.data.api.DataTypeProvider;
     uses com.openelements.data.api.TranslationProvider;
 }

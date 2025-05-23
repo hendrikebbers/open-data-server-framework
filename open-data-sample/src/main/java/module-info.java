@@ -1,4 +1,6 @@
-import com.openelements.data.api.DataTypesProvider;
+import com.openelements.data.api.DataSource;
+import com.openelements.data.api.DataTypeProvider;
+import com.openelements.data.sample.EmployeeSupport;
 
 module com.openelements.data.sample {
     requires com.openelements.data.runtime;
@@ -6,5 +8,6 @@ module com.openelements.data.sample {
     requires java.sql;
     requires com.openelements.data.api;
 
-    provides DataTypesProvider with com.openelements.data.sample.DataTypesProviderImpl;
+    provides DataTypeProvider with EmployeeSupport;
+    provides DataSource with EmployeeSupport;
 }

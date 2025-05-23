@@ -1,7 +1,6 @@
 package com.openelements.data.runtime;
 
-import com.openelements.data.api.DataTypesProvider;
-import com.openelements.data.api.context.DataContext;
+import com.openelements.data.api.DataTypeProvider;
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
 import java.util.Arrays;
@@ -11,10 +10,10 @@ import java.util.Set;
 
 public class DataLoader {
 
-    public static Set<DataType<?>> loadData(DataContext dataContext) {
+    public static Set<DataType<?>> loadData() {
         final Set<DataType<?>> dataTypes = new HashSet<>();
-        final Set<DataTypesProvider> instances = DataTypesProvider.getInstances();
-        instances.stream().flatMap(provider -> provider.getDataTypes(dataContext).stream())
+        final Set<DataTypeProvider> instances = DataTypeProvider.getInstances();
+        instances.stream().flatMap(provider -> provider.getDataTypes().stream())
                 .forEach(dataType -> {
                     final DataType dataTypeInstance = load(dataType);
                     dataTypes.add(dataTypeInstance);
