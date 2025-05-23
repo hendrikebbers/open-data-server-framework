@@ -6,11 +6,13 @@ import com.openelements.data.runtime.sql.ConnectionProvider;
 import com.openelements.data.runtime.sql.DataRepository;
 import com.openelements.data.runtime.sql.PageImpl;
 import com.openelements.data.runtime.sql.QueryContext;
+import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.SqlConnectionImpl;
+import com.openelements.data.runtime.sql.SqlLogger;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.SqlStatementFactory;
 import com.openelements.data.runtime.sql.tables.TableColumn;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,7 +26,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     private final SqlDataTable<E> table;
 
-    private final ConnectionProvider connectionProvider;
+    private final SqlConnection connection;
 
     public DataRepositoryImpl(DataType<E> dataType, ConnectionProvider connectionProvider) {
         this(new SqlDataTable<>(dataType), connectionProvider);
@@ -32,7 +34,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     public DataRepositoryImpl(SqlDataTable<E> table, ConnectionProvider connectionProvider) {
         this.table = table;
-        this.connectionProvider = connectionProvider;
+        this.connection = new SqlConnectionImpl(connectionProvider);
     }
 
     @Override
@@ -40,8 +42,9 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         final List<E> result = new ArrayList<>();
         final String sqlStatement = SqlStatementFactory.createSelectStatement(table);
-        final Connection connection = connectionProvider.getConnection();
-        final ResultSet resultSet = connection.createStatement().executeQuery(sqlStatement);
+        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+        SqlLogger.log(preparedStatement);
+        final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
             final Map<TableColumn<?>, Object> row = new HashMap<>();
             for (TableColumn<?> column : table.getColumns()) {
@@ -50,7 +53,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             final QueryContext context = new QueryContext() {
 
                 @Override
-                public Connection getConnection() throws SQLException {
+                public SqlConnection getConnection() throws SQLException {
                     return connection;
                 }
             };
@@ -65,8 +68,9 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         final List<E> result = new ArrayList<>();
         final String sqlStatement = SqlStatementFactory.createSelectPageStatement(table, pageNumber, pageSize);
-        final Connection connection = connectionProvider.getConnection();
-        final ResultSet resultSet = connection.createStatement().executeQuery(sqlStatement);
+        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+        SqlLogger.log(preparedStatement);
+        final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
             final Map<TableColumn<?>, Object> row = new HashMap<>();
             for (TableColumn<?> column : table.getColumns()) {
@@ -75,7 +79,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             final QueryContext context = new QueryContext() {
 
                 @Override
-                public Connection getConnection() throws SQLException {
+                public SqlConnection getConnection() throws SQLException {
                     return connection;
                 }
             };
@@ -94,8 +98,9 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     @Override
     public long getCount() throws SQLException {
         final String sqlStatement = SqlStatementFactory.createQueryCountStatement(table);
-        final Connection connection = connectionProvider.getConnection();
-        final ResultSet resultSet = connection.createStatement().executeQuery(sqlStatement);
+        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+        SqlLogger.log(preparedStatement);
+        final ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
             return resultSet.getLong(1);
         } else {
@@ -106,8 +111,9 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     @Override
     public void createTable() throws SQLException {
         final String sqlStatement = SqlStatementFactory.createTableCreateStatement(table);
-        final Connection connection = connectionProvider.getConnection();
-        connection.createStatement().execute(sqlStatement);
+        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+        SqlLogger.log(preparedStatement);
+        preparedStatement.execute();
     }
 
     @Override
@@ -124,18 +130,22 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     @Override
     public void store(E data) throws SQLException {
         if (contains(data)) {
-            //Update
+            update(data);
         } else {
-            //Insert
+            insert(data);
         }
     }
 
     private void update(E data) throws SQLException {
         final String sqlStatement = SqlStatementFactory.createUpdateStatement(table);
-        final Connection connection = connectionProvider.getConnection();
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         int index = 1;
-        for (TableColumn<?> column : table.getColumns()) {
+        for (TableColumn<?> column : table.getDataColumns()) {
+            final Object value = null;
+            preparedStatement.setObject(index, value);
+            index++;
+        }
+        for (TableColumn<?> column : table.getMetadataColumns()) {
             final Object value = null;
             preparedStatement.setObject(index, value);
             index++;
@@ -145,25 +155,30 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             preparedStatement.setObject(index, value);
             index++;
         }
+        SqlLogger.log(preparedStatement);
         preparedStatement.executeUpdate();
     }
 
     private void insert(E data) throws SQLException {
         final String sqlStatement = SqlStatementFactory.createInsertStatement(table);
-        final Connection connection = connectionProvider.getConnection();
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         int index = 1;
-        for (TableColumn<?> column : table.getColumns()) {
+        for (TableColumn<?> column : table.getDataColumns()) {
             final Object value = null;
             preparedStatement.setObject(index, value);
             index++;
         }
-        preparedStatement.executeUpdate();
+        for (TableColumn<?> column : table.getMetadataColumns()) {
+            final Object value = null;
+            preparedStatement.setObject(index, value);
+            index++;
+        }
+        SqlLogger.log(preparedStatement);
+        preparedStatement.executeQuery();
     }
 
     private boolean contains(E data) throws SQLException {
         final String sqlStatement = SqlStatementFactory.createFindStatement(table);
-        final Connection connection = connectionProvider.getConnection();
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         int index = 1;
         for (TableColumn<?> column : table.getKeyColumns()) {
@@ -171,6 +186,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             preparedStatement.setObject(index, value);
             index++;
         }
+        SqlLogger.log(preparedStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
             return true;

@@ -1,23 +1,22 @@
 package com.openelements.data.runtime.sql.repositories;
 
 import com.openelements.data.api.types.I18nString;
-import java.sql.Connection;
+import com.openelements.data.runtime.sql.SqlConnection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class I18nStringRepository {
 
-    private final Connection connection;
+    private final SqlConnection connection;
 
-    public I18nStringRepository(Connection connection) {
+    public I18nStringRepository(SqlConnection connection) {
         this.connection = connection;
     }
 
     public I18nString load(Long id) throws SQLException {
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SET * FROM I18N WHERE id = " + id);
-
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM I18N WHERE id = " + id);
+        ResultSet resultSet = statement.executeQuery();
         return null;
     }
 
