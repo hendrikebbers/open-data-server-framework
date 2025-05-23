@@ -1,14 +1,10 @@
 package com.openelements.data.runtime.sql.repositories;
 
 import com.openelements.data.api.context.Page;
-import com.openelements.data.runtime.DataType;
+import com.openelements.data.runtime.data.DataType;
+import com.openelements.data.runtime.data.PageImpl;
 import com.openelements.data.runtime.sql.ConnectionProvider;
-import com.openelements.data.runtime.sql.DataRepository;
-import com.openelements.data.runtime.sql.PageImpl;
-import com.openelements.data.runtime.sql.QueryContext;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.SqlConnectionImpl;
-import com.openelements.data.runtime.sql.SqlLogger;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.SqlStatementFactory;
 import com.openelements.data.runtime.sql.tables.TableColumn;
@@ -34,7 +30,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     public DataRepositoryImpl(SqlDataTable<E> table, ConnectionProvider connectionProvider) {
         this.table = table;
-        this.connection = new SqlConnectionImpl(connectionProvider);
+        this.connection = new SqlConnection(connectionProvider);
     }
 
     @Override
@@ -43,21 +39,13 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         final List<E> result = new ArrayList<>();
         final String sqlStatement = SqlStatementFactory.createSelectStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        SqlLogger.log(preparedStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
             final Map<TableColumn<?>, Object> row = new HashMap<>();
             for (TableColumn<?> column : table.getColumns()) {
                 row.put(column, resultSet.getObject(column.getName()));
             }
-            final QueryContext context = new QueryContext() {
-
-                @Override
-                public SqlConnection getConnection() throws SQLException {
-                    return connection;
-                }
-            };
-            final E entry = table.convertRow(row, context);
+            final E entry = table.convertRow(row, connection);
             result.add(entry);
         }
         return Collections.unmodifiableList(result);
@@ -69,21 +57,13 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         final List<E> result = new ArrayList<>();
         final String sqlStatement = SqlStatementFactory.createSelectPageStatement(table, pageNumber, pageSize);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        SqlLogger.log(preparedStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
             final Map<TableColumn<?>, Object> row = new HashMap<>();
             for (TableColumn<?> column : table.getColumns()) {
                 row.put(column, resultSet.getObject(column.getName()));
             }
-            final QueryContext context = new QueryContext() {
-
-                @Override
-                public SqlConnection getConnection() throws SQLException {
-                    return connection;
-                }
-            };
-            final E entry = table.convertRow(row, context);
+            final E entry = table.convertRow(row, connection);
             result.add(entry);
         }
         return new PageImpl<>(result, pageNumber, pageSize, (number, size) -> {
@@ -99,7 +79,6 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     public long getCount() throws SQLException {
         final String sqlStatement = SqlStatementFactory.createQueryCountStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        SqlLogger.log(preparedStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
             return resultSet.getLong(1);
@@ -112,7 +91,6 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     public void createTable() throws SQLException {
         final String sqlStatement = SqlStatementFactory.createTableCreateStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        SqlLogger.log(preparedStatement);
         preparedStatement.execute();
     }
 
@@ -155,7 +133,6 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             preparedStatement.setObject(index, value);
             index++;
         }
-        SqlLogger.log(preparedStatement);
         preparedStatement.executeUpdate();
     }
 
@@ -173,7 +150,6 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             preparedStatement.setObject(index, value);
             index++;
         }
-        SqlLogger.log(preparedStatement);
         preparedStatement.executeQuery();
     }
 
@@ -186,7 +162,6 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             preparedStatement.setObject(index, value);
             index++;
         }
-        SqlLogger.log(preparedStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
             return true;

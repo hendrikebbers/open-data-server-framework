@@ -1,5 +1,7 @@
-package com.openelements.data.runtime.sql;
+package com.openelements.data.runtime.sql.support;
 
+import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.types.SqlDataType;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -15,10 +17,10 @@ public interface DataAttributeTypeSupport<T, U> {
 
     SqlDataType<U> getSqlDataType();
 
-    T convertValueFromSqlResult(U sqlValue, QueryContext queryContext);
+    T convertValueFromSqlResult(U sqlValue, SqlConnection connection);
 
     U convertValueForSqlPersit(@Nullable T newValue, @Nullable U currentValue,
-            @NonNull PersistenceContext persistenceContext);
+            @NonNull SqlConnection connection);
 
     static Set<DataAttributeTypeSupport<?, ?>> getInstances() {
         ServiceLoader<DataAttributeTypeSupport> loader = ServiceLoader.load(DataAttributeTypeSupport.class);

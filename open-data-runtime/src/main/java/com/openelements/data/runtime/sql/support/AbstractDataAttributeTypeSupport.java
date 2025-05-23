@@ -1,7 +1,6 @@
 package com.openelements.data.runtime.sql.support;
 
-import com.openelements.data.runtime.sql.DataAttributeTypeSupport;
-import com.openelements.data.runtime.sql.SqlDataType;
+import com.openelements.data.runtime.sql.types.SqlDataType;
 
 public abstract class AbstractDataAttributeTypeSupport<T, U> implements DataAttributeTypeSupport<T, U> {
 

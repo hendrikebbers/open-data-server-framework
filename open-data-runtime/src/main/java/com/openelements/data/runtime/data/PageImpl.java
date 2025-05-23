@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.sql;
+package com.openelements.data.runtime.data;
 
 import com.openelements.data.api.context.Page;
 import java.util.List;

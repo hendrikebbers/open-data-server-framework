@@ -1,4 +1,4 @@
-package com.openelements.data.runtime;
+package com.openelements.data.runtime.data;
 
 import com.openelements.data.api.DataTypeProvider;
 import com.openelements.data.api.data.Attribute;

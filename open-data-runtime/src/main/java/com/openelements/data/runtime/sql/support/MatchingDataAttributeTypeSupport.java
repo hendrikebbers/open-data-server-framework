@@ -1,9 +1,7 @@
 package com.openelements.data.runtime.sql.support;
 
-import com.openelements.data.runtime.sql.DataAttributeTypeSupport;
-import com.openelements.data.runtime.sql.PersistenceContext;
-import com.openelements.data.runtime.sql.QueryContext;
-import com.openelements.data.runtime.sql.SqlDataType;
+import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.types.SqlDataType;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -19,13 +17,13 @@ public interface MatchingDataAttributeTypeSupport<D> extends DataAttributeTypeSu
     }
 
     @Override
-    default D convertValueFromSqlResult(D sqlValue, QueryContext queryContext) {
+    default D convertValueFromSqlResult(D sqlValue, SqlConnection connection) {
         return sqlValue;
     }
 
     @Override
     default D convertValueForSqlPersit(@Nullable D newValue, @Nullable D currentValue,
-            @NonNull PersistenceContext persistenceContext) {
+            @NonNull SqlConnection connection) {
         return newValue;
     }
 }

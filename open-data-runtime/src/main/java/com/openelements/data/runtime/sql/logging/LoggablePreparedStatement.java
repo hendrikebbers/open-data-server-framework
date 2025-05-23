@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.sql;
+package com.openelements.data.runtime.sql.logging;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -22,8 +22,12 @@ import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggablePreparedStatement implements PreparedStatement {
+
+    private final static Logger log = LoggerFactory.getLogger(LoggablePreparedStatement.class);
 
     private final PreparedStatement delegate;
 
@@ -31,11 +35,13 @@ public class LoggablePreparedStatement implements PreparedStatement {
 
     @Override
     public ResultSet executeQuery() throws SQLException {
+        log.info("Executing query: {}", delegate.toString());
         return delegate.executeQuery();
     }
 
     @Override
     public int executeUpdate() throws SQLException {
+        log.info("Executing update: {}", delegate.toString());
         return delegate.executeUpdate();
     }
 
@@ -141,6 +147,7 @@ public class LoggablePreparedStatement implements PreparedStatement {
 
     @Override
     public boolean execute() throws SQLException {
+        log.info("Executing query: {}", delegate.toString());
         return delegate.execute();
     }
 

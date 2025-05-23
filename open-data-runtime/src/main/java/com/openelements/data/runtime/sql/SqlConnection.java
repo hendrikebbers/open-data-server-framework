@@ -1,9 +1,20 @@
 package com.openelements.data.runtime.sql;
 
+import com.openelements.data.runtime.sql.logging.LoggablePreparedStatement;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public interface SqlConnection {
+public class SqlConnection {
 
-    PreparedStatement prepareStatement(String sql) throws SQLException;
+    private final ConnectionProvider connectionProvider;
+
+    public SqlConnection(ConnectionProvider connectionProvider) {this.connectionProvider = connectionProvider;}
+
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
+        final Connection connection = connectionProvider.getConnection();
+        final PreparedStatement internalPreparedStatement = connection.prepareStatement(sql);
+        return new LoggablePreparedStatement(internalPreparedStatement);
+
+    }
 }

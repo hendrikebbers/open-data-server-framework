@@ -1,6 +1,6 @@
 package com.openelements.data.runtime.sql.tables;
 
-import com.openelements.data.runtime.sql.SqlDataType;
+import com.openelements.data.runtime.sql.types.SqlDataType;
 
 public class TableColumn<D> {
 

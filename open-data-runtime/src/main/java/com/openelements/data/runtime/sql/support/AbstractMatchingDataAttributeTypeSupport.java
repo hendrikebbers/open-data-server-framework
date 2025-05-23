@@ -1,6 +1,6 @@
 package com.openelements.data.runtime.sql.support;
 
-import com.openelements.data.runtime.sql.SqlDataType;
+import com.openelements.data.runtime.sql.types.SqlDataType;
 
 public abstract class AbstractMatchingDataAttributeTypeSupport<D> implements MatchingDataAttributeTypeSupport<D> {
 

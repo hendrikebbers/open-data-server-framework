@@ -2,10 +2,10 @@ package com.openelements.data.server;
 
 import com.openelements.data.api.DataSource;
 import com.openelements.data.api.context.DataContext;
-import com.openelements.data.runtime.DataLoader;
-import com.openelements.data.runtime.DataType;
+import com.openelements.data.runtime.data.DataLoader;
+import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.ConnectionProvider;
-import com.openelements.data.runtime.sql.DataRepository;
+import com.openelements.data.runtime.sql.repositories.DataRepository;
 import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
 import com.openelements.data.server.internal.DataContextImpl;
 import com.openelements.data.server.internal.handler.DataHandler;

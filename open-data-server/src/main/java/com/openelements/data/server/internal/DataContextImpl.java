@@ -2,7 +2,7 @@ package com.openelements.data.server.internal;
 
 import com.openelements.data.api.context.DataContext;
 import com.openelements.data.api.context.Page;
-import com.openelements.data.runtime.sql.DataRepository;
+import com.openelements.data.runtime.sql.repositories.DataRepository;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.List;

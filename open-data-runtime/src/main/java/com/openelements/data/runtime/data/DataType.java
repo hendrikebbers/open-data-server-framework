@@ -1,4 +1,4 @@
-package com.openelements.data.runtime;
+package com.openelements.data.runtime.data;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

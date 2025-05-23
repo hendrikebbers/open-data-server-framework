@@ -1,9 +1,9 @@
 package com.openelements.data.runtime.sql.tables;
 
-import com.openelements.data.runtime.DataAttribute;
-import com.openelements.data.runtime.DataType;
-import com.openelements.data.runtime.sql.DataAttributeTypeSupport;
-import com.openelements.data.runtime.sql.QueryContext;
+import com.openelements.data.runtime.data.DataAttribute;
+import com.openelements.data.runtime.data.DataType;
+import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.support.DataAttributeTypeSupport;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,7 +63,7 @@ public class SqlDataTable<E extends Record> implements SqlTable {
         return Collections.unmodifiableList(keyColumns);
     }
 
-    public E convertRow(Map<TableColumn<?>, Object> row, QueryContext context)
+    public E convertRow(Map<TableColumn<?>, Object> row, SqlConnection connection)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         List<Object> constructorParams = new ArrayList<>();
         getDataColumns().stream()
@@ -71,7 +71,7 @@ public class SqlDataTable<E extends Record> implements SqlTable {
                     final Object rawValue = row.get(column);
                     final DataAttribute attribute = getAttribute(column);
                     final DataAttributeTypeSupport typeSupport = getTypeSupport(attribute.type());
-                    final Object value = typeSupport.convertValueFromSqlResult(rawValue, context);
+                    final Object value = typeSupport.convertValueFromSqlResult(rawValue, connection);
                     constructorParams.add(value);
                 });
         return dataType.createInstance(constructorParams);

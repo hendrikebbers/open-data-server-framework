@@ -1,7 +1,5 @@
 package com.openelements.data.runtime.sql.types;
 
-import com.openelements.data.runtime.sql.SqlDataType;
-
 public abstract class AbstractSqlDataType<T> implements SqlDataType<T> {
 
     private final String sqlType;
