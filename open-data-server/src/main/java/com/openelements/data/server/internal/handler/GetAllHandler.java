@@ -30,14 +30,19 @@ public class GetAllHandler<E extends Record, D extends DataType<E>> extends Abst
     protected void handle(ServerRequest serverRequest, ContentTypes requestedContentType,
             Language requestedLanguage, ServerResponse serverResponse) {
         if (requestedContentType == ContentTypes.APPLICATION_JSON) {
-            final JsonArray result = new JsonArray();
-            final List<E> data = dataHandler.getAll();
-            for (E entry : data) {
-                result.add(jsonFactory.createJsonObject(entry, dataHandler.getDataClass(), requestedLanguage));
+            try {
+                final JsonArray result = new JsonArray();
+                final List<E> data = dataHandler.getAll();
+                for (E entry : data) {
+                    result.add(jsonFactory.createJsonObject(entry, dataHandler.getDataClass(), requestedLanguage));
+                }
+                serverResponse.headers().contentType(ContentTypes.APPLICATION_JSON);
+                serverResponse.header("Content-Language", HttpUtils.getContentLanguageString(requestedLanguage));
+                serverResponse.send(result.toString());
+            } catch (Exception e) {
+                serverResponse.status(500);
+                serverResponse.send("Error processing request: " + e.getMessage());
             }
-            serverResponse.headers().contentType(ContentTypes.APPLICATION_JSON);
-            serverResponse.header("Content-Language", HttpUtils.getContentLanguageString(requestedLanguage));
-            serverResponse.send(result.toString());
         } else {
             serverResponse.send("Unsupported content type: " + requestedContentType.getContentType());
         }

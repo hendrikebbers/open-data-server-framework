@@ -1,5 +1,6 @@
 package com.openelements.data.runtime.sql.repositories;
 
+import com.openelements.data.runtime.DataType;
 import com.openelements.data.runtime.sql.ConnectionProvider;
 import com.openelements.data.runtime.sql.DataRepository;
 import com.openelements.data.runtime.sql.Page;
@@ -23,6 +24,10 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     private final SqlDataTable<E> table;
 
     private final ConnectionProvider connectionProvider;
+
+    public DataRepositoryImpl(DataType<E> dataType, ConnectionProvider connectionProvider) {
+        this(new SqlDataTable<>(dataType), connectionProvider);
+    }
 
     public DataRepositoryImpl(SqlDataTable<E> table, ConnectionProvider connectionProvider) {
         this.table = table;
@@ -95,5 +100,12 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         } else {
             throw new SQLException("Failed to retrieve count from the database.");
         }
+    }
+
+    @Override
+    public void createTable() throws SQLException {
+        final String sqlStatement = SqlStatementFactory.createTableCreateStatement(table);
+        final Connection connection = connectionProvider.getConnection();
+        connection.createStatement().execute(sqlStatement);
     }
 }

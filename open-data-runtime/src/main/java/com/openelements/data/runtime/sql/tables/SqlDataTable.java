@@ -2,6 +2,7 @@ package com.openelements.data.runtime.sql.tables;
 
 import com.openelements.data.runtime.DataAttribute;
 import com.openelements.data.runtime.DataType;
+import com.openelements.data.runtime.sql.DataAttributeTypeSupport;
 import com.openelements.data.runtime.sql.QueryContext;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -26,12 +27,25 @@ public class SqlDataTable<E extends Record> implements SqlTable {
         dataColumns = new ArrayList<>();
         keyColumns = new ArrayList<>();
         dataType.attributes().forEach(attribute -> {
-            TableColumn column = new TableColumn<>(attribute.name(), attribute.dataTypeSupport().getSqlDataType());
+            final DataAttributeTypeSupport typeSupport = getTypeSupport(attribute.type());
+            TableColumn column = new TableColumn<>(attribute.name(), typeSupport.getSqlDataType());
             dataColumns.add(column);
             if (attribute.partOfIdentifier()) {
                 keyColumns.add(column);
             }
         });
+    }
+
+    private DataAttribute getAttribute(TableColumn<?> column) {
+        return dataType.attributes().stream()
+                .filter(attribute -> attribute.name().equals(column.getName()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No attribute found for column: " + column));
+    }
+
+    private DataAttributeTypeSupport getTypeSupport(Class<?> type) {
+        return DataAttributeTypeSupport.forType(type)
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + type));
     }
 
     @Override
@@ -55,12 +69,9 @@ public class SqlDataTable<E extends Record> implements SqlTable {
         getDataColumns().stream()
                 .forEach(column -> {
                     final Object rawValue = row.get(column);
-                    final DataAttribute attribute = dataType.attributes().stream()
-                            .filter(a -> a.name().equals(column.getName()))
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalArgumentException(
-                                    "No attribute found for column: " + column.getName()));
-                    final Object value = attribute.dataTypeSupport().convertValueFromSqlResult(rawValue, context);
+                    final DataAttribute attribute = getAttribute(column);
+                    final DataAttributeTypeSupport typeSupport = getTypeSupport(attribute.type());
+                    final Object value = typeSupport.convertValueFromSqlResult(rawValue, context);
                     constructorParams.add(value);
                 });
         return dataType.createInstance(constructorParams);

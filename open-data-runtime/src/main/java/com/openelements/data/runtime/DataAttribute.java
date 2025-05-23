@@ -1,8 +1,6 @@
 package com.openelements.data.runtime;
 
-import com.openelements.data.runtime.sql.DataAttributeTypeSupport;
-
-public record DataAttribute(String name, int oder, boolean required,
-                            boolean partOfIdentifier, DataAttributeTypeSupport<?, ?> dataTypeSupport) {
+public record DataAttribute<D>(String name, int oder, boolean required,
+                               boolean partOfIdentifier, Class<D> type) {
 
 }

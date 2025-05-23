@@ -14,7 +14,7 @@ public class SqlStatementFactory {
 
     public static String createSelectPageStatement(SqlTable table, int pageNumber, int pageSize) {
         final StringBuilder sql = new StringBuilder(createSelectStatement(table));
-        sql.append(" LIMIT ").append(pageSize).append(" OFFSET ").append((pageNumber - 1) * pageSize);
+        sql.append(" LIMIT ").append(pageSize).append(" OFFSET ").append((pageNumber) * pageSize);
         return sql.toString();
     }
 
@@ -25,7 +25,7 @@ public class SqlStatementFactory {
     }
 
     public static String createTableCreateStatement(SqlTable table) {
-        final StringBuilder sql = new StringBuilder("CREATE TABLE ");
+        final StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         sql.append(table.getName());
         sql.append(" (");
         for (TableColumn<?> column : table.getColumns()) {

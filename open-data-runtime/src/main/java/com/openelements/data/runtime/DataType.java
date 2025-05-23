@@ -10,8 +10,8 @@ public record DataType<E extends Record>(String name, boolean publiclyAvailable,
 
     public E createInstance(List<Object> constructorParams)
             throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        final List<? extends Class<?>> list = attributes.stream()
-                .map(attribute -> attribute.dataTypeSupport().getJavaType())
+        final List<Class> list = attributes.stream()
+                .map(attribute -> attribute.type())
                 .toList();
         final Constructor<E> constructor = dataClass.getConstructor(list.toArray(new Class[0]));
         return constructor.newInstance(constructorParams.toArray());

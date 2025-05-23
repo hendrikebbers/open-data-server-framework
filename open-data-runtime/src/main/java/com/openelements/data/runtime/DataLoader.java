@@ -4,7 +4,6 @@ import com.openelements.data.api.DataTypesProvider;
 import com.openelements.data.api.context.DataContext;
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
-import com.openelements.data.runtime.sql.DataAttributeTypeSupport;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,8 +11,8 @@ import java.util.Set;
 
 public class DataLoader {
 
-    public Set<DataType> loadData(DataContext dataContext) {
-        final Set<DataType> dataTypes = new HashSet<>();
+    public static Set<DataType<?>> loadData(DataContext dataContext) {
+        final Set<DataType<?>> dataTypes = new HashSet<>();
         final Set<DataTypesProvider> instances = DataTypesProvider.getInstances();
         instances.stream().flatMap(provider -> provider.getDataTypes(dataContext).stream())
                 .forEach(dataType -> {
@@ -23,7 +22,7 @@ public class DataLoader {
         return Collections.unmodifiableSet(dataTypes);
     }
 
-    public DataType load(Class<? extends Record> dataType) {
+    public static DataType load(Class<? extends Record> dataType) {
         final String dataTypeName;
         final boolean publiclyAvailable;
         if (dataType.isAnnotationPresent(Data.class)) {
@@ -42,7 +41,7 @@ public class DataLoader {
         return new DataType(dataTypeName, publiclyAvailable, dataType, attributes);
     }
 
-    public Set<DataAttribute> loadAttributes(Class<? extends Record> dataType) {
+    public static Set<DataAttribute> loadAttributes(Class<? extends Record> dataType) {
         final Set<DataAttribute> attributes = new HashSet<>();
         Arrays.asList(dataType.getRecordComponents()).forEach(component -> {
             final String name;
@@ -77,13 +76,8 @@ public class DataLoader {
             } else {
                 required = true;
             }
-
-            final DataAttributeTypeSupport typeSupport = DataAttributeTypeSupport.getInstances().stream()
-                    .filter(support -> support.getJavaType().isAssignableFrom(component.getType()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + component.getType()));
-
-            final DataAttribute attribute = new DataAttribute(name, order, required, partOfIdentifier, typeSupport);
+            final DataAttribute attribute = new DataAttribute(name, order, required, partOfIdentifier,
+                    component.getType());
             attributes.add(attribute);
         });
         return Collections.unmodifiableSet(attributes);

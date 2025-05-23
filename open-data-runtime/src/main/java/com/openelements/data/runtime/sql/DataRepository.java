@@ -13,4 +13,6 @@ public interface DataRepository<E extends Record> {
             throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException;
 
     long getCount() throws SQLException;
+
+    void createTable() throws SQLException;
 }

@@ -1,6 +1,7 @@
 package com.openelements.data.runtime.sql;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
@@ -26,5 +27,12 @@ public interface DataAttributeTypeSupport<T, U> {
             instances.add(instance);
         }
         return Collections.unmodifiableSet(instances);
+    }
+
+    static <T, U> Optional<DataAttributeTypeSupport<T, U>> forType(Class<T> type) {
+        return getInstances().stream()
+                .filter(support -> support.getJavaType().isAssignableFrom(type))
+                .map(support -> (DataAttributeTypeSupport<T, U>) support)
+                .findFirst();
     }
 }

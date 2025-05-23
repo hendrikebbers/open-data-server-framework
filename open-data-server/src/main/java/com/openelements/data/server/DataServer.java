@@ -1,23 +1,23 @@
 package com.openelements.data.server;
 
-import com.openelements.data.data.DataType;
-import com.openelements.data.db.AbstractEntity;
-import com.openelements.data.db.EntityMapper;
-import com.openelements.data.db.internal.DbHandler;
-import com.openelements.data.provider.EntityUpdatesProvider;
-import com.openelements.data.provider.internal.ProviderHandler;
-import com.openelements.data.server.internal.OpenDataDefinitionStore;
-import com.openelements.data.server.internal.handler.FileHandler;
+import com.openelements.data.api.context.DataContext;
+import com.openelements.data.runtime.DataLoader;
+import com.openelements.data.runtime.DataType;
+import com.openelements.data.runtime.sql.ConnectionProvider;
+import com.openelements.data.runtime.sql.DataRepository;
+import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
+import com.openelements.data.server.internal.handler.DataHandler;
+import com.openelements.data.server.internal.handler.DataHandlerImpl;
+import com.openelements.data.server.internal.handler.GetAllHandler;
 import com.openelements.data.server.internal.handler.SwaggerInitHandler;
-import com.openelements.data.server.internal.openapi.OpenApiFactory;
-import com.openelements.data.server.internal.openapi.OpenApiHandler;
 import io.helidon.webserver.WebServer;
 import io.helidon.webserver.cors.CorsSupport;
 import io.helidon.webserver.http.HttpRouting;
 import io.helidon.webserver.http.HttpService;
 import io.helidon.webserver.staticcontent.ClasspathHandlerConfig;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
-import io.swagger.v3.oas.models.OpenAPI;
+import java.sql.SQLException;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,37 +25,13 @@ public class DataServer {
 
     private final static Logger log = LoggerFactory.getLogger(DataServer.class);
 
-    private final OpenDataDefinitionStore openDataDefinitionHandler;
-
-    private final ProviderHandler providerHandler;
-
     private final int port;
 
-    private final DbHandler dbHandler;
+    private final ConnectionProvider connectionProvider;
 
-    public DataServer(int port) {
+    public DataServer(int port, ConnectionProvider connectionProvider) {
         this.port = port;
-        this.dbHandler = new DbHandler("my-unit");
-        this.openDataDefinitionHandler = new OpenDataDefinitionStore(dbHandler);
-        this.providerHandler = new ProviderHandler(dbHandler);
-    }
-
-    public <E extends AbstractEntity> void registerEntityDefinition(String path, DataType<E> dataType) {
-        openDataDefinitionHandler.registerApiDataDefinition(path, dataType);
-    }
-
-    public <T extends AbstractEntity> void addDataProvider(Class<T> entityClass, EntityUpdatesProvider<T> provider,
-            EntityMapper<T> entityMapper, long periodInSeconds) {
-        providerHandler.add(entityClass, provider, entityMapper, periodInSeconds);
-    }
-
-    public <T extends AbstractEntity> void addDataProvider(Class<T> entityClass, EntityUpdatesProvider<T> provider,
-            long periodInSeconds) {
-        providerHandler.add(entityClass, provider, periodInSeconds);
-    }
-
-    public <T extends AbstractEntity> void addDataProvider(Class<T> entityClass, EntityUpdatesProvider<T> provider) {
-        providerHandler.add(entityClass, provider);
+        this.connectionProvider = connectionProvider;
     }
 
     public void start() {
@@ -67,17 +43,25 @@ public class DataServer {
     }
 
     private HttpRouting.Builder createRouting() {
-
         final ClasspathHandlerConfig classpathHandlerConfig = ClasspathHandlerConfig.create("public/swagger-ui");
         final HttpService service = StaticContentFeature.createService(classpathHandlerConfig);
-
-        final OpenAPI openAPI = OpenApiFactory.createOpenApi(openDataDefinitionHandler.getDataDefinitions());
         final HttpRouting.Builder routingBuilder = HttpRouting.builder();
-        openDataDefinitionHandler.createRouting(routingBuilder);
-        return routingBuilder.get("/openapi", new OpenApiHandler(openAPI))
-                .register("/swagger-ui", service)
+
+        final DataContext dataContext = null;
+        final Set<DataType<?>> dataTypes = DataLoader.loadData(dataContext);
+        for (DataType<?> dataType : dataTypes) {
+            final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, connectionProvider);
+            try {
+                dataRepository.createTable();
+            } catch (SQLException e) {
+                throw new RuntimeException("Error creating table", e);
+            }
+            DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
+            routingBuilder.get("/", new GetAllHandler<>(handler));
+
+        }
+        return routingBuilder.register("/swagger-ui", service)
                 .get("/swagger-ui/swagger-initializer.js", new SwaggerInitHandler())
-                .get("/files/*", new FileHandler(dbHandler))
                 .register(createCorsSupport());
     }
 

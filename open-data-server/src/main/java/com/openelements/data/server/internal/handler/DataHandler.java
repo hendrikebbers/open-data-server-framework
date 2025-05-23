@@ -10,13 +10,7 @@ public interface DataHandler<E extends Record, D extends DataType<E>> {
 
     Page<E> getPage(int pageNumber, int pageSize) throws Exception;
 
-    ;
-
     long getCount() throws Exception;
-
-    ;
-
-    D getDataType();
 
     Class<E> getDataClass();
 

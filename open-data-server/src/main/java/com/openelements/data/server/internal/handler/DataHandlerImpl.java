@@ -10,13 +10,10 @@ public class DataHandlerImpl<E extends Record, D extends DataType<E>> implements
 
     private final D dataType;
 
-    private final Class<E> dataClass;
-
     private final DataRepository<E> dataRepository;
 
-    public DataHandlerImpl(final D dataType, final Class<E> dataClass, DataRepository<E> dataRepository) {
+    public DataHandlerImpl(final D dataType, DataRepository<E> dataRepository) {
         this.dataType = Objects.requireNonNull(dataType, "dataType must not be null");
-        this.dataClass = Objects.requireNonNull(dataClass, "dataClass must not be null");
         this.dataRepository = Objects.requireNonNull(dataRepository, "dataRepository must not be null");
     }
 
@@ -36,13 +33,8 @@ public class DataHandlerImpl<E extends Record, D extends DataType<E>> implements
     }
 
     @Override
-    public D getDataType() {
-        return dataType;
-    }
-
-    @Override
     public Class<E> getDataClass() {
-        return dataClass;
+        return dataType.dataClass();
     }
 
     @Override

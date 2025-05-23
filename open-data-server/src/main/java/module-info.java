@@ -1,4 +1,6 @@
-module com.openelements.data {
+module com.openelements.data.server {
+    exports com.openelements.data.server.internal.handler;
+    exports com.openelements.data.server;
     requires com.google.gson;
     requires org.slf4j;
     requires io.helidon.webclient;
@@ -9,4 +11,5 @@ module com.openelements.data {
     requires com.openelements.data.runtime;
     requires com.openelements.data.api;
     requires static org.jspecify;
+    requires java.sql;
 }
