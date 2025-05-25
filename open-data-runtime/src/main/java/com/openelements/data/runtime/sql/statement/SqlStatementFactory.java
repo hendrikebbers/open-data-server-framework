@@ -43,7 +43,7 @@ public class SqlStatementFactory {
         sql.append(table.getName());
         sql.append(" (");
         for (TableColumn<E, ?> column : table.getColumns()) {
-            sql.append(column.getName()).append(" ").append(column.getType().getSqlType()).append(", ");
+            sql.append(column.getName()).append(" ").append(column.getSqlType()).append(", ");
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
         sql.append(")");

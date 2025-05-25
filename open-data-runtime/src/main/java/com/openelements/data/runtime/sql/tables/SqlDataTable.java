@@ -28,7 +28,7 @@ public class SqlDataTable<E extends Record> {
         keyColumns = new ArrayList<>();
         dataType.attributes().forEach(attribute -> {
             final DataAttributeTypeSupport typeSupport = getTypeSupport(attribute.type());
-            TableColumn column = new TableColumn<>(attribute, typeSupport.getSqlDataType());
+            TableColumn column = new TableColumn<>(attribute, typeSupport.getSqlType());
             dataColumns.add(column);
             if (attribute.partOfIdentifier()) {
                 keyColumns.add(column);

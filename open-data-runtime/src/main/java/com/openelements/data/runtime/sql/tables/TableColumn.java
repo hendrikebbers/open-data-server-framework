@@ -1,21 +1,21 @@
 package com.openelements.data.runtime.sql.tables;
 
 import com.openelements.data.runtime.data.DataAttribute;
-import com.openelements.data.runtime.sql.types.SqlDataType;
 
 public class TableColumn<E extends Record, D> {
 
     private final DataAttribute<E, D> attribute;
 
-    private final SqlDataType<D> type;
+    private final String sqlType;
 
-    public TableColumn(DataAttribute<E, D> attribute, SqlDataType<D> type) {
-        this.type = type;
+    public TableColumn(DataAttribute<E, D> attribute, String sqlType) {
+        this.sqlType = sqlType;
         this.attribute = attribute;
     }
 
-    public SqlDataType<D> getType() {
-        return type;
+
+    public String getSqlType() {
+        return sqlType;
     }
 
     public String getName() {

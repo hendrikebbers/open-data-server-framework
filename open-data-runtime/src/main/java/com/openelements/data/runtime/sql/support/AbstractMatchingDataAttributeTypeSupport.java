@@ -1,16 +1,17 @@
 package com.openelements.data.runtime.sql.support;
 
-import com.openelements.data.runtime.sql.types.SqlDataType;
-
 public abstract class AbstractMatchingDataAttributeTypeSupport<D> implements MatchingDataAttributeTypeSupport<D> {
 
     private final String uniqueName;
 
-    private final SqlDataType<D> sqlDataType;
+    private final String sqlType;
 
-    protected AbstractMatchingDataAttributeTypeSupport(String uniqueName, SqlDataType<D> sqlDataType) {
+    private final Class<D> javaClass;
+
+    protected AbstractMatchingDataAttributeTypeSupport(String uniqueName, String sqlType, Class<D> javaClass) {
         this.uniqueName = uniqueName;
-        this.sqlDataType = sqlDataType;
+        this.sqlType = sqlType;
+        this.javaClass = javaClass;
     }
 
     @Override
@@ -19,7 +20,12 @@ public abstract class AbstractMatchingDataAttributeTypeSupport<D> implements Mat
     }
 
     @Override
-    public SqlDataType<D> getSqlDataType() {
-        return sqlDataType;
+    public String getSqlType() {
+        return sqlType;
+    }
+
+    @Override
+    public Class<D> getJavaType() {
+        return javaClass;
     }
 }

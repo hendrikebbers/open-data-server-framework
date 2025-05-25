@@ -3,12 +3,11 @@ package com.openelements.data.runtime.sql.support;
 import com.openelements.data.api.types.I18nString;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.repositories.I18nStringRepository;
-import com.openelements.data.runtime.sql.types.ReferenceType;
 
 public class I18NSupport extends AbstractDataAttributeTypeSupport<I18nString, Long> {
 
     public I18NSupport() {
-        super("I18nString", I18nString.class, ReferenceType.INSTANCE);
+        super("I18nString", I18nString.class, "LONG");
     }
 
     @Override

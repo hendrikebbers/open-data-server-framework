@@ -1,19 +1,17 @@
 package com.openelements.data.runtime.sql.support;
 
-import com.openelements.data.runtime.sql.types.SqlDataType;
-
 public abstract class AbstractDataAttributeTypeSupport<T, U> implements DataAttributeTypeSupport<T, U> {
 
     private final String uniqueName;
 
     private final Class<T> javaType;
 
-    private final SqlDataType<U> sqlDataType;
+    private final String sqlType;
 
-    protected AbstractDataAttributeTypeSupport(String uniqueName, Class<T> javaType, SqlDataType<U> sqlDataType) {
+    protected AbstractDataAttributeTypeSupport(String uniqueName, Class<T> javaType, String sqlType) {
         this.uniqueName = uniqueName;
         this.javaType = javaType;
-        this.sqlDataType = sqlDataType;
+        this.sqlType = sqlType;
     }
 
     @Override
@@ -27,7 +25,7 @@ public abstract class AbstractDataAttributeTypeSupport<T, U> implements DataAttr
     }
 
     @Override
-    public SqlDataType<U> getSqlDataType() {
-        return sqlDataType;
+    public String getSqlType() {
+        return "sqlType";
     }
 }
