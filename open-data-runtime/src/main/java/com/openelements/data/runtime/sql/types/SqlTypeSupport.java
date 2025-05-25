@@ -3,7 +3,6 @@ package com.openelements.data.runtime.sql.types;
 import com.openelements.data.runtime.sql.SqlConnection;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
@@ -39,12 +38,5 @@ public interface SqlTypeSupport<T, U> {
             instances.add(instance);
         }
         return Collections.unmodifiableSet(instances);
-    }
-
-    static <T, U> Optional<SqlTypeSupport<T, U>> forJavaType(Class<T> type) {
-        return getInstances().stream()
-                .filter(support -> support.getJavaType().isAssignableFrom(type))
-                .map(support -> (SqlTypeSupport<T, U>) support)
-                .findFirst();
     }
 }

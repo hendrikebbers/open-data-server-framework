@@ -3,6 +3,7 @@ package com.openelements.data.runtime.sql.tables;
 import com.openelements.data.runtime.data.DataAttribute;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.SqlDialect;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -12,15 +13,18 @@ import java.util.Map;
 
 public class SqlDataTable<E extends Record> {
 
+    private final SqlDialect sqlDialect;
+
     private final DataType<E> dataType;
 
     private final String uniqueName;
 
-    final List<TableColumn<E, ?>> dataColumns;
+    private final List<TableColumn<E, ?, ?>> dataColumns;
 
-    final List<TableColumn<E, ?>> keyColumns;
+    private final List<TableColumn<E, ?, ?>> keyColumns;
 
-    public SqlDataTable(DataType<E> dataType) {
+    public SqlDataTable(SqlDialect sqlDialect, DataType<E> dataType) {
+        this.sqlDialect = sqlDialect;
         this.dataType = dataType;
         this.uniqueName = dataType.name();
 
@@ -28,7 +32,7 @@ public class SqlDataTable<E extends Record> {
         keyColumns = new ArrayList<>();
         dataType.attributes().forEach(attribute -> {
             final SqlTypeSupport typeSupport = getTypeSupport(attribute.type());
-            TableColumn column = new TableColumn<>(attribute, typeSupport.getSqlType());
+            TableColumn column = new TableColumn<>(attribute, typeSupport);
             dataColumns.add(column);
             if (attribute.partOfIdentifier()) {
                 keyColumns.add(column);
@@ -36,7 +40,7 @@ public class SqlDataTable<E extends Record> {
         });
     }
 
-    private DataAttribute getAttribute(TableColumn<E, ?> column) {
+    private DataAttribute getAttribute(TableColumn<E, ?, ?> column) {
         return dataType.attributes().stream()
                 .filter(attribute -> attribute.name().equals(column.getName()))
                 .findFirst()
@@ -44,7 +48,7 @@ public class SqlDataTable<E extends Record> {
     }
 
     private SqlTypeSupport getTypeSupport(Class<?> type) {
-        return SqlTypeSupport.forJavaType(type)
+        return sqlDialect.getSqlTypeSupportForJavaType(type)
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + type));
     }
 
@@ -52,21 +56,21 @@ public class SqlDataTable<E extends Record> {
         return uniqueName;
     }
 
-    public List<TableColumn<E, ?>> getDataColumns() {
+    public List<TableColumn<E, ?, ?>> getDataColumns() {
         return Collections.unmodifiableList(dataColumns);
     }
 
-    public List<TableColumn<E, ?>> getDataColumnsWithoutKeys() {
-        final List<TableColumn<E, ?>> dataColumnsCopy = new ArrayList<>(getDataColumns());
+    public List<TableColumn<E, ?, ?>> getDataColumnsWithoutKeys() {
+        final List<TableColumn<E, ?, ?>> dataColumnsCopy = new ArrayList<>(getDataColumns());
         dataColumnsCopy.removeAll(getKeyColumns());
         return Collections.unmodifiableList(dataColumnsCopy);
     }
 
-    public List<TableColumn<E, ?>> getKeyColumns() {
+    public List<TableColumn<E, ?, ?>> getKeyColumns() {
         return Collections.unmodifiableList(keyColumns);
     }
 
-    public E convertRow(Map<TableColumn<E, ?>, Object> row, SqlConnection connection)
+    public E convertRow(Map<TableColumn<E, ?, ?>, Object> row, SqlConnection connection)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         List<Object> constructorParams = new ArrayList<>();
         getDataColumns().stream()
@@ -80,14 +84,14 @@ public class SqlDataTable<E extends Record> {
         return dataType.createInstance(constructorParams);
     }
 
-    public List<TableColumn<E, ?>> getColumns() {
-        final List<TableColumn<E, ?>> columns = new ArrayList<>();
+    public List<TableColumn<E, ?, ?>> getColumns() {
+        final List<TableColumn<E, ?, ?>> columns = new ArrayList<>();
         columns.addAll(getDataColumns());
         columns.addAll(getMetadataColumns());
         return Collections.unmodifiableList(columns);
     }
 
-    public List<TableColumn<E, ?>> getMetadataColumns() {
+    public List<TableColumn<E, ?, ?>> getMetadataColumns() {
         return List.of();
     }
 }

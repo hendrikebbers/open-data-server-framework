@@ -8,7 +8,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
 
     public <E extends Record> String createSelectStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("SELECT ");
-        for (TableColumn<E, ?> column : table.getColumns()) {
+        for (TableColumn<E, ?, ?> column : table.getColumns()) {
             sql.append(column.getName()).append(", ");
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
@@ -32,7 +32,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
     public <E extends Record> String createFindStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder(createSelectStatement(table));
         sql.append(" WHERE ");
-        for (TableColumn<E, ?> column : table.getKeyColumns()) {
+        for (TableColumn<E, ?, ?> column : table.getKeyColumns()) {
             sql.append(column.getName()).append(" = ? AND ");
         }
         sql.setLength(sql.length() - 5); // Remove the last " AND "
@@ -43,8 +43,12 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
         final StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         sql.append(table.getName());
         sql.append(" (");
-        for (TableColumn<E, ?> column : table.getColumns()) {
-            sql.append(column.getName()).append(" ").append(column.getSqlType()).append(", ");
+        for (TableColumn<E, ?, ?> column : table.getColumns()) {
+            sql.append(column.getName()).append(" ").append(column.getSqlType());
+            if (column.isNotNull()) {
+                sql.append(" NOT NULL");
+            }
+            sql.append(", ");
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
         sql.append(")");
@@ -57,7 +61,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
         sql.append(" ON ");
         sql.append(table.getName());
         sql.append(" (");
-        for (TableColumn<E, ?> column : table.getKeyColumns()) {
+        for (TableColumn<E, ?, ?> column : table.getKeyColumns()) {
             sql.append(column.getName()).append(", ");
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
@@ -68,14 +72,14 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
     public <E extends Record> String createUpdateStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("UPDATE ");
         sql.append(table.getName()).append(" SET ");
-        for (TableColumn<E, ?> column : table.getColumns()) {
+        for (TableColumn<E, ?, ?> column : table.getColumns()) {
             if (!table.getKeyColumns().contains(column)) {
                 sql.append(column.getName()).append(" = ?, ");
             }
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
         sql.append(" WHERE ");
-        for (TableColumn<E, ?> column : table.getKeyColumns()) {
+        for (TableColumn<E, ?, ?> column : table.getKeyColumns()) {
             sql.append(column.getName()).append(" = ? AND ");
         }
         sql.setLength(sql.length() - 5); // Remove the last " AND "
@@ -85,7 +89,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
     public <E extends Record> String createInsertStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("INSERT INTO ");
         sql.append(table.getName()).append(" (");
-        for (TableColumn<E, ?> column : table.getColumns()) {
+        for (TableColumn<E, ?, ?> column : table.getColumns()) {
             sql.append(column.getName()).append(", ");
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space

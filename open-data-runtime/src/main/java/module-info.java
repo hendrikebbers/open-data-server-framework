@@ -18,6 +18,8 @@ module com.openelements.data.runtime {
     provides com.openelements.data.runtime.sql.types.SqlTypeSupport with
             com.openelements.data.runtime.sql.types.impl.BooleanSupport,
             com.openelements.data.runtime.sql.types.impl.StringSupport,
-            com.openelements.data.runtime.sql.types.impl.I18NSupport;
+            com.openelements.data.runtime.sql.types.impl.I18NSupport,
+            com.openelements.data.runtime.sql.types.impl.FileSupport,
+            com.openelements.data.runtime.sql.types.impl.LocalDateSupport;
 
 }

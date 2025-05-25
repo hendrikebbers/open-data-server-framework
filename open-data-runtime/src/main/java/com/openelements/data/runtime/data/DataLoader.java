@@ -73,7 +73,7 @@ public class DataLoader {
                 final Attribute attribute = component.getAnnotation(Attribute.class);
                 required = attribute.required();
             } else {
-                required = true;
+                required = false;
             }
             final DataAttribute attribute = new DataAttribute(name, order, required, partOfIdentifier,
                     component.getType());

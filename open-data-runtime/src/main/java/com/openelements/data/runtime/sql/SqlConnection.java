@@ -9,12 +9,21 @@ public class SqlConnection {
 
     private final ConnectionProvider connectionProvider;
 
-    public SqlConnection(ConnectionProvider connectionProvider) {this.connectionProvider = connectionProvider;}
+    private final SqlDialect sqlDialect;
+
+    public SqlConnection(ConnectionProvider connectionProvider, SqlDialect sqlDialect) {
+        this.connectionProvider = connectionProvider;
+        this.sqlDialect = sqlDialect;
+    }
 
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         final Connection connection = connectionProvider.getConnection();
         final PreparedStatement internalPreparedStatement = connection.prepareStatement(sql);
         return new LoggablePreparedStatement(internalPreparedStatement);
 
+    }
+
+    public SqlDialect getSqlDialect() {
+        return sqlDialect;
     }
 }

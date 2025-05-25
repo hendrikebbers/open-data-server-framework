@@ -4,8 +4,7 @@ import com.openelements.data.api.DataSource;
 import com.openelements.data.api.context.DataContext;
 import com.openelements.data.runtime.data.DataLoader;
 import com.openelements.data.runtime.data.DataType;
-import com.openelements.data.runtime.h2.H2SqlStatementFactory;
-import com.openelements.data.runtime.sql.ConnectionProvider;
+import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.repositories.DataRepository;
 import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
 import com.openelements.data.server.internal.DataContextImpl;
@@ -31,11 +30,11 @@ public class DataServer {
 
     private final int port;
 
-    private final ConnectionProvider connectionProvider;
+    private final SqlConnection sqlConnection;
 
-    public DataServer(int port, ConnectionProvider connectionProvider) {
+    public DataServer(int port, SqlConnection sqlConnection) {
         this.port = port;
-        this.connectionProvider = connectionProvider;
+        this.sqlConnection = sqlConnection;
     }
 
     public void start() {
@@ -60,8 +59,7 @@ public class DataServer {
     private void initData(Builder routingBuilder) {
         final Set<DataType<?>> dataTypes = DataLoader.loadData();
         for (DataType<?> dataType : dataTypes) {
-            final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, connectionProvider,
-                    new H2SqlStatementFactory());
+            final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, sqlConnection);
             DataContextImpl.getInstance().addRepository(dataType.dataClass(), dataRepository);
             try {
                 dataRepository.createTable();

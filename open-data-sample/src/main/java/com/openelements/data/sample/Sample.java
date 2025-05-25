@@ -1,5 +1,8 @@
 package com.openelements.data.sample;
 
+import com.openelements.data.runtime.h2.H2Dialect;
+import com.openelements.data.runtime.sql.ConnectionProvider;
+import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.server.DataServer;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,9 +18,17 @@ public class Sample {
         }
     }
 
+    private static ConnectionProvider createConnectionProvider() {
+        return () -> createConnection();
+    }
+
+    private static SqlConnection createSqlConnection() {
+        return new SqlConnection(createConnectionProvider(), new H2Dialect());
+    }
+
 
     public static void main(String[] args) throws Exception {
-        DataServer dataServer = new DataServer(8080, Sample::createConnection);
+        DataServer dataServer = new DataServer(8080, createSqlConnection());
         dataServer.start();
     }
 }

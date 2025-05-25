@@ -8,10 +8,10 @@ public interface SqlTable {
 
     String getName();
 
-    List<TableColumn<?, ?>> getDataColumns();
+    List<TableColumn<?, ?, ?>> getDataColumns();
 
-    default List<TableColumn<?, ?>> getColumns() {
-        final List<TableColumn<?, ?>> columns = new ArrayList<>();
+    default List<TableColumn<?, ?, ?>> getColumns() {
+        final List<TableColumn<?, ?, ?>> columns = new ArrayList<>();
         columns.addAll(getDataColumns());
         columns.addAll(getMetadataColumns());
         return Collections.unmodifiableList(columns);
@@ -22,10 +22,10 @@ public interface SqlTable {
      *
      * @return
      */
-    List<TableColumn<?, ?>> getKeyColumns();
+    List<TableColumn<?, ?, ?>> getKeyColumns();
 
     // TODO: CREATION TIUME AND UUID
-    default List<TableColumn<?, ?>> getMetadataColumns() {
+    default List<TableColumn<?, ?, ?>> getMetadataColumns() {
         return List.of();
     }
 }
