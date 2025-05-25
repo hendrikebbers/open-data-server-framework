@@ -1,13 +1,21 @@
-package com.openelements.data.runtime.sql.types;
+package com.openelements.data.runtime.sql.types.impl;
 
 import com.openelements.data.api.types.I18nString;
+import com.openelements.data.runtime.h2.H2Dialect;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.repositories.I18nStringRepository;
+import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
+import java.util.Set;
 
 public class I18NSupport extends AbstractSqlTypeSupport<I18nString, Long> {
 
     public I18NSupport() {
         super(I18nString.class, "LONG");
+    }
+
+    @Override
+    public Set<String> getSupportedJdbcDrivers() {
+        return Set.of(H2Dialect.DRIVER_CLASS_NAME);
     }
 
     @Override
