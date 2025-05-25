@@ -7,6 +7,7 @@ import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.ConnectionProvider;
 import com.openelements.data.runtime.sql.repositories.DataRepository;
 import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
+import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
 import com.openelements.data.server.internal.DataContextImpl;
 import com.openelements.data.server.internal.handler.DataHandler;
 import com.openelements.data.server.internal.handler.DataHandlerImpl;
@@ -59,7 +60,8 @@ public class DataServer {
     private void initData(Builder routingBuilder) {
         final Set<DataType<?>> dataTypes = DataLoader.loadData();
         for (DataType<?> dataType : dataTypes) {
-            final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, connectionProvider);
+            final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, connectionProvider,
+                    new SqlStatementFactory());
             DataContextImpl.getInstance().addRepository(dataType.dataClass(), dataRepository);
             try {
                 dataRepository.createTable();

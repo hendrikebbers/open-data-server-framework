@@ -11,9 +11,9 @@ module com.openelements.data.runtime {
     exports com.openelements.data.runtime.sql.types;
     exports com.openelements.data.runtime.sql.statement;
 
-    uses SqlTypeSupport;
+    uses com.openelements.data.runtime.sql.types.SqlTypeSupport;
 
-    provides SqlTypeSupport with
+    provides com.openelements.data.runtime.sql.types.SqlTypeSupport with
             com.openelements.data.runtime.sql.types.BooleanSupport,
             com.openelements.data.runtime.sql.types.StringSupport,
             com.openelements.data.runtime.sql.types.I18NSupport;

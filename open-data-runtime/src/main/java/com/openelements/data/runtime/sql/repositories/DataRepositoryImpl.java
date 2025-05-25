@@ -24,20 +24,25 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     private final SqlConnection connection;
 
-    public DataRepositoryImpl(DataType<E> dataType, ConnectionProvider connectionProvider) {
-        this(new SqlDataTable<>(dataType), connectionProvider);
+    private final SqlStatementFactory sqlStatementFactory;
+
+    public DataRepositoryImpl(DataType<E> dataType, ConnectionProvider connectionProvider,
+            SqlStatementFactory sqlStatementFactory) {
+        this(new SqlDataTable<>(dataType), connectionProvider, sqlStatementFactory);
     }
 
-    public DataRepositoryImpl(SqlDataTable<E> table, ConnectionProvider connectionProvider) {
+    public DataRepositoryImpl(SqlDataTable<E> table, ConnectionProvider connectionProvider,
+            SqlStatementFactory sqlStatementFactory) {
         this.table = table;
         this.connection = new SqlConnection(connectionProvider);
+        this.sqlStatementFactory = sqlStatementFactory;
     }
 
     @Override
     public List<E> getAll()
             throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         final List<E> result = new ArrayList<>();
-        final String sqlStatement = SqlStatementFactory.createSelectStatement(table);
+        final String sqlStatement = sqlStatementFactory.createSelectStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
@@ -55,7 +60,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     public Page<E> getPage(int pageNumber, int pageSize)
             throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         final List<E> result = new ArrayList<>();
-        final String sqlStatement = SqlStatementFactory.createSelectPageStatement(table, pageNumber, pageSize);
+        final String sqlStatement = sqlStatementFactory.createSelectPageStatement(table, pageNumber, pageSize);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
@@ -77,7 +82,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     @Override
     public long getCount() throws SQLException {
-        final String sqlStatement = SqlStatementFactory.createQueryCountStatement(table);
+        final String sqlStatement = sqlStatementFactory.createQueryCountStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         final ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
@@ -89,11 +94,11 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     @Override
     public void createTable() throws SQLException {
-        final String createTableStatement = SqlStatementFactory.createTableCreateStatement(table);
+        final String createTableStatement = sqlStatementFactory.createTableCreateStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(createTableStatement);
         preparedStatement.execute();
 
-        final String createUniqueIndexStatement = SqlStatementFactory.createUniqueIndexStatement(table);
+        final String createUniqueIndexStatement = sqlStatementFactory.createUniqueIndexStatement(table);
         final PreparedStatement indexPreparedStatement = connection.prepareStatement(createUniqueIndexStatement);
         indexPreparedStatement.execute();
     }
@@ -119,7 +124,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     }
 
     private void update(E data) throws SQLException {
-        final String sqlStatement = SqlStatementFactory.createUpdateStatement(table);
+        final String sqlStatement = sqlStatementFactory.createUpdateStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         int index = 1;
         for (TableColumn<E, ?> column : table.getDataColumnsWithoutKeys()) {
@@ -141,7 +146,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     }
 
     private void insert(E data) throws SQLException {
-        final String sqlStatement = SqlStatementFactory.createInsertStatement(table);
+        final String sqlStatement = sqlStatementFactory.createInsertStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         int index = 1;
         for (TableColumn<E, ?> column : table.getDataColumns()) {
@@ -158,7 +163,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     }
 
     private boolean contains(E data) throws SQLException {
-        final String sqlStatement = SqlStatementFactory.createFindStatement(table);
+        final String sqlStatement = sqlStatementFactory.createFindStatement(table);
         final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
         int index = 1;
         for (TableColumn<E, ?> column : table.getKeyColumns()) {

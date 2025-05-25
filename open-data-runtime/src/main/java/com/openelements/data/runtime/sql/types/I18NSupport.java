@@ -7,7 +7,7 @@ import com.openelements.data.runtime.sql.repositories.I18nStringRepository;
 public class I18NSupport extends AbstractSqlTypeSupport<I18nString, Long> {
 
     public I18NSupport() {
-        super("I18nString", I18nString.class, "LONG");
+        super(I18nString.class, "LONG");
     }
 
     @Override

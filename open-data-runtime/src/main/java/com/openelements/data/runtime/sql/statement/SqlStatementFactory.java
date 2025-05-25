@@ -5,7 +5,7 @@ import com.openelements.data.runtime.sql.tables.TableColumn;
 
 public class SqlStatementFactory {
 
-    public static <E extends Record> String createSelectStatement(SqlDataTable<E> table) {
+    public <E extends Record> String createSelectStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("SELECT ");
         for (TableColumn<E, ?> column : table.getColumns()) {
             sql.append(column.getName()).append(", ");
@@ -15,20 +15,20 @@ public class SqlStatementFactory {
         return sql.toString();
     }
 
-    public static <E extends Record> String createSelectPageStatement(SqlDataTable<E> table, int pageNumber,
+    public <E extends Record> String createSelectPageStatement(SqlDataTable<E> table, int pageNumber,
             int pageSize) {
         final StringBuilder sql = new StringBuilder(createSelectStatement(table));
         sql.append(" LIMIT ").append(pageSize).append(" OFFSET ").append((pageNumber) * pageSize);
         return sql.toString();
     }
 
-    public static <E extends Record> String createQueryCountStatement(SqlDataTable<E> table) {
+    public <E extends Record> String createQueryCountStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ");
         sql.append(table.getName());
         return sql.toString();
     }
 
-    public static <E extends Record> String createFindStatement(SqlDataTable<E> table) {
+    public <E extends Record> String createFindStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder(createSelectStatement(table));
         sql.append(" WHERE ");
         for (TableColumn<E, ?> column : table.getKeyColumns()) {
@@ -38,7 +38,7 @@ public class SqlStatementFactory {
         return sql.toString();
     }
 
-    public static <E extends Record> String createTableCreateStatement(SqlDataTable<E> table) {
+    public <E extends Record> String createTableCreateStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         sql.append(table.getName());
         sql.append(" (");
@@ -50,7 +50,7 @@ public class SqlStatementFactory {
         return sql.toString();
     }
 
-    public static <E extends Record> String createUniqueIndexStatement(SqlDataTable<E> table) {
+    public <E extends Record> String createUniqueIndexStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("CREATE UNIQUE INDEX IF NOT EXISTS ");
         sql.append("UNIQUE_INDEX_" + table.getName());
         sql.append(" ON ");
@@ -64,7 +64,7 @@ public class SqlStatementFactory {
         return sql.toString();
     }
 
-    public static <E extends Record> String createUpdateStatement(SqlDataTable<E> table) {
+    public <E extends Record> String createUpdateStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("UPDATE ");
         sql.append(table.getName()).append(" SET ");
         for (TableColumn<E, ?> column : table.getColumns()) {
@@ -81,7 +81,7 @@ public class SqlStatementFactory {
         return sql.toString();
     }
 
-    public static <E extends Record> String createInsertStatement(SqlDataTable<E> table) {
+    public <E extends Record> String createInsertStatement(SqlDataTable<E> table) {
         final StringBuilder sql = new StringBuilder("INSERT INTO ");
         sql.append(table.getName()).append(" (");
         for (TableColumn<E, ?> column : table.getColumns()) {

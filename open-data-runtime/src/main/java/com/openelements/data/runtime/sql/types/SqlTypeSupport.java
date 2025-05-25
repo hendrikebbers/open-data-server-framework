@@ -10,8 +10,6 @@ import org.jspecify.annotations.Nullable;
 
 public interface SqlTypeSupport<T, U> {
 
-    String getUniqueName();
-
     Class<T> getJavaType();
 
     String getSqlType();
@@ -25,6 +23,14 @@ public interface SqlTypeSupport<T, U> {
         ServiceLoader<SqlTypeSupport> loader = ServiceLoader.load(SqlTypeSupport.class);
         Set<SqlTypeSupport<?, ?>> instances = new java.util.HashSet<>();
         for (SqlTypeSupport<?, ?> instance : loader) {
+            instances.stream()
+                    .filter(support -> support.getJavaType().equals(instance.getJavaType()))
+                    .findFirst()
+                    .ifPresent(existing -> {
+                        throw new IllegalStateException(
+                                "Duplicate SqlTypeSupport found for type: "
+                                        + instance.getJavaType());
+                    });
             instances.add(instance);
         }
         return Collections.unmodifiableSet(instances);
