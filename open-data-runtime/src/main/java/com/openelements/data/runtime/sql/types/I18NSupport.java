@@ -1,10 +1,10 @@
-package com.openelements.data.runtime.sql.support;
+package com.openelements.data.runtime.sql.types;
 
 import com.openelements.data.api.types.I18nString;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.repositories.I18nStringRepository;
 
-public class I18NSupport extends AbstractDataAttributeTypeSupport<I18nString, Long> {
+public class I18NSupport extends AbstractSqlTypeSupport<I18nString, Long> {
 
     public I18NSupport() {
         super("I18nString", I18nString.class, "LONG");

@@ -1,10 +1,10 @@
-package com.openelements.data.runtime.sql.support;
+package com.openelements.data.runtime.sql.types;
 
 import com.openelements.data.runtime.sql.SqlConnection;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public interface MatchingDataAttributeTypeSupport<D> extends DataAttributeTypeSupport<D, D> {
+public interface MatchingSqlTypeSupport<D> extends SqlTypeSupport<D, D> {
 
     @Override
     default D convertValueFromSqlResult(D sqlValue, SqlConnection connection) {

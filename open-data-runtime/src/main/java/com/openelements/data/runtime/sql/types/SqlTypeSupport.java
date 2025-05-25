@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.sql.support;
+package com.openelements.data.runtime.sql.types;
 
 import com.openelements.data.runtime.sql.SqlConnection;
 import java.util.Collections;
@@ -8,7 +8,7 @@ import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public interface DataAttributeTypeSupport<T, U> {
+public interface SqlTypeSupport<T, U> {
 
     String getUniqueName();
 
@@ -21,19 +21,19 @@ public interface DataAttributeTypeSupport<T, U> {
     U convertValueForSqlPersit(@Nullable T newValue, @Nullable U currentValue,
             @NonNull SqlConnection connection);
 
-    static Set<DataAttributeTypeSupport<?, ?>> getInstances() {
-        ServiceLoader<DataAttributeTypeSupport> loader = ServiceLoader.load(DataAttributeTypeSupport.class);
-        Set<DataAttributeTypeSupport<?, ?>> instances = new java.util.HashSet<>();
-        for (DataAttributeTypeSupport<?, ?> instance : loader) {
+    static Set<SqlTypeSupport<?, ?>> getInstances() {
+        ServiceLoader<SqlTypeSupport> loader = ServiceLoader.load(SqlTypeSupport.class);
+        Set<SqlTypeSupport<?, ?>> instances = new java.util.HashSet<>();
+        for (SqlTypeSupport<?, ?> instance : loader) {
             instances.add(instance);
         }
         return Collections.unmodifiableSet(instances);
     }
 
-    static <T, U> Optional<DataAttributeTypeSupport<T, U>> forType(Class<T> type) {
+    static <T, U> Optional<SqlTypeSupport<T, U>> forJavaType(Class<T> type) {
         return getInstances().stream()
                 .filter(support -> support.getJavaType().isAssignableFrom(type))
-                .map(support -> (DataAttributeTypeSupport<T, U>) support)
+                .map(support -> (SqlTypeSupport<T, U>) support)
                 .findFirst();
     }
 }

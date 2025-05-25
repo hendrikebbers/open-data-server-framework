@@ -8,14 +8,14 @@ module com.openelements.data.runtime {
     exports com.openelements.data.runtime.sql.repositories;
     exports com.openelements.data.runtime.sql.tables;
     exports com.openelements.data.runtime.data;
-    exports com.openelements.data.runtime.sql.support;
+    exports com.openelements.data.runtime.sql.types;
     exports com.openelements.data.runtime.sql.statement;
 
-    uses com.openelements.data.runtime.sql.support.DataAttributeTypeSupport;
+    uses SqlTypeSupport;
 
-    provides com.openelements.data.runtime.sql.support.DataAttributeTypeSupport with
-            com.openelements.data.runtime.sql.support.BooleanSupport,
-            com.openelements.data.runtime.sql.support.StringSupport,
-            com.openelements.data.runtime.sql.support.I18NSupport;
+    provides SqlTypeSupport with
+            com.openelements.data.runtime.sql.types.BooleanSupport,
+            com.openelements.data.runtime.sql.types.StringSupport,
+            com.openelements.data.runtime.sql.types.I18NSupport;
 
 }

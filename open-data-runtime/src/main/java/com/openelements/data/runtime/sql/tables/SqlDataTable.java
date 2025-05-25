@@ -3,7 +3,7 @@ package com.openelements.data.runtime.sql.tables;
 import com.openelements.data.runtime.data.DataAttribute;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.support.DataAttributeTypeSupport;
+import com.openelements.data.runtime.sql.types.SqlTypeSupport;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +27,7 @@ public class SqlDataTable<E extends Record> {
         dataColumns = new ArrayList<>();
         keyColumns = new ArrayList<>();
         dataType.attributes().forEach(attribute -> {
-            final DataAttributeTypeSupport typeSupport = getTypeSupport(attribute.type());
+            final SqlTypeSupport typeSupport = getTypeSupport(attribute.type());
             TableColumn column = new TableColumn<>(attribute, typeSupport.getSqlType());
             dataColumns.add(column);
             if (attribute.partOfIdentifier()) {
@@ -43,8 +43,8 @@ public class SqlDataTable<E extends Record> {
                 .orElseThrow(() -> new IllegalArgumentException("No attribute found for column: " + column));
     }
 
-    private DataAttributeTypeSupport getTypeSupport(Class<?> type) {
-        return DataAttributeTypeSupport.forType(type)
+    private SqlTypeSupport getTypeSupport(Class<?> type) {
+        return SqlTypeSupport.forJavaType(type)
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + type));
     }
 
@@ -73,7 +73,7 @@ public class SqlDataTable<E extends Record> {
                 .forEach(column -> {
                     final Object rawValue = row.get(column);
                     final DataAttribute attribute = getAttribute(column);
-                    final DataAttributeTypeSupport typeSupport = getTypeSupport(attribute.type());
+                    final SqlTypeSupport typeSupport = getTypeSupport(attribute.type());
                     final Object value = typeSupport.convertValueFromSqlResult(rawValue, connection);
                     constructorParams.add(value);
                 });
