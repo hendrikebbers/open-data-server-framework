@@ -60,7 +60,7 @@ public class DataContextImpl implements DataContext {
     }
 
     @Override
-    public <T extends Record> void provide(Class<T> dataType, List<T> data) {
+    public <T extends Record> void store(Class<T> dataType, List<T> data) {
         final DataRepository<T> dataRepository = (DataRepository<T>) repositories.get(dataType);
         if (dataRepository == null) {
             throw new IllegalArgumentException("No data repository found for data type: " + dataType);

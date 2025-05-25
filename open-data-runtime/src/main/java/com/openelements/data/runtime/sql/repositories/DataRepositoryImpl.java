@@ -5,8 +5,8 @@ import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.data.PageImpl;
 import com.openelements.data.runtime.sql.ConnectionProvider;
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
-import com.openelements.data.runtime.sql.tables.SqlStatementFactory;
 import com.openelements.data.runtime.sql.tables.TableColumn;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.PreparedStatement;
@@ -89,9 +89,13 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     @Override
     public void createTable() throws SQLException {
-        final String sqlStatement = SqlStatementFactory.createTableCreateStatement(table);
-        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
+        final String createTableStatement = SqlStatementFactory.createTableCreateStatement(table);
+        final PreparedStatement preparedStatement = connection.prepareStatement(createTableStatement);
         preparedStatement.execute();
+
+        final String createUniqueIndexStatement = SqlStatementFactory.createUniqueIndexStatement(table);
+        final PreparedStatement indexPreparedStatement = connection.prepareStatement(createUniqueIndexStatement);
+        indexPreparedStatement.execute();
     }
 
     @Override
@@ -163,7 +167,6 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             index++;
         }
         final ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
         if (resultSet.next()) {
             return true;
         }

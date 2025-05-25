@@ -1,6 +1,6 @@
 package com.openelements.data.runtime.sql;
 
-import com.openelements.data.runtime.sql.logging.LoggablePreparedStatement;
+import com.openelements.data.runtime.sql.statement.LoggablePreparedStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

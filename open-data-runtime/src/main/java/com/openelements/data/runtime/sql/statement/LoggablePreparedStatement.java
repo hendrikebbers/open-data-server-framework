@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.sql.logging;
+package com.openelements.data.runtime.sql.statement;
 
 import java.io.InputStream;
 import java.io.Reader;

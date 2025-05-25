@@ -15,6 +15,10 @@ public interface DataContext {
 
     <T extends Record> Page<T> getAll(Class<T> dataType, int pageSize);
 
-    <T extends Record> void provide(Class<T> dataType, List<T> data);
+    <T extends Record> void store(Class<T> dataType, List<T> data);
+
+    default <T extends Record> void store(Class<T> dataType, T data) {
+        store(dataType, List.of(data));
+    }
 
 }

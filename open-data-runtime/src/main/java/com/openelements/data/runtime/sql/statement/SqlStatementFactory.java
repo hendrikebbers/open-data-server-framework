@@ -1,4 +1,7 @@
-package com.openelements.data.runtime.sql.tables;
+package com.openelements.data.runtime.sql.statement;
+
+import com.openelements.data.runtime.sql.tables.SqlDataTable;
+import com.openelements.data.runtime.sql.tables.TableColumn;
 
 public class SqlStatementFactory {
 
@@ -41,6 +44,20 @@ public class SqlStatementFactory {
         sql.append(" (");
         for (TableColumn<E, ?> column : table.getColumns()) {
             sql.append(column.getName()).append(" ").append(column.getType().getSqlType()).append(", ");
+        }
+        sql.setLength(sql.length() - 2); // Remove the last comma and space
+        sql.append(")");
+        return sql.toString();
+    }
+
+    public static <E extends Record> String createUniqueIndexStatement(SqlDataTable<E> table) {
+        final StringBuilder sql = new StringBuilder("CREATE UNIQUE INDEX IF NOT EXISTS ");
+        sql.append("UNIQUE_INDEX_" + table.getName());
+        sql.append(" ON ");
+        sql.append(table.getName());
+        sql.append(" (");
+        for (TableColumn<E, ?> column : table.getKeyColumns()) {
+            sql.append(column.getName()).append(", ");
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
         sql.append(")");

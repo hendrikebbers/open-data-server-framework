@@ -17,13 +17,12 @@ public class EmployeeSupport implements DataTypeProvider, DataSource {
         return Set.of(Employee.class);
     }
 
-
     @Override
     public void install(DataContext dataContext) {
         final Runnable runnable = () -> {
             try {
                 Employee employee = new Employee("John", "Doe", "john@doe.com");
-                dataContext.provide(Employee.class, List.of(employee));
+                dataContext.store(Employee.class, List.of(employee));
             } catch (Exception e) {
                 log.error("Error providing data", e);
             }
