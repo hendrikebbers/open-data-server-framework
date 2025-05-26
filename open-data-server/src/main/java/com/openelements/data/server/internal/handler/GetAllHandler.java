@@ -9,8 +9,12 @@ import com.openelements.data.server.internal.JsonFactory;
 import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.http.ServerResponse;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GetAllHandler<E extends Record, D extends DataType<E>> extends AbstractHandler {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final DataHandler<E, D> dataHandler;
 
@@ -42,9 +46,11 @@ public class GetAllHandler<E extends Record, D extends DataType<E>> extends Abst
             } catch (Exception e) {
                 serverResponse.status(500);
                 serverResponse.send("Error processing request: " + e.getMessage());
+                log.error("Error processing request", e);
             }
         } else {
             serverResponse.send("Unsupported content type: " + requestedContentType.getContentType());
+            log.error("Unsupported content type requested: {}", requestedContentType.getContentType());
         }
     }
 }

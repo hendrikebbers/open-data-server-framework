@@ -4,11 +4,10 @@ import com.openelements.data.api.context.Page;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.data.PageImpl;
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.statement.SqlStatement;
 import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,39 +28,46 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     }
 
     @Override
-    public List<E> getAll()
-            throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public List<E> getAll() throws SQLException {
         final List<E> result = new ArrayList<>();
-        final String sqlStatement = getSqlStatementFactory().createSelectStatement(table);
-        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        final ResultSet resultSet = preparedStatement.executeQuery();
+        final ResultSet resultSet = getSqlStatementFactory().createSelectStatement(table)
+                .toPreparedStatement(connection).executeQuery();
         while (resultSet.next()) {
             final Map<TableColumn<E, ?, ?>, Object> row = new HashMap<>();
             for (TableColumn<E, ?, ?> column : table.getColumns()) {
                 row.put(column, resultSet.getObject(column.getName()));
             }
-            final E entry = table.convertRow(row, connection);
-            result.add(entry);
+            try {
+                final E entry = table.convertRow(row, connection);
+                result.add(entry);
+            } catch (Exception e) {
+                throw new SQLException("Error converting row to data type", e);
+            }
         }
         return Collections.unmodifiableList(result);
     }
 
     @Override
     public Page<E> getPage(int pageNumber, int pageSize)
-            throws SQLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+            throws SQLException {
         final List<E> result = new ArrayList<>();
-        final String sqlStatement = getSqlStatementFactory()
-                .createSelectPageStatement(table, pageNumber, pageSize);
-        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        final ResultSet resultSet = preparedStatement.executeQuery();
-        while (resultSet.next()) {
-            final Map<TableColumn<E, ?, ?>, Object> row = new HashMap<>();
-            for (TableColumn<E, ?, ?> column : table.getColumns()) {
-                row.put(column, resultSet.getObject(column.getName()));
+        connection.runInTransaction(() -> {
+            final ResultSet resultSet = getSqlStatementFactory()
+                    .createSelectPageStatement(table, pageNumber, pageSize).toPreparedStatement(connection)
+                    .executeQuery();
+            while (resultSet.next()) {
+                final Map<TableColumn<E, ?, ?>, Object> row = new HashMap<>();
+                for (TableColumn<E, ?, ?> column : table.getColumns()) {
+                    row.put(column, resultSet.getObject(column.getName()));
+                }
+                try {
+                    final E entry = table.convertRow(row, connection);
+                    result.add(entry);
+                } catch (Exception e) {
+                    throw new SQLException("Error converting row to data type", e);
+                }
             }
-            final E entry = table.convertRow(row, connection);
-            result.add(entry);
-        }
+        });
         return new PageImpl<>(result, pageNumber, pageSize, (number, size) -> {
             try {
                 return getPage(number, size);
@@ -71,49 +77,54 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         });
     }
 
-    private SqlStatementFactory getSqlStatementFactory() {
-        return connection.getSqlDialect().getSqlStatementFactory();
-    }
-
     @Override
     public long getCount() throws SQLException {
-        final String sqlStatement = getSqlStatementFactory()
-                .createQueryCountStatement(table);
-        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        final ResultSet resultSet = preparedStatement.executeQuery();
-        if (resultSet.next()) {
-            return resultSet.getLong(1);
-        } else {
-            throw new SQLException("Failed to retrieve count from the database.");
-        }
+        return connection.runInTransaction(() -> {
+            final ResultSet resultSet = getSqlStatementFactory()
+                    .createSelectCountStatement(table).toPreparedStatement(connection).executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            } else {
+                throw new SQLException("Failed to retrieve count from the database.");
+            }
+        });
     }
 
     @Override
     public void createTable() throws SQLException {
-        final String createTableStatement = getSqlStatementFactory()
-                .createTableCreateStatement(table);
-        final PreparedStatement preparedStatement = connection.prepareStatement(createTableStatement);
-        preparedStatement.execute();
-
-        final String createUniqueIndexStatement = getSqlStatementFactory()
-                .createUniqueIndexStatement(table);
-        final PreparedStatement indexPreparedStatement = connection.prepareStatement(createUniqueIndexStatement);
-        indexPreparedStatement.execute();
+        connection.runInTransaction(() -> {
+            getSqlStatementFactory()
+                    .createTableCreateStatement(table).toPreparedStatement(connection).execute();
+            getSqlStatementFactory()
+                    .createUniqueIndexStatement(table).toPreparedStatement(connection).execute();
+        });
     }
 
     @Override
     public void store(List<E> data) throws SQLException {
-        for (E e : data) {
-            try {
-                store(e);
-            } catch (Exception e1) {
-                throw new SQLException("Error storing data", e1);
+        connection.runInTransaction(() -> {
+            for (E e : data) {
+                try {
+                    storeImpl(e);
+                } catch (SQLException ex) {
+                    throw new RuntimeException("Error storing data", ex);
+                }
             }
-        }
+        });
     }
 
     @Override
     public void store(E data) throws SQLException {
+        connection.runInTransaction(() -> {
+            try {
+                storeImpl(data);
+            } catch (SQLException e) {
+                throw new RuntimeException("Error storing data", e);
+            }
+        });
+    }
+
+    private void storeImpl(E data) throws SQLException {
         if (contains(data)) {
             update(data);
         } else {
@@ -122,57 +133,65 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     }
 
     private void update(E data) throws SQLException {
-        final String sqlStatement = getSqlStatementFactory().createUpdateStatement(table);
-        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        int index = 1;
-        for (TableColumn<E, ?, ?> column : table.getDataColumnsWithoutKeys()) {
-            final Object value = column.getJavaValueFor(data);
-            preparedStatement.setObject(index, value);
-            index++;
-        }
-        for (TableColumn<E, ?, ?> column : table.getMetadataColumns()) {
-            final Object value = column.getJavaValueFor(data);
-            preparedStatement.setObject(index, value);
-            index++;
+        final SqlStatement sqlStatement = getSqlStatementFactory().createUpdateStatement(table);
+        for (TableColumn<E, ?, ?> column : table.getColumnsWithoutKeys()) {
+            if (column.isReference()) {
+                Object newValue = updateReference(data, column);
+                sqlStatement.set(column.getName(), newValue);
+            } else {
+                final Object value = column.getSqlValue(data, connection);
+                sqlStatement.set(column.getName(), value);
+            }
         }
         for (TableColumn<E, ?, ?> column : table.getKeyColumns()) {
-            final Object value = column.getJavaValueFor(data);
-            preparedStatement.setObject(index, value);
-            index++;
+            final Object value = column.getSqlValue(data, connection);
+            sqlStatement.set(column.getName(), value);
         }
-        preparedStatement.executeUpdate();
+        sqlStatement.toPreparedStatement(connection).executeUpdate();
+    }
+
+    private <D, U> U updateReference(E data, TableColumn<E, D, U> column)
+            throws SQLException {
+        final SqlStatement selectColumnStatementSql = getSqlStatementFactory().createSelectStatement(table,
+                List.of(column), table.getKeyColumns());
+        for (TableColumn<E, ?, ?> keyColumn : table.getKeyColumns()) {
+            final Object value = keyColumn.getSqlValue(data, connection);
+            selectColumnStatementSql.set(keyColumn.getName(), value);
+        }
+        final ResultSet resultSet = selectColumnStatementSql.toPreparedStatement(connection).executeQuery();
+        resultSet.next();
+        final U currentValue = (U) resultSet.getObject(1, column.getSqlClass());
+        return column.updateReference(currentValue, data, connection);
     }
 
     private void insert(E data) throws SQLException {
-        final String sqlStatement = getSqlStatementFactory().createInsertStatement(table);
-        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        int index = 1;
-        for (TableColumn<E, ?, ?> column : table.getDataColumns()) {
-            final Object value = column.getJavaValueFor(data);
-            preparedStatement.setObject(index, value);
-            index++;
+        final SqlStatement sqlStatement = getSqlStatementFactory().createInsertStatement(table);
+        for (TableColumn<E, ?, ?> column : table.getColumns()) {
+            if (column.isReference()) {
+                final Object value = column.insertReference(data, connection);
+                sqlStatement.set(column.getName(), value);
+            } else {
+                final Object value = column.getSqlValue(data, connection);
+                sqlStatement.set(column.getName(), value);
+            }
         }
-        for (TableColumn<E, ?, ?> column : table.getMetadataColumns()) {
-            final Object value = column.getJavaValueFor(data);
-            preparedStatement.setObject(index, value);
-            index++;
-        }
-        preparedStatement.executeUpdate();
+        sqlStatement.toPreparedStatement(connection).executeUpdate();
     }
 
     private boolean contains(E data) throws SQLException {
-        final String sqlStatement = getSqlStatementFactory().createFindStatement(table);
-        final PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);
-        int index = 1;
+        final SqlStatement sqlStatement = getSqlStatementFactory().createFindStatement(table);
         for (TableColumn<E, ?, ?> column : table.getKeyColumns()) {
-            final Object value = column.getJavaValueFor(data);
-            preparedStatement.setObject(index, value);
-            index++;
+            final Object value = column.getSqlValue(data, connection);
+            sqlStatement.set(column.getName(), value);
         }
-        final ResultSet resultSet = preparedStatement.executeQuery();
+        final ResultSet resultSet = sqlStatement.toPreparedStatement(connection).executeQuery();
         if (resultSet.next()) {
             return true;
         }
         return false;
+    }
+
+    private SqlStatementFactory getSqlStatementFactory() {
+        return connection.getSqlDialect().getSqlStatementFactory();
     }
 }

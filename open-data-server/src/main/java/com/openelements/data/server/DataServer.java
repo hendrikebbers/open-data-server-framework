@@ -1,13 +1,12 @@
 package com.openelements.data.server;
 
 import com.openelements.data.api.DataSource;
-import com.openelements.data.api.context.DataContext;
 import com.openelements.data.runtime.data.DataLoader;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.SqlDataContext;
 import com.openelements.data.runtime.sql.repositories.DataRepository;
 import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
-import com.openelements.data.server.internal.DataContextImpl;
 import com.openelements.data.server.internal.handler.DataHandler;
 import com.openelements.data.server.internal.handler.DataHandlerImpl;
 import com.openelements.data.server.internal.handler.GetAllHandler;
@@ -20,7 +19,7 @@ import io.helidon.webserver.http.HttpService;
 import io.helidon.webserver.staticcontent.ClasspathHandlerConfig;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
 import java.sql.SQLException;
-import java.util.Set;
+import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,24 +56,21 @@ public class DataServer {
     }
 
     private void initData(Builder routingBuilder) {
-        final Set<DataType<?>> dataTypes = DataLoader.loadData();
-        for (DataType<?> dataType : dataTypes) {
+        SqlDataContext dataContext = new SqlDataContext(Executors.newScheduledThreadPool(4));
+        for (DataType<?> dataType : DataLoader.loadData()) {
             final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, sqlConnection);
-            DataContextImpl.getInstance().addRepository(dataType.dataClass(), dataRepository);
-            try {
-                dataRepository.createTable();
-            } catch (SQLException e) {
-                throw new RuntimeException("Error creating table", e);
-            }
+            dataContext.addRepository(dataType.dataClass(), dataRepository);
             DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
             routingBuilder.get("/" + handler.getName(), new GetAllHandler<>(handler));
             log.info("Registered handler: {}", "/" + handler.getName());
-
-            final DataContext dataContext = DataContextImpl.getInstance();
-            final Set<DataSource> instances = DataSource.getInstances();
-            for (DataSource provider : instances) {
-                provider.install(dataContext);
-            }
+        }
+        try {
+            dataContext.initialize(sqlConnection);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error in sql init", e);
+        }
+        for (DataSource provider : DataSource.getInstances()) {
+            provider.install(dataContext);
         }
     }
 

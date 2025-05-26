@@ -3,16 +3,16 @@ package com.openelements.data.runtime.sql.types.impl;
 import com.openelements.data.runtime.h2.H2Dialect;
 import com.openelements.data.runtime.sql.types.AbstractMatchingSqlTypeSupport;
 import java.util.Set;
+import java.util.UUID;
 
-public class BooleanSupport extends AbstractMatchingSqlTypeSupport<Boolean> {
+public class UUIDSupport extends AbstractMatchingSqlTypeSupport<UUID> {
 
-    public BooleanSupport() {
-        super(Boolean.class, "BOOLEAN");
+    public UUIDSupport() {
+        super(UUID.class, "UUID");
     }
 
     @Override
     public Set<String> getSupportedJdbcDrivers() {
         return Set.of(H2Dialect.DRIVER_CLASS_NAME);
     }
-
 }

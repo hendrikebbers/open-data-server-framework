@@ -1,27 +1,47 @@
-package com.openelements.data.server.internal;
+package com.openelements.data.runtime.sql;
 
 import com.openelements.data.api.context.DataContext;
 import com.openelements.data.api.context.Page;
 import com.openelements.data.runtime.sql.repositories.DataRepository;
+import com.openelements.data.runtime.sql.repositories.InternalI18nStringRepository;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DataContextImpl implements DataContext {
-
-    private final static DataContextImpl INSTANCE = new DataContextImpl();
+public class SqlDataContext implements DataContext {
 
     private final ConcurrentMap<Class<? extends Record>, ZonedDateTime> updateTimes = new ConcurrentHashMap<>();
 
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(
-            Runtime.getRuntime().availableProcessors());
-
     private final ConcurrentMap<Class<? extends Record>, DataRepository<?>> repositories = new ConcurrentHashMap<>();
+
+    private final ScheduledExecutorService executor;
+
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
+
+    public SqlDataContext(ScheduledExecutorService executor) {
+        this.executor = executor;
+    }
+
+    public void initialize(SqlConnection connection) throws SQLException {
+        if (initialized.get()) {
+            throw new IllegalStateException("Already initialized");
+        }
+        InternalI18nStringRepository i18nStringRepository = new InternalI18nStringRepository(connection);
+        i18nStringRepository.createTables(connection);
+
+        repositories.forEach((dataType, repository) -> {
+            try {
+                repository.createTable();
+            } catch (SQLException e) {
+                throw new RuntimeException("Error initializing repository for data type: " + dataType, e);
+            }
+        });
+    }
 
     @Override
     public Optional<ZonedDateTime> getLastUpdateTime(Class<? extends Record> dataType) {
@@ -73,11 +93,9 @@ public class DataContextImpl implements DataContext {
     }
 
     public void addRepository(Class<? extends Record> dataType, DataRepository<?> repository) {
+        if (initialized.get()) {
+            throw new IllegalStateException("Cannot add repository after initialization");
+        }
         repositories.put(dataType, repository);
     }
-
-    public static DataContextImpl getInstance() {
-        return INSTANCE;
-    }
-
 }

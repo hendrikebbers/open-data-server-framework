@@ -12,12 +12,12 @@ public abstract class AbstractSqlTypeSupport<T, U> implements SqlTypeSupport<T, 
     }
 
     @Override
-    public Class<T> getJavaType() {
+    public Class<T> getJavaClass() {
         return javaType;
     }
 
     @Override
-    public String getSqlType() {
+    public String getNativeSqlType() {
         return sqlType;
     }
 }

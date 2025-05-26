@@ -3,9 +3,11 @@ package com.openelements.data.runtime.data;
 import com.openelements.data.api.DataTypeProvider;
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class DataLoader {
@@ -36,12 +38,12 @@ public class DataLoader {
             dataTypeName = dataType.getSimpleName();
             publiclyAvailable = true;
         }
-        Set<DataAttribute> attributes = loadAttributes(dataType);
+        List<DataAttribute> attributes = loadAttributes(dataType);
         return new DataType(dataTypeName, publiclyAvailable, dataType, attributes);
     }
 
-    public static Set<DataAttribute> loadAttributes(Class<? extends Record> dataType) {
-        final Set<DataAttribute> attributes = new HashSet<>();
+    public static List<DataAttribute> loadAttributes(Class<? extends Record> dataType) {
+        final List<DataAttribute> attributes = new ArrayList<>();
         Arrays.asList(dataType.getRecordComponents()).forEach(component -> {
             final String name;
             if (component.isAnnotationPresent(Attribute.class)) {
@@ -79,7 +81,7 @@ public class DataLoader {
                     component.getType());
             attributes.add(attribute);
         });
-        return Collections.unmodifiableSet(attributes);
+        return Collections.unmodifiableList(attributes);
     }
 
 }

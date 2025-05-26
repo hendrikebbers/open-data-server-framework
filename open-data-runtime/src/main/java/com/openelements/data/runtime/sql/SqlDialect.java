@@ -12,7 +12,7 @@ public interface SqlDialect {
 
     default <T, U> Optional<SqlTypeSupport<T, U>> getSqlTypeSupportForJavaType(Class<T> type) {
         return SqlTypeSupport.getInstances().stream()
-                .filter(support -> support.getJavaType().isAssignableFrom(type))
+                .filter(support -> support.getJavaClass().isAssignableFrom(type))
                 .filter(support -> support.getSupportedJdbcDrivers().contains(getDriverClassName()))
                 .map(support -> (SqlTypeSupport<T, U>) support)
                 .findFirst();

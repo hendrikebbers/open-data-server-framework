@@ -4,6 +4,7 @@ import com.openelements.data.runtime.h2.H2Dialect;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.Set;
 public class LocalDateSupport extends AbstractSqlTypeSupport<LocalDate, Date> {
 
     public LocalDateSupport() {
-        super(LocalDate.class, "VARCHAR");
+        super(LocalDate.class, "DATE");
     }
 
     @Override
@@ -20,17 +21,21 @@ public class LocalDateSupport extends AbstractSqlTypeSupport<LocalDate, Date> {
     }
 
     @Override
-    public LocalDate convertValueFromSqlResult(Date sqlValue, SqlConnection connection) {
+    public LocalDate convertToJavaValue(Date sqlValue, SqlConnection connection) {
         return Optional.ofNullable(sqlValue)
                 .map(Date::toLocalDate)
                 .orElse(null);
     }
 
     @Override
-    public Date convertValueForSqlPersit(LocalDate newValue, Date currentValue,
-            SqlConnection connection) {
-        return Optional.ofNullable(newValue)
+    public Date convertToSqlValue(LocalDate value, SqlConnection connection) throws SQLException {
+        return Optional.ofNullable(value)
                 .map(Date::valueOf)
                 .orElse(null);
+    }
+
+    @Override
+    public Class<Date> getSqlType() {
+        return Date.class;
     }
 }
