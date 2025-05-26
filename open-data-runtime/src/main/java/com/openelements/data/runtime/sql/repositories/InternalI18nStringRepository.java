@@ -72,6 +72,9 @@ public class InternalI18nStringRepository {
     }
 
     public UUID insert(I18nString value) throws SQLException {
+        if (value == null) {
+            return null;
+        }
         final SqlStatement insertRefStatement = connection.getSqlDialect().getSqlStatementFactory()
                 .createInsertStatement(referenceTable);
         UUID i18nId = UUID.randomUUID();
