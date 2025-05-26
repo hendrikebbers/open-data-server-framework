@@ -19,7 +19,7 @@ public interface SqlTypeSupport<T, U> {
         if (sqlValue == null) {
             return null; // Handle null case
         }
-        if (!getSqlType().isInstance(sqlValue)) {
+        if (!getSqlType().isAssignableFrom(sqlValue.getClass())) {
             throw new SQLException(
                     "Expected SQL value of type " + getSqlType().getName() + ", but got: " + sqlValue.getClass()
                             .getName());

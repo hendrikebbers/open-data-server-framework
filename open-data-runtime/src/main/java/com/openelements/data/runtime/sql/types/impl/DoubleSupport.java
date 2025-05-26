@@ -2,17 +2,17 @@ package com.openelements.data.runtime.sql.types.impl;
 
 import com.openelements.data.runtime.h2.H2Dialect;
 import com.openelements.data.runtime.sql.types.AbstractMatchingSqlTypeSupport;
-import java.time.LocalDate;
 import java.util.Set;
 
-public class LocalDateSupport extends AbstractMatchingSqlTypeSupport<LocalDate> {
+public class DoubleSupport extends AbstractMatchingSqlTypeSupport<Double> {
 
-    public LocalDateSupport() {
-        super(LocalDate.class, "DATE");
+    public DoubleSupport() {
+        super(Double.class, "DOUBLE PRECISION");
     }
 
     @Override
     public Set<String> getSupportedJdbcDrivers() {
         return Set.of(H2Dialect.DRIVER_CLASS_NAME);
     }
+
 }

@@ -1,6 +1,7 @@
 import com.openelements.data.api.DataSource;
 import com.openelements.data.api.DataTypeProvider;
 import com.openelements.data.sample.EmployeeSupport;
+import com.openelements.data.sample.MemorySupport;
 
 open module com.openelements.data.sample {
     requires com.openelements.data.runtime;
@@ -9,6 +10,6 @@ open module com.openelements.data.sample {
     requires com.openelements.data.api;
     requires org.slf4j;
 
-    provides DataTypeProvider with EmployeeSupport;
-    provides DataSource with EmployeeSupport;
+    provides DataTypeProvider with EmployeeSupport, MemorySupport;
+    provides DataSource with EmployeeSupport, MemorySupport;
 }
