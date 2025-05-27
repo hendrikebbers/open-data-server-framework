@@ -30,6 +30,7 @@ module com.openelements.data.runtime {
             com.openelements.data.runtime.sql.types.impl.PrimitiveIntegerSupport,
             com.openelements.data.runtime.sql.types.impl.PrimitiveBooleanSupport,
             com.openelements.data.runtime.sql.types.impl.StringSupport,
+            com.openelements.data.runtime.sql.types.impl.URISupport,
             com.openelements.data.runtime.sql.types.impl.UUIDSupport,
             com.openelements.data.runtime.sql.types.impl.ZonedDateTimeSupport;
 
