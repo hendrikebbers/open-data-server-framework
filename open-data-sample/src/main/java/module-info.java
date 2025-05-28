@@ -1,5 +1,5 @@
-import com.openelements.data.api.DataSource;
-import com.openelements.data.api.DataTypeProvider;
+import com.openelements.data.runtime.data.DataSource;
+import com.openelements.data.runtime.data.DataTypeProvider;
 import com.openelements.data.sample.EmployeeSupport;
 import com.openelements.data.sample.MemorySupport;
 

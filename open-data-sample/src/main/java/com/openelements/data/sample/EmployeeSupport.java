@@ -1,9 +1,9 @@
 package com.openelements.data.sample;
 
-import com.openelements.data.api.DataSource;
-import com.openelements.data.api.DataTypeProvider;
-import com.openelements.data.api.context.DataContext;
 import com.openelements.data.api.types.I18nString;
+import com.openelements.data.runtime.data.DataContext;
+import com.openelements.data.runtime.data.DataSource;
+import com.openelements.data.runtime.data.DataTypeProvider;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;

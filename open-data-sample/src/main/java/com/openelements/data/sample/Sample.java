@@ -2,7 +2,6 @@ package com.openelements.data.sample;
 
 import com.openelements.data.runtime.h2.H2Dialect;
 import com.openelements.data.runtime.sql.ConnectionProvider;
-import com.openelements.data.runtime.sql.PooledConnectionProvider;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.server.DataServer;
 import java.sql.Connection;
@@ -20,7 +19,7 @@ public class Sample {
     }
 
     private static ConnectionProvider createConnectionProvider() {
-        return new PooledConnectionProvider(() -> createConnection(), 8);
+        return () -> createConnection();
     }
 
     private static SqlConnection createSqlConnection() {

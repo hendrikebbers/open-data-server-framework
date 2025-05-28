@@ -1,8 +1,8 @@
 package com.openelements.data.sample;
 
-import com.openelements.data.api.DataSource;
-import com.openelements.data.api.DataTypeProvider;
-import com.openelements.data.api.context.DataContext;
+import com.openelements.data.runtime.data.DataContext;
+import com.openelements.data.runtime.data.DataSource;
+import com.openelements.data.runtime.data.DataTypeProvider;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +23,7 @@ public class MemorySupport implements DataTypeProvider, DataSource {
         final Runnable runnable = () -> {
             try {
                 final long freeMemory = Runtime.getRuntime().freeMemory();
-                Memory memory = new Memory(ZonedDateTime.now(), freeMemory);
+                Memory memory = new Memory(ZonedDateTime.now(), freeMemory, Set.of());
                 dataContext.store(Memory.class, List.of(memory));
             } catch (Exception e) {
                 log.error("Error providing data", e);

@@ -5,11 +5,11 @@ import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.SqlDialect;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 public class SqlDataTable<E extends Record> {
@@ -41,6 +41,14 @@ public class SqlDataTable<E extends Record> {
         });
     }
 
+    public static <E extends Record> SqlDataTable of(Class<E> type, SqlDialect sqlDialect) {
+        return of(DataType.of(type), sqlDialect);
+    }
+
+    public static <E extends Record> SqlDataTable of(DataType<?> type, SqlDialect sqlDialect) {
+        return new SqlDataTable<>(sqlDialect, type);
+    }
+
     private DataAttribute getAttribute(TableColumn<E, ?, ?> column) {
         return dataType.attributes().stream()
                 .filter(attribute -> attribute.name().equals(column.getName()))
@@ -48,7 +56,7 @@ public class SqlDataTable<E extends Record> {
                 .orElseThrow(() -> new IllegalArgumentException("No attribute found for column: " + column));
     }
 
-    private SqlTypeSupport getTypeSupport(Class<?> type) {
+    private SqlTypeSupport getTypeSupport(Type type) {
         return sqlDialect.getSqlTypeSupportForJavaType(type)
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + type));
     }
@@ -90,17 +98,9 @@ public class SqlDataTable<E extends Record> {
 
     public E convertRow(Map<TableColumn<E, ?, ?>, Object> row, SqlConnection connection) throws Exception {
         List<Object> constructorParams = new ArrayList<>();
+        ResultRow<E> resultRow = new ResultRow<>(connection, row);
         for (DataAttribute<E, ?> attribute : dataType.attributes()) {
-            TableColumn<E, ?, ?> column = getColumns().stream()
-                    .filter(c -> Objects.equals(attribute, c.getAttribute()))
-                    .findFirst()
-                    .orElseThrow(
-                            () -> new IllegalArgumentException("No column found for attribute: " + attribute.name()));
-            final Object rawValue = row.get(column);
-            final SqlTypeSupport typeSupport = getTypeSupport(attribute.type());
-            final Object normalizedValue = typeSupport.normalizeSqlValue(rawValue);
-            final Object value = typeSupport.convertToJavaValue(normalizedValue, connection);
-            constructorParams.add(value);
+            constructorParams.add(resultRow.getJavaValue(attribute.name()));
         }
         return dataType.createInstance(constructorParams);
     }

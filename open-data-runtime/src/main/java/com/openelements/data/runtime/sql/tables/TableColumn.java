@@ -19,6 +19,10 @@ public class TableColumn<E extends Record, D, U> {
         this.attribute = attribute;
     }
 
+    public SqlTypeSupport<D, U> getTypeSupport() {
+        return typeSupport;
+    }
+
     public boolean isNotNull() {
         return attribute.required();
     }
@@ -47,8 +51,7 @@ public class TableColumn<E extends Record, D, U> {
             throw new UnsupportedOperationException();
         }
     }
-
-
+    
     public U insertReference(E data, SqlConnection connection) throws SQLException {
         D javaValue = getJavaValueFor(data);
         return typeSupport.insertReference(javaValue, connection);

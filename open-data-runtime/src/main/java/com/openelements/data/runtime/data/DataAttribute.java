@@ -2,11 +2,12 @@ package com.openelements.data.runtime.data;
 
 import com.openelements.data.api.data.Attribute;
 import java.lang.reflect.RecordComponent;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Objects;
 
 public record DataAttribute<E extends Record, D>(String name, int oder, boolean required,
-                                                 boolean partOfIdentifier, Class<D> type) {
+                                                 boolean partOfIdentifier, Type type) {
 
     public <E extends Record> D getFor(E data) {
         Objects.requireNonNull(data, "data must not be null");

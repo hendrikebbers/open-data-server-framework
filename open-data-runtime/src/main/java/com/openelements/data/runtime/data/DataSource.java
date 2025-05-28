@@ -1,6 +1,5 @@
-package com.openelements.data.api;
+package com.openelements.data.runtime.data;
 
-import com.openelements.data.api.context.DataContext;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.ServiceLoader;

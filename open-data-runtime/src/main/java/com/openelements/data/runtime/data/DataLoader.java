@@ -1,6 +1,5 @@
 package com.openelements.data.runtime.data;
 
-import com.openelements.data.api.DataTypeProvider;
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
 import java.util.ArrayList;
@@ -78,7 +77,7 @@ public class DataLoader {
                 required = false;
             }
             final DataAttribute attribute = new DataAttribute(name, order, required, partOfIdentifier,
-                    component.getType());
+                    component.getGenericType());
             attributes.add(attribute);
         });
         return Collections.unmodifiableList(attributes);

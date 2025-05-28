@@ -1,10 +1,9 @@
 package com.openelements.data.runtime.sql;
 
-import com.openelements.data.runtime.sql.statement.LoggablePreparedStatement;
+import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,42 +18,56 @@ public class SqlConnection {
 
     private final ThreadLocal<Connection> connectionThreadLocal = ThreadLocal.withInitial(() -> null);
 
+    private final ThreadLocal<UUID> transactionThreadLocal = ThreadLocal.withInitial(() -> null);
+
     public SqlConnection(ConnectionProvider connectionProvider, SqlDialect sqlDialect) {
         this.connectionProvider = connectionProvider;
         this.sqlDialect = sqlDialect;
     }
 
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        final Connection connection = Optional.ofNullable(connectionThreadLocal.get())
-                .orElseGet(() -> {
-                    try {
-                        return connectionProvider.getConnection();
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-        final PreparedStatement internalPreparedStatement = connection.prepareStatement(sql);
-        return new LoggablePreparedStatement(internalPreparedStatement);
+        final Connection connection = getOrCreateConnection();
+        return connection.prepareStatement(sql);
     }
 
     public SqlDialect getSqlDialect() {
         return sqlDialect;
     }
 
-    public <T> T runInTransaction(sqlTransactionCallable<T> callable) throws SQLException {
-        if (connectionThreadLocal.get() != null) {
-            throw new SQLException("A transaction is already in progress for this thread");
+    public SqlStatementFactory getSqlStatementFactory() {
+        return sqlDialect.getSqlStatementFactory();
+    }
+
+    private Connection getOrCreateConnection() throws SQLException {
+        final Connection connection = connectionThreadLocal.get();
+        if (connection != null) {
+            return connection;
         }
-        final Connection connection = connectionProvider.getConnection();
-        connectionThreadLocal.set(connection);
+        log.debug("No connection found in thread-local, acquiring a new connection");
+        final Connection newConnection = connectionProvider.getConnection();
+        connectionThreadLocal.set(newConnection);
+        return newConnection;
+    }
+
+    public <T> T runInTransaction(sqlTransactionCallable<T> callable) throws SQLException {
+        if (transactionThreadLocal.get() != null) {
+            log.debug("A transaction is already in progress for this thread");
+            return callable.call();
+        }
+        final Connection connection = getOrCreateConnection();
         final UUID transactionId = UUID.randomUUID();
+        transactionThreadLocal.set(transactionId);
         try {
             log.info("Transaction '{}' started", transactionId);
             connection.setAutoCommit(false);
-            final T result = callable.call();
-            connection.commit();
-            log.info("Transaction '{}' committed", transactionId);
-            return result;
+            try {
+                final T result = callable.call();
+                connection.commit();
+                log.info("Transaction '{}' committed", transactionId);
+                return result;
+            } finally {
+                connection.setAutoCommit(true);
+            }
         } catch (Exception e) {
             try {
                 connection.rollback();
@@ -65,9 +78,15 @@ public class SqlConnection {
             }
             throw new SQLException("Transaction failed and rolled back", e);
         } finally {
-            connection.setAutoCommit(true);
-            connectionThreadLocal.remove();
+            transactionThreadLocal.remove();
         }
+    }
+
+    public void runInTransaction(sqlTransactionRunnable runnable) throws SQLException {
+        runInTransaction(() -> {
+            runnable.run();
+            return null;
+        });
     }
 
     public interface sqlTransactionCallable<T> {
@@ -78,10 +97,4 @@ public class SqlConnection {
         void run() throws SQLException;
     }
 
-    public void runInTransaction(sqlTransactionRunnable runnable) throws SQLException {
-        runInTransaction(() -> {
-            runnable.run();
-            return null;
-        });
-    }
 }

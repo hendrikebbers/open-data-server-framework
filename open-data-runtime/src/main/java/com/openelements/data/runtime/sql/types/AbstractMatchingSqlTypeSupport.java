@@ -1,6 +1,7 @@
 package com.openelements.data.runtime.sql.types;
 
 import com.openelements.data.runtime.sql.SqlConnection;
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 
 public abstract class AbstractMatchingSqlTypeSupport<D> implements MatchingSqlTypeSupport<D> {
@@ -15,12 +16,20 @@ public abstract class AbstractMatchingSqlTypeSupport<D> implements MatchingSqlTy
     }
 
     @Override
+    public boolean supportsJavaType(Type type) {
+        if (type instanceof Class<?> clazz) {
+            return javaClass.isAssignableFrom(clazz);
+        }
+        return false;
+    }
+
+    @Override
     public String getNativeSqlType() {
         return sqlType;
     }
 
     @Override
-    public Class<D> getJavaClass() {
+    public Class<D> getJavaType() {
         return javaClass;
     }
 

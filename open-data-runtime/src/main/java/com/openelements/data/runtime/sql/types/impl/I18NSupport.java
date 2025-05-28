@@ -1,11 +1,16 @@
 package com.openelements.data.runtime.sql.types.impl;
 
+import com.openelements.data.api.data.Language;
 import com.openelements.data.api.types.I18nString;
 import com.openelements.data.runtime.h2.H2Dialect;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.repositories.InternalI18nStringRepository;
+import com.openelements.data.runtime.sql.repositories.DataRepository;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
+import com.openelements.data.runtime.types.I18nStringEntry;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,12 +27,15 @@ public class I18NSupport extends AbstractSqlTypeSupport<I18nString, UUID> {
 
     @Override
     public I18nString convertToJavaValue(UUID sqlValue, SqlConnection connection) {
-        try {
-            InternalI18nStringRepository repository = new InternalI18nStringRepository(connection);
-            return repository.load(sqlValue);
-        } catch (Exception e) {
-            throw new RuntimeException("Error loading I18nString with ID: " + sqlValue, e);
+        if (sqlValue == null) {
+            return null; // Handle null case
         }
+        final List<I18nStringEntry> entries = I18nStringEntry.findForReference(sqlValue, connection);
+        final Map<Language, String> translations = new HashMap<>();
+        entries.forEach(entry -> {
+            translations.put(entry.language(), entry.content());
+        });
+        return new I18nString(translations);
     }
 
     @Override
@@ -42,14 +50,28 @@ public class I18NSupport extends AbstractSqlTypeSupport<I18nString, UUID> {
 
     @Override
     public UUID insertReference(I18nString javaValue, SqlConnection connection) throws SQLException {
-        InternalI18nStringRepository repository = new InternalI18nStringRepository(connection);
-        return repository.insert(javaValue);
+        UUID newReference = UUID.randomUUID();
+        insertForReference(newReference, javaValue, connection);
+        return newReference;
+    }
+
+    private static void insertForReference(UUID reference, I18nString javaValue, SqlConnection connection)
+            throws SQLException {
+        if (javaValue == null || javaValue.translations().isEmpty()) {
+            return;
+        }
+        DataRepository<I18nStringEntry> repository = I18nStringEntry.getDataRepository(connection);
+        List<I18nStringEntry> entries = javaValue.translations().entrySet().stream()
+                .map(entry -> new I18nStringEntry(reference, entry.getKey(), entry.getValue()))
+                .toList();
+        repository.store(entries);
     }
 
     @Override
     public UUID updateReference(UUID currentValue, I18nString javaValue, SqlConnection connection) throws SQLException {
-        InternalI18nStringRepository repository = new InternalI18nStringRepository(connection);
-        return repository.update(currentValue, javaValue);
+        I18nStringEntry.deleteForReference(currentValue, connection);
+        insertForReference(currentValue, javaValue, connection);
+        return currentValue; // Return the same reference after update
     }
 
     @Override

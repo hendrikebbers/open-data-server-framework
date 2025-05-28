@@ -1,7 +1,7 @@
 package com.openelements.data.server;
 
-import com.openelements.data.api.DataSource;
 import com.openelements.data.runtime.data.DataLoader;
+import com.openelements.data.runtime.data.DataSource;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.SqlDataContext;
@@ -20,6 +20,7 @@ import io.helidon.webserver.staticcontent.ClasspathHandlerConfig;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,16 +57,28 @@ public class DataServer {
     }
 
     private void initData(Builder routingBuilder) {
-        SqlDataContext dataContext = new SqlDataContext(Executors.newScheduledThreadPool(4));
-        for (DataType<?> dataType : DataLoader.loadData()) {
-            final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, sqlConnection);
-            dataContext.addRepository(dataType.dataClass(), dataRepository);
-            DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
-            routingBuilder.get("/" + handler.getName(), new GetAllHandler<>(handler));
-            log.info("Registered handler: {}", "/" + handler.getName());
-        }
+        ThreadFactory threadFactory = new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r);
+                thread.setName("data-server-worker");
+                thread.setDaemon(true);
+                thread.setUncaughtExceptionHandler(
+                        (t, e) -> log.error("Uncaught exception in thread {}", t.getName(), e));
+                return thread;
+            }
+        };
+        SqlDataContext dataContext = new SqlDataContext(Executors.newScheduledThreadPool(4, threadFactory),
+                sqlConnection);
         try {
-            dataContext.initialize(sqlConnection);
+            for (DataType<?> dataType : DataLoader.loadData()) {
+                final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, sqlConnection);
+                dataContext.addDataType(dataType);
+                DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
+                routingBuilder.get("/" + handler.getName(), new GetAllHandler<>(handler));
+                log.info("Registered handler: {}", "/" + handler.getName());
+            }
+            dataContext.initialize();
         } catch (SQLException e) {
             throw new RuntimeException("Error in sql init", e);
         }

@@ -17,6 +17,9 @@ public interface MatchingSqlTypeSupport<D> extends SqlTypeSupport<D, D> {
 
     @Override
     default Class<D> getSqlType() {
-        return getJavaClass();
+        if (getJavaType() instanceof Class<?> javaClass) {
+            return (Class<D>) javaClass;
+        }
+        throw new IllegalStateException("Java Type must be a Class type for MatchingSqlTypeSupport");
     }
 }

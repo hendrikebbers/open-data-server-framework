@@ -1,6 +1,7 @@
 package com.openelements.data.runtime.sql.types;
 
 import com.openelements.data.runtime.sql.SqlConnection;
+import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Objects;
@@ -9,7 +10,7 @@ import java.util.Set;
 
 public interface SqlTypeSupport<T, U> {
 
-    Class<T> getJavaClass();
+    Type getJavaType();
 
     String getNativeSqlType();
 
@@ -42,11 +43,11 @@ public interface SqlTypeSupport<T, U> {
         Set<SqlTypeSupport<?, ?>> instances = new java.util.HashSet<>();
         for (SqlTypeSupport<?, ?> instance : loader) {
             for (SqlTypeSupport<?, ?> existing : instances) {
-                if (Objects.equals(existing.getJavaClass(), instance.getJavaClass())) {
+                if (Objects.equals(existing.getJavaType(), instance.getJavaType())) {
                     instance.getSupportedJdbcDrivers().forEach(driver -> {
                         if (existing.getSupportedJdbcDrivers().contains(driver)) {
                             throw new IllegalStateException("Duplicate SqlTypeSupport found for type: "
-                                    + instance.getJavaClass().getName() + " with driver: " + driver);
+                                    + instance.getJavaType().getTypeName() + " with driver: " + driver);
                         }
                     });
                 }
@@ -57,10 +58,14 @@ public interface SqlTypeSupport<T, U> {
     }
 
     default U insertReference(T javaValue, SqlConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Insert reference not supported for type: " + getJavaClass().getName());
+        throw new UnsupportedOperationException(
+                "Insert reference not supported for type: " + getJavaType().getTypeName());
     }
 
     default U updateReference(U currentValue, T javaValue, SqlConnection connection) throws SQLException {
-        throw new UnsupportedOperationException("Update reference not supported for type: " + getJavaClass().getName());
+        throw new UnsupportedOperationException(
+                "Update reference not supported for type: " + getJavaType().getTypeName());
     }
+
+    boolean supportsJavaType(Type type);
 }

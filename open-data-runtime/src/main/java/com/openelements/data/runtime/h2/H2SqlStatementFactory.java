@@ -23,7 +23,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
         sql.append(")");
-        return new SqlStatement(sql.toString());
+        return new SqlStatement(sql.toString(), List.of());
     }
 
     public <E extends Record> SqlStatement createUniqueIndexStatement(SqlDataTable<E> table) {
@@ -37,7 +37,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
         }
         sql.setLength(sql.length() - 2); // Remove the last comma and space
         sql.append(")");
-        return new SqlStatement(sql.toString());
+        return new SqlStatement(sql.toString(), List.of());
     }
 
     @Override
@@ -57,7 +57,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
         List<String> params = table.getColumns().stream()
                 .map(TableColumn::getName)
                 .toList();
-        return new SqlStatement(sql.toString(), params);
+        return new SqlStatement(sql.toString(), table.getColumns());
     }
 
     @Override
@@ -84,10 +84,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
             }
             sql.setLength(sql.length() - 5); // Remove the last " AND "
         }
-        List<String> params = whereColumns.stream()
-                .map(TableColumn::getName)
-                .toList();
-        return new SqlStatement(sql.toString(), params);
+        return new SqlStatement(sql.toString(), whereColumns);
     }
 
     @Override
@@ -97,7 +94,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
         final SqlStatement selectStatement = createSelectStatement(table, selectColumns, whereColumns);
         final StringBuilder sql = new StringBuilder(selectStatement.getStatement());
         sql.append(" LIMIT ").append(pageSize).append(" OFFSET ").append((pageNumber) * pageSize);
-        return new SqlStatement(sql.toString(), selectStatement.getParams());
+        return new SqlStatement(sql.toString(), selectStatement.getColumns());
     }
 
     @Override
@@ -118,7 +115,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
         List<String> params = whereColumns.stream()
                 .map(TableColumn::getName)
                 .toList();
-        return new SqlStatement(sql.toString(), params);
+        return new SqlStatement(sql.toString(), whereColumns);
     }
 
     @Override
@@ -148,15 +145,9 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
             sql.append(column.getName()).append(" = ? AND ");
         }
         sql.setLength(sql.length() - 5); // Remove the last " AND "
-        List<String> toUpdateColumnsParams = toUpdateColumns.stream()
-                .map(TableColumn::getName)
-                .toList();
-        List<String> whereColumnsParams = whereColumns.stream()
-                .map(TableColumn::getName)
-                .toList();
-        List<String> params = new ArrayList<>();
-        params.addAll(toUpdateColumnsParams);
-        params.addAll(whereColumnsParams);
+        List<TableColumn> params = new ArrayList<>();
+        params.addAll(toUpdateColumns);
+        params.addAll(whereColumns);
         return new SqlStatement(sql.toString(), params);
     }
 
@@ -176,10 +167,7 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
             sql.append(column.getName()).append(" = ? AND ");
         }
         sql.setLength(sql.length() - 5); // Remove the last " AND "
-        List<String> params = whereColumns.stream()
-                .map(TableColumn::getName)
-                .toList();
-        return new SqlStatement(sql.toString(), params);
+        return new SqlStatement(sql.toString(), whereColumns);
     }
 
     private static <E extends Record> void validate(SqlDataTable<E> table, List<TableColumn<E, ?, ?>> selectColumns) {

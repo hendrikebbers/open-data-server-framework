@@ -1,7 +1,7 @@
 package com.openelements.data.runtime.sql.repositories;
 
-import com.openelements.data.api.context.Page;
 import com.openelements.data.runtime.data.DataType;
+import com.openelements.data.runtime.data.Page;
 import com.openelements.data.runtime.data.PageImpl;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
@@ -27,24 +27,30 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         this.connection = connection;
     }
 
+    public static <E extends Record> DataRepository<E> of(DataType<E> dataType, SqlConnection connection) {
+        return new DataRepositoryImpl<>(dataType, connection);
+    }
+
     @Override
     public List<E> getAll() throws SQLException {
-        final List<E> result = new ArrayList<>();
-        final ResultSet resultSet = getSqlStatementFactory().createSelectStatement(table)
-                .toPreparedStatement(connection).executeQuery();
-        while (resultSet.next()) {
-            final Map<TableColumn<E, ?, ?>, Object> row = new HashMap<>();
-            for (TableColumn<E, ?, ?> column : table.getColumns()) {
-                row.put(column, resultSet.getObject(column.getName()));
+        return connection.runInTransaction(() -> {
+            final List<E> result = new ArrayList<>();
+            final ResultSet resultSet = getSqlStatementFactory().createSelectStatement(table)
+                    .toPreparedStatement(connection).executeQuery();
+            while (resultSet.next()) {
+                final Map<TableColumn<E, ?, ?>, Object> row = new HashMap<>();
+                for (TableColumn<E, ?, ?> column : table.getColumns()) {
+                    row.put(column, resultSet.getObject(column.getName()));
+                }
+                try {
+                    final E entry = table.convertRow(row, connection);
+                    result.add(entry);
+                } catch (Exception e) {
+                    throw new SQLException("Error converting row to data type", e);
+                }
             }
-            try {
-                final E entry = table.convertRow(row, connection);
-                result.add(entry);
-            } catch (Exception e) {
-                throw new SQLException("Error converting row to data type", e);
-            }
-        }
-        return Collections.unmodifiableList(result);
+            return Collections.unmodifiableList(result);
+        });
     }
 
     @Override
@@ -87,16 +93,6 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             } else {
                 throw new SQLException("Failed to retrieve count from the database.");
             }
-        });
-    }
-
-    @Override
-    public void createTable() throws SQLException {
-        connection.runInTransaction(() -> {
-            getSqlStatementFactory()
-                    .createTableCreateStatement(table).toPreparedStatement(connection).execute();
-            getSqlStatementFactory()
-                    .createUniqueIndexStatement(table).toPreparedStatement(connection).execute();
         });
     }
 
@@ -192,6 +188,6 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     }
 
     private SqlStatementFactory getSqlStatementFactory() {
-        return connection.getSqlDialect().getSqlStatementFactory();
+        return connection.getSqlStatementFactory();
     }
 }

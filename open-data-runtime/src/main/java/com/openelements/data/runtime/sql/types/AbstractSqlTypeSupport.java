@@ -1,5 +1,9 @@
 package com.openelements.data.runtime.sql.types;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Objects;
+
 public abstract class AbstractSqlTypeSupport<T, U> implements SqlTypeSupport<T, U> {
 
     private final Class<T> javaType;
@@ -12,7 +16,18 @@ public abstract class AbstractSqlTypeSupport<T, U> implements SqlTypeSupport<T, 
     }
 
     @Override
-    public Class<T> getJavaClass() {
+    public boolean supportsJavaType(Type type) {
+        if (type instanceof Class<?> clazz) {
+            return Objects.equals(clazz, javaType);
+        }
+        if (type instanceof ParameterizedType parameterizedType) {
+            return Objects.equals(parameterizedType.getRawType(), javaType);
+        }
+        return false;
+    }
+
+    @Override
+    public Type getJavaType() {
         return javaType;
     }
 
