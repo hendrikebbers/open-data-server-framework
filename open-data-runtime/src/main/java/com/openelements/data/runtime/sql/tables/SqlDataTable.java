@@ -6,10 +6,10 @@ import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.SqlDialect;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
 import java.lang.reflect.Type;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class SqlDataTable<E extends Record> {
@@ -96,11 +96,10 @@ public class SqlDataTable<E extends Record> {
         return Collections.unmodifiableList(columns);
     }
 
-    public E convertRow(Map<TableColumn<E, ?, ?>, Object> row, SqlConnection connection) throws Exception {
+    public E convertRow(ResultRow<E> row, SqlConnection connection) throws Exception {
         List<Object> constructorParams = new ArrayList<>();
-        ResultRow<E> resultRow = new ResultRow<>(connection, row);
         for (DataAttribute<E, ?> attribute : dataType.attributes()) {
-            constructorParams.add(resultRow.getJavaValue(attribute.name()));
+            constructorParams.add(row.getJavaValue(attribute.name()));
         }
         return dataType.createInstance(constructorParams);
     }
@@ -109,5 +108,10 @@ public class SqlDataTable<E extends Record> {
         return getColumns().stream()
                 .filter(column -> column.getName().equals(name))
                 .findFirst();
+    }
+
+    public E convertRow(ResultSet resultSet, SqlConnection connection) throws Exception {
+        final ResultRow<E> resultRow = new ResultRow<>(connection, this, resultSet);
+        return convertRow(resultRow, connection);
     }
 }

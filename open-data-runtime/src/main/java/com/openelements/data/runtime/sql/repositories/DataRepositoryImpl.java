@@ -12,9 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
@@ -38,12 +36,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
             final ResultSet resultSet = getSqlStatementFactory().createSelectStatement(table)
                     .toPreparedStatement(connection).executeQuery();
             while (resultSet.next()) {
-                final Map<TableColumn<E, ?, ?>, Object> row = new HashMap<>();
-                for (TableColumn<E, ?, ?> column : table.getColumns()) {
-                    row.put(column, resultSet.getObject(column.getName()));
-                }
                 try {
-                    final E entry = table.convertRow(row, connection);
+                    final E entry = table.convertRow(resultSet, connection);
                     result.add(entry);
                 } catch (Exception e) {
                     throw new SQLException("Error converting row to data type", e);
@@ -62,12 +56,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
                     .createSelectPageStatement(table, pageNumber, pageSize).toPreparedStatement(connection)
                     .executeQuery();
             while (resultSet.next()) {
-                final Map<TableColumn<E, ?, ?>, Object> row = new HashMap<>();
-                for (TableColumn<E, ?, ?> column : table.getColumns()) {
-                    row.put(column, resultSet.getObject(column.getName()));
-                }
                 try {
-                    final E entry = table.convertRow(row, connection);
+                    final E entry = table.convertRow(resultSet, connection);
                     result.add(entry);
                 } catch (Exception e) {
                     throw new SQLException("Error converting row to data type", e);
