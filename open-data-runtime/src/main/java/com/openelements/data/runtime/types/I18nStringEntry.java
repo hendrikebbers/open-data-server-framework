@@ -5,16 +5,13 @@ import com.openelements.data.api.data.Data;
 import com.openelements.data.api.data.Language;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.SqlDialect;
 import com.openelements.data.runtime.sql.repositories.DataRepository;
+import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
+import com.openelements.data.runtime.sql.tables.ResultRow;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,8 +24,8 @@ public record I18nStringEntry(@Attribute(partOfIdentifier = true, required = tru
         return DataType.of(I18nStringEntry.class);
     }
 
-    public static SqlDataTable<I18nStringEntry> getSqlDataTable(SqlDialect sqlDialect) {
-        return SqlDataTable.of(getDataType(), sqlDialect);
+    public static SqlDataTable getSqlDataTable(SqlConnection connection) {
+        return DataRepositoryImpl.createTable(getDataType(), connection);
     }
 
     public static DataRepository<I18nStringEntry> getDataRepository(SqlConnection sqlConnection) {
@@ -36,36 +33,27 @@ public record I18nStringEntry(@Attribute(partOfIdentifier = true, required = tru
     }
 
     public static void deleteForReference(UUID reference, SqlConnection sqlConnection) throws SQLException {
-        final SqlDataTable<I18nStringEntry> table = I18nStringEntry.getSqlDataTable(sqlConnection.getSqlDialect());
-        final TableColumn<I18nStringEntry, ?, ?> referenceColumn = table.getColumnByName("reference").orElseThrow();
+        final SqlDataTable table = I18nStringEntry.getSqlDataTable(sqlConnection);
+        final TableColumn<?, ?> referenceColumn = table.getColumnByName("reference").orElseThrow();
         final SqlStatement deleteStatement = sqlConnection.getSqlStatementFactory()
                 .createDeleteStatement(table, List.of(referenceColumn));
         deleteStatement.set("reference", reference);
-        deleteStatement.toPreparedStatement(sqlConnection).executeUpdate();
+        deleteStatement.executeUpdate();
     }
 
     public static List<I18nStringEntry> findForReference(UUID reference, SqlConnection sqlConnection) {
-        final SqlDataTable<I18nStringEntry> table = getSqlDataTable(sqlConnection.getSqlDialect());
-        final TableColumn<I18nStringEntry, ?, ?> referenceColumn = table.getColumnByName("reference")
+        final DataType<I18nStringEntry> dataType = getDataType();
+        final SqlDataTable table = getSqlDataTable(sqlConnection);
+        final TableColumn<?, ?> referenceColumn = table.getColumnByName("reference")
                 .orElseThrow();
         final SqlStatement selectStatement = sqlConnection.getSqlStatementFactory()
                 .createSelectStatement(table, table.getDataColumns(), List.of(referenceColumn));
         selectStatement.set("reference", reference);
         try {
-            final PreparedStatement preparedStatement = selectStatement.toPreparedStatement(sqlConnection);
-            final ResultSet resultSet = preparedStatement.executeQuery();
-            final List<I18nStringEntry> results = new ArrayList<>();
-            while (resultSet.next()) {
-                final UUID timestamp = resultSet.getObject("reference", UUID.class);
-                final Language language = resultSet.getObject("language", Language.class);
-                final String content = resultSet.getObject("content", String.class);
-                final I18nStringEntry entry = new I18nStringEntry(timestamp, language, content);
-                results.add(entry);
-            }
-            return Collections.unmodifiableList(results);
-        } catch (SQLException e) {
+            final List<ResultRow> resultRows = selectStatement.executeQuery();
+            return DataRepositoryImpl.convertList(dataType, resultRows);
+        } catch (Exception e) {
             throw new RuntimeException("Error retrieving last translations for " + reference, e);
         }
     }
-
 }

@@ -13,21 +13,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SqlStatement<E extends Record> {
+public class SqlStatement {
 
     private String statement;
 
-    private final List<TableColumn<E, ?, ?>> columns;
+    private final List<TableColumn<?, ?>> columns;
 
     private final Map<String, Object> values;
 
-    private final SqlDataTable<E> table;
+    private final SqlDataTable table;
 
-    public SqlStatement(SqlDataTable<E> table, String statement, List<TableColumn<E, ?, ?>> columns) {
+    private final SqlConnection sqlConnection;
+
+    public SqlStatement(SqlDataTable table, String statement, List<TableColumn<?, ?>> columns,
+            SqlConnection sqlConnection) {
         this.table = table;
         this.statement = statement;
         this.columns = Collections.unmodifiableList(columns);
         this.values = new HashMap<>();
+        this.sqlConnection = sqlConnection;
     }
 
     public void set(String name, Object value) {
@@ -49,9 +53,9 @@ public class SqlStatement<E extends Record> {
                 });
     }
 
-    public PreparedStatement toPreparedStatement(SqlConnection connection) throws SQLException {
+    public PreparedStatement toPreparedStatement() throws SQLException {
         validate();
-        final PreparedStatement preparedStatement = connection.prepareStatement(statement);
+        final PreparedStatement preparedStatement = sqlConnection.prepareStatement(statement);
         for (int i = 0; i < columns.size(); i++) {
             final String name = columns.get(i).getName();
             final Object value = values.get(name);
@@ -64,18 +68,22 @@ public class SqlStatement<E extends Record> {
         return statement;
     }
 
-    public List<TableColumn<E, ?, ?>> getColumns() {
+    public List<TableColumn<?, ?>> getColumns() {
         return columns;
     }
 
-    List<ResultRow<E>> executeQuery(SqlConnection connection) throws SQLException {
-        final List<ResultRow<E>> resultRows = new ArrayList<>();
-        final PreparedStatement preparedStatement = toPreparedStatement(connection);
+    public List<ResultRow> executeQuery() throws SQLException {
+        final List<ResultRow> resultRows = new ArrayList<>();
+        final PreparedStatement preparedStatement = toPreparedStatement();
         final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-            ResultRow<E> resultRow = new ResultRow<>(connection, table, resultSet);
+            ResultRow resultRow = new ResultRow(sqlConnection, table, resultSet);
             resultRows.add(resultRow);
         }
         return resultRows;
+    }
+
+    public int executeUpdate() throws SQLException {
+        return toPreparedStatement().executeUpdate();
     }
 }

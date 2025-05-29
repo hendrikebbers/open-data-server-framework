@@ -19,5 +19,5 @@ public interface SqlDialect {
                 .findFirst();
     }
 
-    SqlStatementFactory getSqlStatementFactory();
+    SqlStatementFactory getSqlStatementFactory(SqlConnection sqlConnection);
 }

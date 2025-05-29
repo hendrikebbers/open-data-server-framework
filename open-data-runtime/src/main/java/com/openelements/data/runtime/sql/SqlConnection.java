@@ -35,7 +35,7 @@ public class SqlConnection {
     }
 
     public SqlStatementFactory getSqlStatementFactory() {
-        return sqlDialect.getSqlStatementFactory();
+        return sqlDialect.getSqlStatementFactory(this);
     }
 
     private Connection getOrCreateConnection() throws SQLException {

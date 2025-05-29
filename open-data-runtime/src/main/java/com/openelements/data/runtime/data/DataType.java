@@ -4,9 +4,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Optional;
 
 public record DataType<E extends Record>(String name, boolean publiclyAvailable, Class<E> dataClass,
-                                         List<DataAttribute> attributes) {
+                                         List<DataAttribute<E, ?>> attributes) {
 
     public E createInstance(List<Object> constructorParams)
             throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -30,4 +31,10 @@ public record DataType<E extends Record>(String name, boolean publiclyAvailable,
         return DataLoader.load(recordClass);
     }
 
+    public <D> Optional<DataAttribute<E, D>> getAttribute(String name) {
+        return attributes.stream()
+                .filter(attribute -> attribute.name().equals(name))
+                .map(attribute -> (DataAttribute<E, D>) attribute)
+                .findFirst();
+    }
 }

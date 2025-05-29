@@ -13,5 +13,7 @@ public @interface Data {
 
     String name() default "";
 
+    boolean visible() default true;
+
     boolean publiclyAvailable() default true;
 }

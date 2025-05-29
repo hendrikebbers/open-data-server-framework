@@ -9,6 +9,16 @@ import java.util.Objects;
 public record DataAttribute<E extends Record, D>(String name, int oder, boolean required,
                                                  boolean partOfIdentifier, Type type) {
 
+    public static <E extends Record, D> D getFor(E data, DataType<E> dataType, String name) {
+        return (D) dataType.getAttribute(name)
+                .orElseThrow(() -> new IllegalArgumentException("No attribute found with name: " + name))
+                .getFor(data);
+    }
+
+    public static <E extends Record, D> D getFor(E data, DataAttribute<E, D> attribute) {
+        return attribute.getFor(data);
+    }
+
     public <E extends Record> D getFor(E data) {
         Objects.requireNonNull(data, "data must not be null");
         final RecordComponent recordComponent = Arrays.asList(data.getClass().getRecordComponents()).stream()

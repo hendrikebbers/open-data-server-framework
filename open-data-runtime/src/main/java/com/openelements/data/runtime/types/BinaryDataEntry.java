@@ -4,13 +4,13 @@ import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.SqlDialect;
 import com.openelements.data.runtime.sql.repositories.DataRepository;
+import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
+import com.openelements.data.runtime.sql.tables.ResultRow;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,8 +23,8 @@ public record BinaryDataEntry(@Attribute(partOfIdentifier = true, required = tru
         return DataType.of(BinaryDataEntry.class);
     }
 
-    public static SqlDataTable<BinaryDataEntry> getSqlDataTable(SqlDialect sqlDialect) {
-        return SqlDataTable.of(getDataType(), sqlDialect);
+    public static SqlDataTable getSqlDataTable(SqlConnection sqlConnection) {
+        return DataRepositoryImpl.createTable(getDataType(), sqlConnection);
     }
 
     public static DataRepository<BinaryDataEntry> getDataRepository(SqlConnection sqlConnection) {
@@ -32,30 +32,31 @@ public record BinaryDataEntry(@Attribute(partOfIdentifier = true, required = tru
     }
 
     public static Optional<BinaryDataEntry> findForReference(UUID reference, SqlConnection sqlConnection) {
-        final SqlDataTable<BinaryDataEntry> table = getSqlDataTable(sqlConnection.getSqlDialect());
+        final DataType<BinaryDataEntry> dataType = getDataType();
+        final SqlDataTable table = getSqlDataTable(sqlConnection);
         final SqlStatement selectStatement = sqlConnection.getSqlStatementFactory()
                 .createSelectStatement(table, table.getDataColumns(), table.getKeyColumns());
         selectStatement.set("id", reference);
         try {
-            final PreparedStatement preparedStatement = selectStatement.toPreparedStatement(sqlConnection);
-            final ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                final UUID id = resultSet.getObject("id", UUID.class);
-                final String name = resultSet.getObject("name", String.class);
-                final ByteArray content = resultSet.getObject("content", ByteArray.class);
-                return Optional.of(new BinaryDataEntry(id, name, content));
+            final List<ResultRow> resultRows = selectStatement.executeQuery();
+            List<BinaryDataEntry> result = DataRepositoryImpl.convertList(dataType, resultRows);
+            if (result.isEmpty()) {
+                return Optional.empty();
             }
-            return Optional.empty();
-        } catch (SQLException e) {
+            if (result.size() > 1) {
+                throw new IllegalStateException("Multiple entries found for reference: " + reference);
+            }
+            return Optional.of(result.get(0));
+        } catch (Exception e) {
             throw new RuntimeException("Error retrieving last translations for " + reference, e);
         }
     }
 
     public static void deleteForReference(UUID id, SqlConnection connection) throws SQLException {
-        final SqlDataTable<BinaryDataEntry> table = getSqlDataTable(connection.getSqlDialect());
+        final SqlDataTable table = getSqlDataTable(connection);
         final SqlStatement deleteStatement = connection.getSqlStatementFactory()
                 .createDeleteStatement(table, table.getKeyColumns());
         deleteStatement.set("id", id);
-        deleteStatement.toPreparedStatement(connection).executeUpdate();
+        deleteStatement.executeUpdate();
     }
 }

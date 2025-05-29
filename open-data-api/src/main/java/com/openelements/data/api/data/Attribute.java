@@ -18,4 +18,6 @@ public @interface Attribute {
     boolean partOfIdentifier() default false;
 
     boolean required() default false;
+
+    boolean visible() default true;
 }

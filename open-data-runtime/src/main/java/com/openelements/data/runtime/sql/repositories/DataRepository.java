@@ -23,6 +23,6 @@ public interface DataRepository<E extends Record> {
     }
 
     static <E extends Record> DataRepository<E> of(DataType<E> dataType, SqlConnection connection) {
-        return DataRepositoryImpl.of(dataType, connection);
+        return new DataRepositoryImpl(dataType, connection);
     }
 }

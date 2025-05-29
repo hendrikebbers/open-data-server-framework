@@ -58,7 +58,7 @@ public class EnumSupport extends AbstractSqlTypeSupport<Enum, String> {
             return null; // Handle null case
         }
         JsonObject json = new JsonObject();
-        json.addProperty("enumType", getJavaType().getTypeName());
+        json.addProperty("enumType", javaValue.getClass().getName());
         json.addProperty("enumValue", javaValue.name());
         return json.toString();
     }

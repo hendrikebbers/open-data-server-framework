@@ -4,8 +4,8 @@ import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.SqlDialect;
 import com.openelements.data.runtime.sql.repositories.DataRepository;
+import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;
@@ -26,8 +26,8 @@ public record DataUpdate<E extends Record>(@Attribute(required = true, partOfIde
         return DataType.of(DataUpdate.class);
     }
 
-    public static SqlDataTable<DataUpdate> getSqlDataTable(SqlDialect sqlDialect) {
-        return SqlDataTable.of(getDataType(), sqlDialect);
+    public static SqlDataTable getSqlDataTable(SqlConnection sqlConnection) {
+        return DataRepositoryImpl.createTable(getDataType(), sqlConnection);
     }
 
     public static DataRepository<DataUpdate> getDataRepository(SqlConnection sqlConnection) {
@@ -35,15 +35,15 @@ public record DataUpdate<E extends Record>(@Attribute(required = true, partOfIde
     }
 
     public static Optional<ZonedDateTime> findLastUpdateTime(String dataIdentifier, SqlConnection sqlConnection) {
-        final SqlDataTable<DataUpdate> table = getSqlDataTable(sqlConnection.getSqlDialect());
-        final TableColumn<DataUpdate, ?, ?> dataIdentifierColumn = table.getColumnByName("dataIdentifier")
+        final SqlDataTable table = getSqlDataTable(sqlConnection);
+        final TableColumn<?, ?> dataIdentifierColumn = table.getColumnByName("dataIdentifier")
                 .orElseThrow();
-        final TableColumn<DataUpdate, ?, ?> timestampColumn = table.getColumnByName("timestamp").orElseThrow();
+        final TableColumn<?, ?> timestampColumn = table.getColumnByName("timestamp").orElseThrow();
         final SqlStatement selectStatement = sqlConnection.getSqlStatementFactory()
                 .createSelectStatement(table, List.of(timestampColumn), List.of(dataIdentifierColumn));
         selectStatement.set("dataIdentifier", dataIdentifier);
         try {
-            final PreparedStatement preparedStatement = selectStatement.toPreparedStatement(sqlConnection);
+            final PreparedStatement preparedStatement = selectStatement.toPreparedStatement();
             final ResultSet resultSet = preparedStatement.executeQuery();
             List<ZonedDateTime> timestamps = new ArrayList<>();
             while (resultSet.next()) {

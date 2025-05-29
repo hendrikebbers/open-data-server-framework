@@ -1,22 +1,21 @@
 package com.openelements.data.runtime.sql.tables;
 
-import com.openelements.data.runtime.data.DataAttribute;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
 import java.sql.SQLException;
 
-public class TableColumn<E extends Record, D, U> {
-
-    private final SqlDataTable<E> table;
-
-    private final DataAttribute<E, D> attribute;
+public class TableColumn<D, U> {
 
     private final SqlTypeSupport<D, U> typeSupport;
 
-    public TableColumn(SqlDataTable<E> table, DataAttribute<E, D> attribute, SqlTypeSupport<D, U> typeSupport) {
-        this.table = table;
+    public final boolean notNull;
+
+    private final String name;
+
+    public TableColumn(String name, boolean notNull, SqlTypeSupport<D, U> typeSupport) {
         this.typeSupport = typeSupport;
-        this.attribute = attribute;
+        this.notNull = notNull;
+        this.name = name;
     }
 
     public SqlTypeSupport<D, U> getTypeSupport() {
@@ -24,7 +23,7 @@ public class TableColumn<E extends Record, D, U> {
     }
 
     public boolean isNotNull() {
-        return attribute.required();
+        return notNull;
     }
 
     public String getSqlType() {
@@ -32,41 +31,30 @@ public class TableColumn<E extends Record, D, U> {
     }
 
     public String getName() {
-        return attribute.name();
+        return name;
     }
 
     public boolean isReference() {
         return typeSupport.isReferenceType();
     }
 
-    public D getJavaValueFor(E data) {
-        return attribute.getFor(data);
-    }
-
-    public U getSqlValue(E data, SqlConnection connection) throws SQLException {
-        final D value = attribute.getFor(data);
+    public U getSqlValue(D javaValue, SqlConnection connection) throws SQLException {
         if (!typeSupport.isReferenceType()) {
-            return typeSupport.convertToSqlValue(value, connection);
+            return typeSupport.convertToSqlValue(javaValue, connection);
         } else {
             throw new UnsupportedOperationException();
         }
     }
-    
-    public U insertReference(E data, SqlConnection connection) throws SQLException {
-        D javaValue = getJavaValueFor(data);
+
+    public U insertReference(D javaValue, SqlConnection connection) throws SQLException {
         return typeSupport.insertReference(javaValue, connection);
     }
 
-    public U updateReference(U currentValue, E data, SqlConnection connection) throws SQLException {
-        D javaValue = getJavaValueFor(data);
+    public U updateReference(U currentValue, D javaValue, SqlConnection connection) throws SQLException {
         return typeSupport.updateReference(currentValue, javaValue, connection);
     }
 
     public Class<U> getSqlClass() {
         return typeSupport.getSqlType();
-    }
-
-    public DataAttribute<E, D> getAttribute() {
-        return attribute;
     }
 }
