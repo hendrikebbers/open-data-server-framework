@@ -7,6 +7,7 @@
   <groupId>com.openelements</groupId>
   <artifactId>open-data-framework</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
@@ -15,97 +16,11 @@
     <helidon.version>4.2.1</helidon.version>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>io.helidon.webserver</groupId>
-      <artifactId>helidon-webserver-cors</artifactId>
-      <version>${helidon.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.helidon.webserver</groupId>
-      <artifactId>helidon-webserver-static-content</artifactId>
-      <version>${helidon.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.helidon.webclient</groupId>
-      <artifactId>helidon-webclient</artifactId>
-      <version>${helidon.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.persistence</groupId>
-      <artifactId>jakarta.persistence-api</artifactId>
-      <version>3.1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.12.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>2.0.17</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.orm</groupId>
-      <artifactId>hibernate-core</artifactId>
-      <version>6.6.13.Final</version>
-    </dependency>
-    <dependency>
-      <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-core</artifactId>
-      <version>2.2.30</version>
-    </dependency>
-    <dependency>
-      <groupId>org.kohsuke</groupId>
-      <artifactId>github-api</artifactId>
-      <version>1.327</version>
-    </dependency>
-    <dependency>
-      <groupId>io.github.cdimascio</groupId>
-      <artifactId>dotenv-java</artifactId>
-      <version>3.2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-csv</artifactId>
-      <version>1.10.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jspecify</groupId>
-      <artifactId>jspecify</artifactId>
-      <version>1.0.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>2.0.17</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>2.3.232</version>
-      <scope>runtime</scope>
-    </dependency>
-  </dependencies>
+  <modules>
+    <module>open-data-api</module>
+    <module>open-data-runtime</module>
+    <module>open-data-server</module>
+    <module>open-data-sample</module>
+  </modules>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.5.0</version>
-        <configuration>
-          <executable>java</executable>
-          <arguments>
-            <argument>-classpath</argument>
-            <classpath/>
-            <argument>com.openelements.data.sample.Sample</argument>
-          </arguments>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>
