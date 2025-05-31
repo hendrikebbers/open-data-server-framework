@@ -6,22 +6,32 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public record DataAttribute<E extends Record, D>(String name, int oder, boolean required,
                                                  boolean partOfIdentifier, Type type,
                                                  Set<DataAttributeReference> references) {
 
-    public static <E extends Record, D> D getFor(E data, DataType<E> dataType, String name) {
+    @NonNull
+    public static <E extends Record, D> D getFor(@NonNull E data, @NonNull DataType<E> dataType, @NonNull String name) {
+        Objects.requireNonNull(data, "data must not be null");
+        Objects.requireNonNull(dataType, "dataType must not be null");
+        Objects.requireNonNull(name, "name must not be null");
         return (D) dataType.getAttribute(name)
                 .orElseThrow(() -> new IllegalArgumentException("No attribute found with name: " + name))
                 .getFor(data);
     }
 
-    public static <E extends Record, D> D getFor(E data, DataAttribute<E, D> attribute) {
+    @Nullable
+    public static <E extends Record, D> D getFor(@NonNull final E data, @NonNull final DataAttribute<E, D> attribute) {
+        Objects.requireNonNull(data, "data must not be null");
+        Objects.requireNonNull(attribute, "attribute must not be null");
         return attribute.getFor(data);
     }
 
-    public <E extends Record> D getFor(E data) {
+    @Nullable
+    public <E extends Record> D getFor(@NonNull final E data) {
         Objects.requireNonNull(data, "data must not be null");
         final RecordComponent recordComponent = Arrays.asList(data.getClass().getRecordComponents()).stream()
                 .filter(component -> {

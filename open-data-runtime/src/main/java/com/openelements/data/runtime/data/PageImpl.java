@@ -1,10 +1,14 @@
 package com.openelements.data.runtime.data;
 
 import com.openelements.data.runtime.Page;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class PageImpl<E extends Record> implements Page<E> {
 
@@ -16,15 +20,19 @@ public class PageImpl<E extends Record> implements Page<E> {
 
     private final Optional<Supplier<Page<E>>> nextPageSupplier;
 
-    public PageImpl(List<E> records, int pageNumber, int pageSize, BiFunction<Integer, Integer, Page<E>> pageSupplier) {
-        this.records = records;
+    public PageImpl(@NonNull final List<E> records, final int pageNumber, final int pageSize,
+            @Nullable final BiFunction<Integer, Integer, Page<E>> pageSupplier) {
+        Objects.requireNonNull(records, "records must not be null");
+        this.records = Collections.unmodifiableList(records);
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.nextPageSupplier = Optional.ofNullable(() -> pageSupplier.apply(pageNumber + 1, pageSize));
     }
 
-    public PageImpl(List<E> records, int pageNumber, int pageSize, Supplier<Page<E>> nextPageSupplier) {
-        this.records = records;
+    public PageImpl(@NonNull final List<E> records, final int pageNumber, final int pageSize,
+            @Nullable final Supplier<Page<E>> nextPageSupplier) {
+        Objects.requireNonNull(records, "records must not be null");
+        this.records = Collections.unmodifiableList(records);
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.nextPageSupplier = Optional.ofNullable(nextPageSupplier);

@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NonNull;
 
 public class VirtualDataRepository<E extends Record> implements DataRepository<E> {
 
@@ -49,7 +50,8 @@ public class VirtualDataRepository<E extends Record> implements DataRepository<E
     }
 
     @Override
-    public void store(List<E> data) throws SQLException {
+    public void store(@NonNull final List<E> data) throws SQLException {
+        Objects.requireNonNull(data, "Data list cannot be null");
         data.forEach(d -> {
             try {
                 store(d);
@@ -60,10 +62,8 @@ public class VirtualDataRepository<E extends Record> implements DataRepository<E
     }
 
     @Override
-    public void store(E data) throws SQLException {
-        if (data == null) {
-            throw new IllegalArgumentException("Data cannot be null");
-        }
+    public void store(@NonNull E data) throws SQLException {
+        Objects.requireNonNull(data, "Data cannot be null");
         final Predicate<E> check = DataType.of((Class<E>) data.getClass()).attributes().stream()
                 .filter(attr -> attr.partOfIdentifier())
                 .map(attr -> createCheckFunction(attr))
@@ -84,11 +84,16 @@ public class VirtualDataRepository<E extends Record> implements DataRepository<E
         dataList.add(data);
     }
 
-    private Predicate<E> createCheckFunction(BiPredicate<E, E> check, E data) {
+    @NonNull
+    private Predicate<E> createCheckFunction(@NonNull final BiPredicate<E, E> check, @NonNull final E data) {
+        Objects.requireNonNull(check, "Check function cannot be null");
+        Objects.requireNonNull(data, "Data cannot be null");
         return value -> check.test(value, data);
     }
 
-    private BiPredicate<E, E> createCheckFunction(DataAttribute<E, ?> attribute) {
+    @NonNull
+    private BiPredicate<E, E> createCheckFunction(@NonNull final DataAttribute<E, ?> attribute) {
+        Objects.requireNonNull(attribute, "Attribute cannot be null");
         return (dataA, dataB) -> {
             Object valueA = DataAttribute.getFor(dataA, attribute);
             Object valueB = DataAttribute.getFor(dataB, attribute);

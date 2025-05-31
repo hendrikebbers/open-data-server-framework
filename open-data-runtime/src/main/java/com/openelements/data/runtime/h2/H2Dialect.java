@@ -3,6 +3,7 @@ package com.openelements.data.runtime.h2;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.SqlDialect;
 import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
+import org.jspecify.annotations.NonNull;
 
 public class H2Dialect implements SqlDialect {
 
@@ -16,7 +17,7 @@ public class H2Dialect implements SqlDialect {
         return DRIVER_CLASS_NAME;
     }
 
-    public SqlStatementFactory getSqlStatementFactory(SqlConnection sqlConnection) {
+    public SqlStatementFactory getSqlStatementFactory(@NonNull final SqlConnection sqlConnection) {
         return new H2SqlStatementFactory(sqlConnection);
     }
 }

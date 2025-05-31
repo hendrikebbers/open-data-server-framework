@@ -10,10 +10,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import org.jspecify.annotations.NonNull;
 
 public class DataLoader {
 
+    @NonNull
     public static Set<DataType<?>> loadData() {
         final Set<DataType<?>> dataTypes = new HashSet<>();
         final Set<DataTypeProvider> instances = DataTypeProvider.getInstances();
@@ -28,7 +31,9 @@ public class DataLoader {
         return Collections.unmodifiableSet(dataTypes);
     }
 
-    public static DataType load(Class<? extends Record> dataType) {
+    @NonNull
+    public static DataType load(@NonNull final Class<? extends Record> dataType) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         final String dataTypeName;
         final boolean publiclyAvailable;
         final boolean virtual;
@@ -47,11 +52,13 @@ public class DataLoader {
             virtual = false;
         }
         final boolean isApi = dataType.isAnnotationPresent(ApiData.class);
-        List<DataAttribute> attributes = loadAttributes(dataType);
+        final List<DataAttribute> attributes = loadAttributes(dataType);
         return new DataType(dataTypeName, isApi, publiclyAvailable, virtual, dataType, attributes);
     }
 
-    public static List<DataAttribute> loadAttributes(Class<? extends Record> dataType) {
+    @NonNull
+    public static List<DataAttribute> loadAttributes(@NonNull final Class<? extends Record> dataType) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         final List<DataAttribute> attributes = new ArrayList<>();
         Arrays.asList(dataType.getRecordComponents()).forEach(component -> {
             final String name;
