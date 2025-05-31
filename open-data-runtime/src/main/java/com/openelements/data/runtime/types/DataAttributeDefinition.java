@@ -7,6 +7,8 @@ import com.openelements.data.runtime.data.ApiData;
 import com.openelements.data.runtime.data.DataAttribute;
 import com.openelements.data.runtime.data.DataType;
 import java.util.List;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 
 @ApiData
 @Data
@@ -19,7 +21,8 @@ public record DataAttributeDefinition(
         boolean partOfIdentifier,
         boolean required) {
 
-    public static List<DataAttributeDefinition> of(DataType<?> dataType) {
+    public static List<DataAttributeDefinition> of(@NonNull final DataType<?> dataType) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         final String dataIdentifier = dataType.name();
         return dataType.attributes().stream()
                 .map(attribute -> new DataAttributeDefinition(
@@ -33,7 +36,10 @@ public record DataAttributeDefinition(
                 .toList();
     }
 
-    public static DataAttributeDefinition of(String dataIdentifier, DataAttribute attribute) {
+    public static DataAttributeDefinition of(@NonNull final String dataIdentifier,
+            @NonNull final DataAttribute attribute) {
+        Objects.requireNonNull(dataIdentifier, "dataIdentifier must not be null");
+        Objects.requireNonNull(attribute, "attribute must not be null");
         return new DataAttributeDefinition(
                 attribute.name(),
                 dataIdentifier,

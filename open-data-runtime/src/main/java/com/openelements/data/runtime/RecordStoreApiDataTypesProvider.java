@@ -8,6 +8,7 @@ import com.openelements.data.runtime.types.DataUpdate;
 import com.openelements.data.runtime.types.I18nStringEntry;
 import com.openelements.data.runtime.types.KeyValueStoreEntry;
 import java.util.Set;
+import org.jspecify.annotations.NonNull;
 
 public class RecordStoreApiDataTypesProvider implements DataTypeProvider {
 
@@ -16,12 +17,14 @@ public class RecordStoreApiDataTypesProvider implements DataTypeProvider {
     private RecordStoreApiDataTypesProvider() {
     }
 
+    @NonNull
     @Override
     public Set<Class<? extends Record>> getDataTypes() {
         return Set.of(BinaryDataEntry.class, DataAttributeDefinition.class, DataDefinition.class, DataUpdate.class,
                 I18nStringEntry.class, KeyValueStoreEntry.class, DataReferenceEntry.class);
     }
 
+    @NonNull
     public static RecordStoreApiDataTypesProvider getInstance() {
         return INSTANCE;
     }

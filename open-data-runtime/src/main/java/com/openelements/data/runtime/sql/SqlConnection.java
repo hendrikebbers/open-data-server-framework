@@ -4,7 +4,10 @@ import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,24 +23,31 @@ public class SqlConnection {
 
     private final ThreadLocal<UUID> transactionThreadLocal = ThreadLocal.withInitial(() -> null);
 
-    public SqlConnection(ConnectionProvider connectionProvider, SqlDialect sqlDialect) {
-        this.connectionProvider = connectionProvider;
-        this.sqlDialect = sqlDialect;
+    public SqlConnection(@NonNull final ConnectionProvider connectionProvider, @NonNull final SqlDialect sqlDialect) {
+        this.connectionProvider = Objects.requireNonNull(connectionProvider, "connectionProvider must not be null");
+        this.sqlDialect = Objects.requireNonNull(sqlDialect, "sqlDialect must not be null");
     }
 
-    public PreparedStatement prepareStatement(String sql) throws SQLException {
+    public PreparedStatement prepareStatement(@NonNull final String sql) throws SQLException {
+        Objects.requireNonNull(sql, "SQL statement must not be null");
+        if (sql.isBlank()) {
+            throw new IllegalArgumentException("SQL statement must not be blank");
+        }
         final Connection connection = getOrCreateConnection();
         return connection.prepareStatement(sql);
     }
 
+    @NonNull
     public SqlDialect getSqlDialect() {
         return sqlDialect;
     }
 
+    @NonNull
     public SqlStatementFactory getSqlStatementFactory() {
         return sqlDialect.getSqlStatementFactory(this);
     }
 
+    @NonNull
     private Connection getOrCreateConnection() throws SQLException {
         final Connection connection = connectionThreadLocal.get();
         if (connection != null) {
@@ -49,7 +59,9 @@ public class SqlConnection {
         return newConnection;
     }
 
-    public <T> T runInTransaction(sqlTransactionCallable<T> callable) throws SQLException {
+    @Nullable
+    public <T> T runInTransaction(@NonNull final sqlTransactionCallable<T> callable) throws SQLException {
+        Objects.requireNonNull(callable, "Callable must not be null");
         if (transactionThreadLocal.get() != null) {
             log.debug("A transaction is already in progress for this thread");
             return callable.call();
@@ -82,7 +94,8 @@ public class SqlConnection {
         }
     }
 
-    public void runInTransaction(sqlTransactionRunnable runnable) throws SQLException {
+    public void runInTransaction(@NonNull final sqlTransactionRunnable runnable) throws SQLException {
+        Objects.requireNonNull(runnable, "Runnable must not be null");
         runInTransaction(() -> {
             runnable.run();
             return null;
@@ -90,6 +103,7 @@ public class SqlConnection {
     }
 
     public interface sqlTransactionCallable<T> {
+        @Nullable
         T call() throws SQLException;
     }
 

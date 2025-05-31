@@ -1,9 +1,11 @@
 package com.openelements.data.runtime;
 
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
 public interface Page<E extends Record> {
 
+    @NonNull
     List<E> getContent();
 
     int getCount();
@@ -16,5 +18,6 @@ public interface Page<E extends Record> {
 
     boolean hasNext();
 
+    @NonNull
     Page<E> nextPage();
 }

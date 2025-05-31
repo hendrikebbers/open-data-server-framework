@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
 @ApiData
 @Data
@@ -24,20 +25,14 @@ public record DataUpdate<E extends Record>(@Attribute(required = true, partOfIde
                                            @Attribute(required = true, partOfIdentifier = true) ZonedDateTime timestamp,
                                            @Attribute(required = true) int count) {
 
-    public static DataType<DataUpdate> getDataType() {
-        return DataType.of(DataUpdate.class);
-    }
-
-    public static SqlDataTable getSqlDataTable(SqlConnection sqlConnection) {
-        return TableRepository.createTable(getDataType(), sqlConnection);
-    }
-
-    public static DataRepository<DataUpdate> getDataRepository(SqlConnection sqlConnection) {
-        return DataRepository.of(getDataType(), sqlConnection);
+    @NonNull
+    public static DataRepository<DataUpdate> getDataRepository(@NonNull final SqlConnection sqlConnection) {
+        return DataRepository.of(DataType.of(DataUpdate.class), sqlConnection);
     }
 
     public static Optional<ZonedDateTime> findLastUpdateTime(String dataIdentifier, SqlConnection sqlConnection) {
-        final SqlDataTable table = getSqlDataTable(sqlConnection);
+        final DataType<DataUpdate> dataType = DataType.of(DataUpdate.class);
+        final SqlDataTable table = TableRepository.createTable(dataType, sqlConnection);
         final TableColumn<?, ?> dataIdentifierColumn = table.getColumnByName("dataIdentifier")
                 .orElseThrow();
         final TableColumn<?, ?> timestampColumn = table.getColumnByName("timestamp").orElseThrow();

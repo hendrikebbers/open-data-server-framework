@@ -9,6 +9,8 @@ import com.openelements.data.runtime.data.DataAttributeReference;
 import com.openelements.data.runtime.data.DataType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 
 @ApiData
 @Data
@@ -18,7 +20,9 @@ public record DataReferenceEntry(@Attribute(partOfIdentifier = true, required = 
                                  @Attribute(partOfIdentifier = true, required = true) String attributeIdentifiersB,
                                  I18nString name,
                                  I18nString description) {
-    public static <E extends Record> List<DataReferenceEntry> of(DataType<E> dataType) {
+
+    public static <E extends Record> List<DataReferenceEntry> of(@NonNull final DataType<E> dataType) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         final List<DataReferenceEntry> entries = new ArrayList<>();
         for (DataAttribute<?, ?> attribute : dataType.attributes()) {
             for (DataAttributeReference reference : attribute.references()) {

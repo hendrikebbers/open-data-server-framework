@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class TableResultRow implements ResultRow {
 
@@ -13,40 +16,47 @@ public class TableResultRow implements ResultRow {
 
     private final SqlConnection connection;
 
-    public TableResultRow(SqlConnection connection, SqlDataTable table, ResultSet rowSet) {
-        this.connection = connection;
-        table.getDataColumns().forEach(column -> {
-            try {
-                Object value = rowSet.getObject(column.getName());
-                nativeSqlValues.put(column, value);
-            } catch (SQLException e) {
-                throw new RuntimeException("Error retrieving value for column: " + column.getName(), e);
-            }
-        });
+    public TableResultRow(@NonNull final SqlConnection connection, @NonNull final SqlDataTable table,
+            @NonNull final ResultSet rowSet) throws SQLException {
+        this.connection = Objects.requireNonNull(connection, "connection must not be null");
+        Objects.requireNonNull(table, "table must not be null");
+        Objects.requireNonNull(rowSet, "rowSet must not be null");
+        for (TableColumn<?, ?> column : table.getDataColumns()) {
+            Object value = rowSet.getObject(column.getName());
+            nativeSqlValues.put(column, value);
+        }
     }
 
     @Override
-    public boolean containsColumn(String columnName) {
+    public boolean containsColumn(@NonNull final String columnName) {
         return containsColumn(getForName(columnName));
     }
 
     @Override
-    public boolean containsColumn(TableColumn<?, ?> column) {
+    public boolean containsColumn(@NonNull final TableColumn<?, ?> column) {
         return nativeSqlValues.containsKey(column);
     }
 
-    private TableColumn<?, ?> getForName(String columnName) {
+    @NonNull
+    private TableColumn<?, ?> getForName(@NonNull final String columnName) {
+        Objects.requireNonNull(columnName, "columnName must not be null");
+        if (columnName.isBlank()) {
+            throw new IllegalArgumentException("Column name must not be blank");
+        }
         return nativeSqlValues.keySet().stream()
                 .filter(col -> col.getName().equals(columnName))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No column found with name: " + columnName));
     }
 
-    public <T> T getJavaValue(String columnName) throws SQLException {
+    @Nullable
+    public <T> T getJavaValue(@NonNull final String columnName) throws SQLException {
         return (T) getJavaValue(getForName(columnName));
     }
 
-    public <T, U> T getJavaValue(TableColumn<T, U> column) throws SQLException {
+    @Nullable
+    public <T, U> T getJavaValue(@NonNull final TableColumn<T, U> column) throws SQLException {
+        Objects.requireNonNull(column, "column must not be null");
         final Object nativeSqlValue = nativeSqlValues.get(column);
         final SqlTypeSupport<T, U> typeSupport = column.getTypeSupport();
         final U normalizedValue = typeSupport.normalizeSqlValue(nativeSqlValue);

@@ -14,7 +14,9 @@ import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
 
 @ApiData
 @Data
@@ -22,20 +24,16 @@ public record I18nStringEntry(@Attribute(partOfIdentifier = true, required = tru
                               @Attribute(partOfIdentifier = true, required = true) Language language,
                               String content) {
 
-    public static DataType<I18nStringEntry> getDataType() {
-        return DataType.of(I18nStringEntry.class);
+    @NonNull
+    public static DataRepository<I18nStringEntry> getDataRepository(@NonNull final SqlConnection sqlConnection) {
+        return DataRepository.of(DataType.of(I18nStringEntry.class), sqlConnection);
     }
 
-    public static SqlDataTable getSqlDataTable(SqlConnection connection) {
-        return TableRepository.createTable(getDataType(), connection);
-    }
-
-    public static DataRepository<I18nStringEntry> getDataRepository(SqlConnection sqlConnection) {
-        return DataRepository.of(getDataType(), sqlConnection);
-    }
-
-    public static void deleteForReference(UUID reference, SqlConnection sqlConnection) throws SQLException {
-        final SqlDataTable table = I18nStringEntry.getSqlDataTable(sqlConnection);
+    public static void deleteForReference(@NonNull final UUID reference, @NonNull final SqlConnection sqlConnection)
+            throws SQLException {
+        Objects.requireNonNull(reference, "reference must not be null");
+        Objects.requireNonNull(sqlConnection, "sqlConnection must not be null");
+        final SqlDataTable table = TableRepository.createTable(DataType.of(I18nStringEntry.class), sqlConnection);
         final TableColumn<?, ?> referenceColumn = table.getColumnByName("reference").orElseThrow();
         final SqlStatement deleteStatement = sqlConnection.getSqlStatementFactory()
                 .createDeleteStatement(table, List.of(referenceColumn));
@@ -43,9 +41,13 @@ public record I18nStringEntry(@Attribute(partOfIdentifier = true, required = tru
         deleteStatement.executeUpdate();
     }
 
-    public static List<I18nStringEntry> findForReference(UUID reference, SqlConnection sqlConnection) {
-        final DataType<I18nStringEntry> dataType = getDataType();
-        final SqlDataTable table = getSqlDataTable(sqlConnection);
+    @NonNull
+    public static List<I18nStringEntry> findForReference(@NonNull final UUID reference,
+            @NonNull final SqlConnection sqlConnection) {
+        Objects.requireNonNull(reference, "reference must not be null");
+        Objects.requireNonNull(sqlConnection, "sqlConnection must not be null");
+        final DataType<I18nStringEntry> dataType = DataType.of(I18nStringEntry.class);
+        final SqlDataTable table = TableRepository.createTable(DataType.of(I18nStringEntry.class), sqlConnection);
         final TableColumn<?, ?> referenceColumn = table.getColumnByName("reference")
                 .orElseThrow();
         final SqlStatement selectStatement = sqlConnection.getSqlStatementFactory()

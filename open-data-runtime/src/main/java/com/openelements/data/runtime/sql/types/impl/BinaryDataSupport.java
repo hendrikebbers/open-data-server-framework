@@ -8,8 +8,11 @@ import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import com.openelements.data.runtime.types.BinaryDataEntry;
 import com.openelements.data.runtime.types.ByteArray;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class BinaryDataSupport extends AbstractSqlTypeSupport<BinaryData, UUID> {
 
@@ -17,13 +20,15 @@ public class BinaryDataSupport extends AbstractSqlTypeSupport<BinaryData, UUID> 
         super(BinaryData.class, "VARCHAR");
     }
 
+    @NonNull
     @Override
     public Set<String> getSupportedJdbcDrivers() {
         return Set.of(H2Dialect.DRIVER_CLASS_NAME);
     }
 
+    @NonNull
     @Override
-    public BinaryData convertToJavaValue(UUID sqlValue, SqlConnection connection) {
+    public BinaryData convertToJavaValue(@Nullable final UUID sqlValue, @NonNull final SqlConnection connection) {
         if (sqlValue == null) {
             return null; // Handle null case
         }
@@ -32,8 +37,10 @@ public class BinaryDataSupport extends AbstractSqlTypeSupport<BinaryData, UUID> 
                 .orElse(null);
     }
 
+    @NonNull
     @Override
-    public UUID convertToSqlValue(BinaryData value, SqlConnection connection) throws SQLException {
+    public UUID convertToSqlValue(@Nullable final BinaryData value, @NonNull final SqlConnection connection)
+            throws SQLException {
         throw new UnsupportedOperationException("BinaryData type does not support direct SQL value conversion");
     }
 
@@ -42,27 +49,31 @@ public class BinaryDataSupport extends AbstractSqlTypeSupport<BinaryData, UUID> 
         return true;
     }
 
+    @Nullable
     @Override
-    public UUID insertReference(BinaryData javaValue, SqlConnection connection) throws SQLException {
-        UUID newReference = UUID.randomUUID();
+    public UUID insertReference(@Nullable final BinaryData javaValue, @NonNull final SqlConnection connection)
+            throws SQLException {
+        final UUID newReference = UUID.randomUUID();
         insertForReference(newReference, javaValue, connection);
         return newReference;
     }
 
-    private static void insertForReference(UUID reference, BinaryData javaValue, SqlConnection connection)
+    private static void insertForReference(@NonNull final UUID reference, @Nullable final BinaryData javaValue,
+            @NonNull SqlConnection connection)
             throws SQLException {
+        Objects.requireNonNull(reference, "Reference must not be null");
         if (javaValue == null) {
             return;
         }
-        DataRepository<BinaryDataEntry> repository = BinaryDataEntry.getDataRepository(connection);
-        final UUID id = UUID.randomUUID();
-        ByteArray content = new ByteArray(javaValue.content());
-        BinaryDataEntry entry = new BinaryDataEntry(id, javaValue.name(), content);
+        final DataRepository<BinaryDataEntry> repository = BinaryDataEntry.getDataRepository(connection);
+        final ByteArray content = new ByteArray(javaValue.content());
+        final BinaryDataEntry entry = new BinaryDataEntry(reference, javaValue.name(), content);
         repository.store(entry);
     }
 
     @Override
-    public UUID updateReference(UUID currentValue, BinaryData javaValue, SqlConnection connection) throws SQLException {
+    public UUID updateReference(@NonNull UUID currentValue, @Nullable BinaryData javaValue,
+            @NonNull SqlConnection connection) throws SQLException {
         BinaryDataEntry.deleteForReference(currentValue, connection);
         insertForReference(currentValue, javaValue, connection);
         return currentValue; // Return the same reference after update

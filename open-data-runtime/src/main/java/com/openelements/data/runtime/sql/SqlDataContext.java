@@ -12,11 +12,13 @@ import com.openelements.data.runtime.types.DataUpdate;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.NonNull;
 
 public class SqlDataContext implements DataContext {
 
@@ -28,9 +30,9 @@ public class SqlDataContext implements DataContext {
 
     private final AtomicBoolean initialized = new AtomicBoolean(false);
 
-    public SqlDataContext(ScheduledExecutorService executor, SqlConnection connection) {
-        this.executor = executor;
-        this.connection = connection;
+    public SqlDataContext(@NonNull final ScheduledExecutorService executor, @NonNull final SqlConnection connection) {
+        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.connection = Objects.requireNonNull(connection, "connection must not be null");
     }
 
     public void initialize() throws SQLException {
@@ -40,18 +42,23 @@ public class SqlDataContext implements DataContext {
         initialized.set(true);
     }
 
+    @NonNull
     @Override
-    public Optional<ZonedDateTime> getLastUpdateTime(Class<? extends Record> dataType) {
+    public Optional<ZonedDateTime> getLastUpdateTime(@NonNull final Class<? extends Record> dataType) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         return DataUpdate.findLastUpdateTime(DataType.of(dataType).name(), connection);
     }
 
+    @NonNull
     @Override
     public ScheduledExecutorService getExecutor() {
         return executor;
     }
 
+    @NonNull
     @Override
-    public <T extends Record> List<T> getAll(Class<T> dataType) {
+    public <T extends Record> List<T> getAll(@NonNull final Class<T> dataType) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         final DataRepository<T> dataRepository = (DataRepository<T>) repositories.get(dataType);
         if (dataRepository == null) {
             throw new IllegalArgumentException("No data repository found for data type: " + dataType);
@@ -63,8 +70,13 @@ public class SqlDataContext implements DataContext {
         }
     }
 
+    @NonNull
     @Override
-    public <T extends Record> Page<T> getAll(Class<T> dataType, int pageSize) {
+    public <T extends Record> Page<T> getAll(@NonNull final Class<T> dataType, final int pageSize) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
+        if (pageSize <= 0) {
+            throw new IllegalArgumentException("Page size must be greater than zero");
+        }
         final DataRepository<T> dataRepository = (DataRepository<T>) repositories.get(dataType);
         if (dataRepository == null) {
             throw new IllegalArgumentException("No data repository found for data type: " + dataType);
@@ -77,8 +89,10 @@ public class SqlDataContext implements DataContext {
     }
 
     @Override
-    public <T extends Record> void store(Class<T> dataType, List<T> data) {
-        DataType<T> dataTypeInstance = DataType.of(dataType);
+    public <T extends Record> void store(@NonNull final Class<T> dataType, @NonNull final List<T> data) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
+        Objects.requireNonNull(data, "data must not be null");
+        final DataType<T> dataTypeInstance = DataType.of(dataType);
         if (dataTypeInstance.api()) {
             throw new IllegalArgumentException("Cannot store data for API data type: " + dataType);
         }
@@ -97,16 +111,21 @@ public class SqlDataContext implements DataContext {
         }
     }
 
+    @NonNull
     @Override
-    public KeyValueStore getKeyValueStore(String name) {
+    public KeyValueStore getKeyValueStore(@NonNull final String name) {
+        Objects.requireNonNull(name, "name must not be null");
         return new SqlKeyValueStore(name, connection);
     }
 
-    private <E extends Record> Optional<DataRepository<E>> getRepository(Class<E> dataType) {
+    @NonNull
+    private <E extends Record> Optional<DataRepository<E>> getRepository(@NonNull final Class<E> dataType) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         return Optional.ofNullable((DataRepository<E>) repositories.get(dataType));
     }
 
-    public <E extends Record> void addDataType(DataType<E> dataType) throws SQLException {
+    public <E extends Record> void addDataType(@NonNull final DataType<E> dataType) throws SQLException {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         if (initialized.get()) {
             throw new IllegalStateException("Cannot add data type after initialization");
         }

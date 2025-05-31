@@ -12,8 +12,10 @@ import com.openelements.data.runtime.sql.tables.ResultRow;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
 
 @ApiData
 @Data
@@ -21,21 +23,16 @@ public record BinaryDataEntry(@Attribute(partOfIdentifier = true, required = tru
                               String name,
                               ByteArray content) {
 
-    public static DataType<BinaryDataEntry> getDataType() {
-        return DataType.of(BinaryDataEntry.class);
+    public static DataRepository<BinaryDataEntry> getDataRepository(@NonNull final SqlConnection sqlConnection) {
+        return DataRepository.of(DataType.of(BinaryDataEntry.class), sqlConnection);
     }
 
-    public static SqlDataTable getSqlDataTable(SqlConnection sqlConnection) {
-        return TableRepository.createTable(getDataType(), sqlConnection);
-    }
-
-    public static DataRepository<BinaryDataEntry> getDataRepository(SqlConnection sqlConnection) {
-        return DataRepository.of(getDataType(), sqlConnection);
-    }
-
-    public static Optional<BinaryDataEntry> findForReference(UUID reference, SqlConnection sqlConnection) {
-        final DataType<BinaryDataEntry> dataType = getDataType();
-        final SqlDataTable table = getSqlDataTable(sqlConnection);
+    public static Optional<BinaryDataEntry> findForReference(@NonNull final UUID reference,
+            @NonNull final SqlConnection sqlConnection) {
+        Objects.requireNonNull(reference, "reference must not be null");
+        Objects.requireNonNull(sqlConnection, "sqlConnection must not be null");
+        final DataType<BinaryDataEntry> dataType = DataType.of(BinaryDataEntry.class);
+        final SqlDataTable table = TableRepository.createTable(dataType, sqlConnection);
         final SqlStatement selectStatement = sqlConnection.getSqlStatementFactory()
                 .createSelectStatement(table, table.getDataColumns(), table.getKeyColumns());
         selectStatement.set("id", reference);
@@ -54,8 +51,12 @@ public record BinaryDataEntry(@Attribute(partOfIdentifier = true, required = tru
         }
     }
 
-    public static void deleteForReference(UUID id, SqlConnection connection) throws SQLException {
-        final SqlDataTable table = getSqlDataTable(connection);
+    public static void deleteForReference(@NonNull final UUID id, @NonNull final SqlConnection connection)
+            throws SQLException {
+        Objects.requireNonNull(id, "id must not be null");
+        Objects.requireNonNull(connection, "connection must not be null");
+        final DataType<BinaryDataEntry> dataType = DataType.of(BinaryDataEntry.class);
+        final SqlDataTable table = TableRepository.createTable(dataType, connection);
         final SqlStatement deleteStatement = connection.getSqlStatementFactory()
                 .createDeleteStatement(table, table.getKeyColumns());
         deleteStatement.set("id", id);

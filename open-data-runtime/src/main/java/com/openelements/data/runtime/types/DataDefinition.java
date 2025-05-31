@@ -6,6 +6,8 @@ import com.openelements.data.api.types.I18nString;
 import com.openelements.data.runtime.data.ApiData;
 import com.openelements.data.runtime.data.DataType;
 import java.time.ZonedDateTime;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 
 @ApiData
 @Data
@@ -16,7 +18,8 @@ public record DataDefinition(
         boolean isVirtual,
         ZonedDateTime createdAt) {
 
-    public static DataDefinition of(DataType dataType) {
+    public static DataDefinition of(@NonNull final DataType dataType) {
+        Objects.requireNonNull(dataType, "dataType");
         return new DataDefinition(
                 dataType.name(),
                 null,
