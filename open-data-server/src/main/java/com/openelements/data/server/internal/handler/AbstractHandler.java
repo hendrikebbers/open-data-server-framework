@@ -1,6 +1,6 @@
 package com.openelements.data.server.internal.handler;
 
-import com.openelements.data.api.data.Language;
+import com.openelements.data.runtime.api.Language;
 import com.openelements.data.server.internal.ContentTypes;
 import com.openelements.data.server.internal.HttpUtils;
 import io.helidon.webserver.http.Handler;

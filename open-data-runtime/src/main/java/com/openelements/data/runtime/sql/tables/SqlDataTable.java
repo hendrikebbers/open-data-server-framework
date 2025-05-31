@@ -32,8 +32,8 @@ public class SqlDataTable {
     }
 
     @NonNull
-    private SqlTypeSupport getTypeSupport(@NonNull final Type type) {
-        return sqlDialect.getSqlTypeSupportForJavaType(type)
+    private <T, U> SqlTypeSupport<T, U> getTypeSupport(@NonNull final Type type) {
+        return (SqlTypeSupport<T, U>) sqlDialect.getSqlTypeSupportForJavaType(type)
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + type));
     }
 
@@ -80,13 +80,14 @@ public class SqlDataTable {
     }
 
     @NonNull
-    public Optional<TableColumn<?, ?>> getColumnByName(@NonNull final String name) {
+    public <T, U> Optional<TableColumn<T, U>> getColumnByName(@NonNull final String name) {
         Objects.requireNonNull(name, "Column name must not be null");
         if (name.isBlank()) {
             throw new IllegalArgumentException("Column name must not be blank");
         }
         return getColumns().stream()
                 .filter(column -> column.getName().equals(name))
+                .map(column -> (TableColumn<T, U>) column)
                 .findFirst();
     }
 

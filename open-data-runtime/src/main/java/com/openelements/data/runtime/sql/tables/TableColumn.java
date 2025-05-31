@@ -1,6 +1,7 @@
 package com.openelements.data.runtime.sql.tables;
 
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.connection.SqlConnectionImpl;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
 import java.sql.SQLException;
 import java.util.Objects;

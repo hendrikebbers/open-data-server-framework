@@ -1,12 +1,12 @@
 package com.openelements.data.runtime.types;
 
-import com.openelements.data.api.data.Attribute;
-import com.openelements.data.api.data.Data;
-import com.openelements.data.api.types.I18nString;
-import com.openelements.data.runtime.data.ApiData;
+import com.openelements.data.runtime.api.Attribute;
+import com.openelements.data.runtime.api.Data;
+import com.openelements.data.runtime.api.types.I18nString;
 import com.openelements.data.runtime.data.DataAttribute;
 import com.openelements.data.runtime.data.DataAttributeReference;
 import com.openelements.data.runtime.data.DataType;
+import com.openelements.data.runtime.data.impl.ApiData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

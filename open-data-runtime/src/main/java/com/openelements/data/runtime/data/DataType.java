@@ -1,5 +1,6 @@
 package com.openelements.data.runtime.data;
 
+import com.openelements.data.runtime.data.impl.DataLoader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -7,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import org.jspecify.annotations.NonNull;
 
 public record DataType<E extends Record>(@NonNull String name, boolean api, boolean publiclyAvailable, boolean virtual,
@@ -59,5 +61,10 @@ public record DataType<E extends Record>(@NonNull String name, boolean api, bool
                 .filter(attribute -> attribute.name().equals(name))
                 .map(attribute -> (DataAttribute<E, D>) attribute)
                 .findFirst();
+    }
+
+    @NonNull
+    public static Set<DataType<?>> loadData() {
+        return DataLoader.loadData();
     }
 }

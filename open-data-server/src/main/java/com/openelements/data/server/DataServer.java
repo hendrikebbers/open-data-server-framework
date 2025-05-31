@@ -1,12 +1,11 @@
 package com.openelements.data.server;
 
-import com.openelements.data.runtime.DataSource;
-import com.openelements.data.runtime.data.DataLoader;
-import com.openelements.data.runtime.data.DataRepository;
+import com.openelements.data.runtime.api.DataContext;
+import com.openelements.data.runtime.api.DataSource;
 import com.openelements.data.runtime.data.DataType;
+import com.openelements.data.runtime.integration.DataContextFactory;
+import com.openelements.data.runtime.integration.DataRepository;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.SqlDataContext;
-import com.openelements.data.runtime.sql.repositories.TableRepository;
 import com.openelements.data.server.internal.handler.DataHandler;
 import com.openelements.data.server.internal.handler.DataHandlerImpl;
 import com.openelements.data.server.internal.handler.GetAllHandler;
@@ -18,7 +17,6 @@ import io.helidon.webserver.http.HttpRouting.Builder;
 import io.helidon.webserver.http.HttpService;
 import io.helidon.webserver.staticcontent.ClasspathHandlerConfig;
 import io.helidon.webserver.staticcontent.StaticContentFeature;
-import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import org.slf4j.Logger;
@@ -68,25 +66,19 @@ public class DataServer {
                 return thread;
             }
         };
-        SqlDataContext dataContext = new SqlDataContext(Executors.newScheduledThreadPool(4, threadFactory),
-                sqlConnection);
-        try {
-            for (DataType<?> dataType : DataLoader.loadData()) {
-                final DataRepository<?> dataRepository = new TableRepository(dataType, sqlConnection);
-                dataContext.addDataType(dataType);
-                DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
-                final String path;
-                if (dataType.api()) {
-                    path = "/api/" + toRestUrlPath(dataType.name());
-                } else {
-                    path = "/records/" + toRestUrlPath(dataType.name());
-                }
-                routingBuilder.get(path, new GetAllHandler<>(handler));
-                log.info("Registered handler: {}", path);
+        final DataContext dataContext = DataContextFactory.createDataContext(
+                Executors.newScheduledThreadPool(8, threadFactory), sqlConnection);
+        for (DataType<?> dataType : DataType.loadData()) {
+            final DataRepository<?> dataRepository = DataRepository.of(dataType, sqlConnection);
+            DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
+            final String path;
+            if (dataType.api()) {
+                path = "/api/" + toRestUrlPath(dataType.name());
+            } else {
+                path = "/records/" + toRestUrlPath(dataType.name());
             }
-            dataContext.initialize();
-        } catch (SQLException e) {
-            throw new RuntimeException("Error in sql init", e);
+            routingBuilder.get(path, new GetAllHandler<>(handler));
+            log.info("Registered handler: {}", path);
         }
         for (DataSource provider : DataSource.getInstances()) {
             provider.install(dataContext);

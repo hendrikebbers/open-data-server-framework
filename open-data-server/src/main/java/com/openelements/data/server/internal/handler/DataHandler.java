@@ -1,6 +1,6 @@
 package com.openelements.data.server.internal.handler;
 
-import com.openelements.data.runtime.Page;
+import com.openelements.data.runtime.api.Page;
 import com.openelements.data.runtime.data.DataType;
 import java.util.List;
 

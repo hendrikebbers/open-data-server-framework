@@ -1,6 +1,6 @@
 package com.openelements.data.server.internal;
 
-import com.openelements.data.api.data.Language;
+import com.openelements.data.runtime.api.Language;
 import io.helidon.webserver.http.ServerRequest;
 import io.helidon.webserver.http.ServerResponse;
 import java.util.Objects;

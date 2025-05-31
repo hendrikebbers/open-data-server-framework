@@ -9,7 +9,6 @@ module com.openelements.data.server {
     requires io.helidon.webserver;
     requires io.swagger.v3.oas.models;
     requires com.openelements.data.runtime;
-    requires com.openelements.data.api;
     requires static org.jspecify;
     requires java.sql;
 }

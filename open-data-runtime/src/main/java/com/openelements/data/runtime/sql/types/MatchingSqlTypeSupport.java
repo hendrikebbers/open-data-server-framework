@@ -1,6 +1,7 @@
 package com.openelements.data.runtime.sql.types;
 
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.connection.SqlConnectionImpl;
 import java.sql.SQLException;
 
 public interface MatchingSqlTypeSupport<D> extends SqlTypeSupport<D, D> {

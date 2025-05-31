@@ -6,9 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 public interface ResultRow {
 
-    boolean containsColumn(@NonNull String columnName);
-
-    boolean containsColumn(@NonNull TableColumn<?, ?> column);
+    <T, U> boolean containsColumn(@NonNull TableColumn<T, U> column);
 
     @Nullable
     <T> T getJavaValue(@NonNull String columnName) throws SQLException;

@@ -1,7 +1,7 @@
 package com.openelements.data.server.internal.handler;
 
 import com.google.gson.JsonArray;
-import com.openelements.data.api.data.Language;
+import com.openelements.data.runtime.api.Language;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.server.internal.ContentTypes;
 import com.openelements.data.server.internal.HttpUtils;

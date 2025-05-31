@@ -2,8 +2,9 @@ package com.openelements.data.runtime.sql.types.impl;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.openelements.data.runtime.h2.H2Dialect;
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.h2.H2Dialect;
+import com.openelements.data.runtime.sql.connection.SqlConnectionImpl;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import java.lang.reflect.Type;
 import java.sql.SQLException;

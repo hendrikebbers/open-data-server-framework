@@ -1,12 +1,12 @@
 package com.openelements.data.runtime.types;
 
-import com.openelements.data.api.data.Attribute;
-import com.openelements.data.api.data.Data;
-import com.openelements.data.runtime.data.ApiData;
-import com.openelements.data.runtime.data.DataRepository;
+import com.openelements.data.runtime.api.Attribute;
+import com.openelements.data.runtime.api.Data;
 import com.openelements.data.runtime.data.DataType;
+import com.openelements.data.runtime.data.impl.ApiData;
+import com.openelements.data.runtime.integration.DataRepository;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.repositories.TableRepository;
+import com.openelements.data.runtime.sql.implementation.TableRepository;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
 import com.openelements.data.runtime.sql.tables.ResultRow;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;

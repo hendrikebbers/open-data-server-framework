@@ -1,6 +1,7 @@
 package com.openelements.data.runtime.sql.tables;
 
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.connection.SqlConnectionImpl;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,22 +29,17 @@ public class TableResultRow implements ResultRow {
     }
 
     @Override
-    public boolean containsColumn(@NonNull final String columnName) {
-        return containsColumn(getForName(columnName));
-    }
-
-    @Override
-    public boolean containsColumn(@NonNull final TableColumn<?, ?> column) {
+    public <T, U> boolean containsColumn(@NonNull final TableColumn<T, U> column) {
         return nativeSqlValues.containsKey(column);
     }
 
     @NonNull
-    private TableColumn<?, ?> getForName(@NonNull final String columnName) {
+    private <T, U> TableColumn<T, U> getForName(@NonNull final String columnName) {
         Objects.requireNonNull(columnName, "columnName must not be null");
         if (columnName.isBlank()) {
             throw new IllegalArgumentException("Column name must not be blank");
         }
-        return nativeSqlValues.keySet().stream()
+        return (TableColumn<T, U>) nativeSqlValues.keySet().stream()
                 .filter(col -> col.getName().equals(columnName))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No column found with name: " + columnName));

@@ -1,10 +1,10 @@
 package com.openelements.data.runtime.types;
 
-import com.openelements.data.api.data.Attribute;
-import com.openelements.data.api.data.Data;
-import com.openelements.data.api.types.I18nString;
-import com.openelements.data.runtime.data.ApiData;
+import com.openelements.data.runtime.api.Attribute;
+import com.openelements.data.runtime.api.Data;
+import com.openelements.data.runtime.api.types.I18nString;
 import com.openelements.data.runtime.data.DataType;
+import com.openelements.data.runtime.data.impl.ApiData;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;

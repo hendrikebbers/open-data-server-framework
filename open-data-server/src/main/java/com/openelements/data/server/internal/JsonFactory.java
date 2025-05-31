@@ -3,7 +3,7 @@ package com.openelements.data.server.internal;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.openelements.data.api.data.Language;
+import com.openelements.data.runtime.api.Language;
 import com.openelements.data.server.internal.gson.TemporalAccessorTypeAdapter;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;

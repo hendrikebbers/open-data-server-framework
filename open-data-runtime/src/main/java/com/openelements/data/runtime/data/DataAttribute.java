@@ -1,6 +1,6 @@
 package com.openelements.data.runtime.data;
 
-import com.openelements.data.api.data.Attribute;
+import com.openelements.data.runtime.api.Attribute;
 import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.util.Arrays;

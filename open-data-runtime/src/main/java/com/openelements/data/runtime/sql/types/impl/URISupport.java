@@ -1,7 +1,8 @@
 package com.openelements.data.runtime.sql.types.impl;
 
-import com.openelements.data.runtime.h2.H2Dialect;
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.h2.H2Dialect;
+import com.openelements.data.runtime.sql.connection.SqlConnectionImpl;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import java.net.URI;
 import java.net.URISyntaxException;

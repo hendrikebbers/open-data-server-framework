@@ -1,10 +1,10 @@
 package com.openelements.data.runtime.sql.types.impl;
 
-import com.openelements.data.api.data.Language;
-import com.openelements.data.api.types.I18nString;
-import com.openelements.data.runtime.data.DataRepository;
-import com.openelements.data.runtime.h2.H2Dialect;
+import com.openelements.data.runtime.api.Language;
+import com.openelements.data.runtime.api.types.I18nString;
+import com.openelements.data.runtime.integration.DataRepository;
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.h2.H2Dialect;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import com.openelements.data.runtime.types.I18nStringEntry;
 import java.sql.SQLException;
@@ -71,7 +71,8 @@ public class I18NSupport extends AbstractSqlTypeSupport<I18nString, UUID> {
     }
 
     @Override
-    public UUID updateReference(UUID currentValue, I18nString javaValue, SqlConnection connection) throws SQLException {
+    public UUID updateReference(UUID currentValue, I18nString javaValue, SqlConnection connection)
+            throws SQLException {
         I18nStringEntry.deleteForReference(currentValue, connection);
         insertForReference(currentValue, javaValue, connection);
         return currentValue; // Return the same reference after update

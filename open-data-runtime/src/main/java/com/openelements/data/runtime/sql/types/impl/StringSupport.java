@@ -1,6 +1,6 @@
 package com.openelements.data.runtime.sql.types.impl;
 
-import com.openelements.data.runtime.h2.H2Dialect;
+import com.openelements.data.runtime.sql.h2.H2Dialect;
 import com.openelements.data.runtime.sql.types.AbstractMatchingSqlTypeSupport;
 import java.util.Set;
 
