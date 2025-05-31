@@ -5,9 +5,11 @@ import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
 
 public record DataAttribute<E extends Record, D>(String name, int oder, boolean required,
-                                                 boolean partOfIdentifier, Type type) {
+                                                 boolean partOfIdentifier, Type type,
+                                                 Set<DataAttributeReference> references) {
 
     public static <E extends Record, D> D getFor(E data, DataType<E> dataType, String name) {
         return (D) dataType.getAttribute(name)

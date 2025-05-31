@@ -7,6 +7,7 @@ import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.types.DataAttributeDefinition;
 import com.openelements.data.runtime.types.DataDefinition;
+import com.openelements.data.runtime.types.DataReferenceEntry;
 import com.openelements.data.runtime.types.DataUpdate;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
@@ -116,5 +117,8 @@ public class SqlDataContext implements DataContext {
 
         final List<DataAttributeDefinition> attributeDefinitions = DataAttributeDefinition.of(dataType);
         DataRepository.of(DataAttributeDefinition.class, connection).store(attributeDefinitions);
+
+        final List<DataReferenceEntry> attributeReferences = DataReferenceEntry.of(dataType);
+        DataRepository.of(DataReferenceEntry.class, connection).store(attributeReferences);
     }
 }

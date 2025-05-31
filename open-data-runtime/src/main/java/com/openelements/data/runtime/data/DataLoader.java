@@ -2,6 +2,7 @@ package com.openelements.data.runtime.data;
 
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
+import com.openelements.data.api.data.Reference;
 import com.openelements.data.runtime.DataTypeProvider;
 import com.openelements.data.runtime.RecordStoreApiDataTypesProvider;
 import java.util.ArrayList;
@@ -85,8 +86,13 @@ public class DataLoader {
             } else {
                 required = false;
             }
+            final Set<DataAttributeReference> references = new HashSet<>();
+            if (component.isAnnotationPresent(Reference.class)) {
+                final Reference reference = component.getAnnotation(Reference.class);
+                references.add(new DataAttributeReference(reference.toType(), reference.toAttribute()));
+            }
             final DataAttribute attribute = new DataAttribute(name, order, required, partOfIdentifier,
-                    component.getGenericType());
+                    component.getGenericType(), Collections.unmodifiableSet(references));
             attributes.add(attribute);
         });
         return Collections.unmodifiableList(attributes);

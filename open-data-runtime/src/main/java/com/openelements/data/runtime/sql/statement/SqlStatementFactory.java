@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface SqlStatementFactory {
 
-    SqlStatement createTableCreateStatement(SqlDataTable table);
+    SqlStatement createTableCreateStatement(SqlDataTable table, boolean ifNotExists);
 
-    SqlStatement createUniqueIndexStatement(SqlDataTable table);
+    SqlStatement createUniqueIndexStatement(SqlDataTable table, boolean ifNotExists);
 
     SqlStatement createSelectStatement(SqlDataTable table,
             List<TableColumn<?, ?>> selectColumns,

@@ -9,12 +9,12 @@ public class CreateTableSupport {
     public static <E extends Record> String createCreateTableStatement(Class<E> recordClass, SqlConnection connection) {
         DataType<E> dataType = DataType.of(recordClass);
         SqlDataTable sqlDataTable = TableRepository.createTable(dataType, connection);
-        return connection.getSqlStatementFactory().createTableCreateStatement(sqlDataTable).getStatement();
+        return connection.getSqlStatementFactory().createTableCreateStatement(sqlDataTable, false).getStatement();
     }
 
     public static <E extends Record> String createUniqueIndexStatement(Class<E> recordClass, SqlConnection connection) {
         DataType<E> dataType = DataType.of(recordClass);
         SqlDataTable sqlDataTable = TableRepository.createTable(dataType, connection);
-        return connection.getSqlStatementFactory().createUniqueIndexStatement(sqlDataTable).getStatement();
+        return connection.getSqlStatementFactory().createUniqueIndexStatement(sqlDataTable, false).getStatement();
     }
 }

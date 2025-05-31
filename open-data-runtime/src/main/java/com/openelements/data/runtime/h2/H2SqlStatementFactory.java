@@ -17,8 +17,11 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
         this.sqlConnection = sqlConnection;
     }
 
-    public SqlStatement createTableCreateStatement(SqlDataTable table) {
-        final StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
+    public SqlStatement createTableCreateStatement(SqlDataTable table, boolean ifNotExists) {
+        final StringBuilder sql = new StringBuilder("CREATE TABLE ");
+        if (ifNotExists) {
+            sql.append("IF NOT EXISTS ");
+        }
         sql.append(table.getName());
         sql.append(" (");
         for (TableColumn<?, ?> column : table.getColumns()) {
@@ -33,8 +36,11 @@ public class H2SqlStatementFactory implements SqlStatementFactory {
         return new SqlStatement(table, sql.toString(), List.of(), sqlConnection);
     }
 
-    public SqlStatement createUniqueIndexStatement(SqlDataTable table) {
-        final StringBuilder sql = new StringBuilder("CREATE UNIQUE INDEX IF NOT EXISTS ");
+    public SqlStatement createUniqueIndexStatement(SqlDataTable table, boolean ifNotExists) {
+        final StringBuilder sql = new StringBuilder("CREATE UNIQUE INDEX ");
+        if (ifNotExists) {
+            sql.append("IF NOT EXISTS ");
+        }
         sql.append("UNIQUE_INDEX_" + table.getName());
         sql.append(" ON ");
         sql.append(table.getName());
