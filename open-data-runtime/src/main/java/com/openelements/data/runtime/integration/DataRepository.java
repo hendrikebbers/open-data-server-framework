@@ -7,6 +7,7 @@ import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.implementation.TableRepository;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public interface DataRepository<E extends Record> {
 
@@ -24,9 +25,10 @@ public interface DataRepository<E extends Record> {
         return of(DataType.of(dataType), connection);
     }
 
+
     static <E extends Record> DataRepository<E> of(DataType<E> dataType, SqlConnection connection) {
         if (dataType.virtual()) {
-            return new VirtualDataRepository<>();
+            return VirtualDataRepository.forType(dataType);
         }
         return new TableRepository(dataType, connection);
     }

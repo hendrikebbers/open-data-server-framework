@@ -11,6 +11,11 @@ public class CreateTableSupport {
     private CreateTableSupport() {
     }
 
+    public static boolean isVirtualTable(@NonNull final Class<? extends Record> recordClass) {
+        Objects.requireNonNull(recordClass, "recordClass must not be null");
+        return DataType.of(recordClass).virtual();
+    }
+
     @NonNull
     public static <E extends Record> String createCreateTableStatement(@NonNull final Class<E> recordClass,
             @NonNull final SqlConnection connection) {

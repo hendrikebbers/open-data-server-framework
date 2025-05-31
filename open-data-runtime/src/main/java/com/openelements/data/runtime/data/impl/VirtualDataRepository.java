@@ -6,6 +6,7 @@ import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.integration.DataRepository;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -18,8 +19,25 @@ public class VirtualDataRepository<E extends Record> implements DataRepository<E
 
     private final List<E> dataList;
 
-    public VirtualDataRepository() {
+    private VirtualDataRepository() {
         this.dataList = new CopyOnWriteArrayList<>();
+    }
+
+    private static HashMap<DataType, VirtualDataRepository<?>> repositories = new HashMap<>();
+
+    public static <E extends Record> VirtualDataRepository<E> forType(DataType<E> dataType) {
+        if (repositories.containsKey(dataType)) {
+            //noinspection unchecked
+            return (VirtualDataRepository<E>) repositories.get(dataType);
+        }
+        synchronized (repositories) {
+            if (!repositories.containsKey(dataType)) {
+                VirtualDataRepository<E> repository = new VirtualDataRepository<>();
+                repositories.put(dataType, repository);
+            }
+            //noinspection unchecked
+            return (VirtualDataRepository<E>) repositories.get(dataType);
+        }
     }
 
     @Override
