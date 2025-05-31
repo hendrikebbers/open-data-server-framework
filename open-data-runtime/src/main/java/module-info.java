@@ -20,7 +20,6 @@ module com.openelements.data.runtime {
 
     uses com.openelements.data.runtime.DataSource;
     uses com.openelements.data.runtime.DataTypeProvider;
-    uses com.openelements.data.runtime.data.TranslationProvider;
 
     provides com.openelements.data.runtime.sql.types.SqlTypeSupport with
             com.openelements.data.runtime.sql.types.impl.BigDecimalSupport,
