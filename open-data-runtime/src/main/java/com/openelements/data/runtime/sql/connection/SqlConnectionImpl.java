@@ -1,8 +1,8 @@
 package com.openelements.data.runtime.sql.connection;
 
-import com.openelements.data.runtime.sql.ConnectionProvider;
-import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.SqlDialect;
+import com.openelements.data.runtime.sql.api.ConnectionProvider;
+import com.openelements.data.runtime.sql.api.SqlConnection;
+import com.openelements.data.runtime.sql.api.SqlDialect;
 import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

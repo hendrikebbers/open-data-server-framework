@@ -1,7 +1,6 @@
 package com.openelements.data.runtime.sql.statement;
 
-import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.connection.SqlConnectionImpl;
+import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.tables.ResultRow;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;

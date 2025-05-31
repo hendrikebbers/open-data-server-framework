@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.sql;
+package com.openelements.data.runtime.sql.api;
 
 import com.openelements.data.runtime.sql.connection.SimpleConnectionProvider;
 import java.sql.Connection;

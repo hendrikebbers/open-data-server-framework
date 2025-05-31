@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.sql;
+package com.openelements.data.runtime.sql.api;
 
 import com.openelements.data.runtime.sql.h2.H2Dialect;
 import com.openelements.data.runtime.sql.statement.SqlStatementFactory;

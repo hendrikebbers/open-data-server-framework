@@ -5,7 +5,7 @@ import com.openelements.data.runtime.data.DataAttribute;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.data.impl.PageImpl;
 import com.openelements.data.runtime.integration.DataRepository;
-import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
 import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
 import com.openelements.data.runtime.sql.tables.ResultRow;

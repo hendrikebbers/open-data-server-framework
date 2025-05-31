@@ -2,7 +2,7 @@ package com.openelements.data.runtime.sql.types.impl;
 
 import com.openelements.data.runtime.api.types.BinaryData;
 import com.openelements.data.runtime.integration.DataRepository;
-import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.h2.H2Dialect;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import com.openelements.data.runtime.types.BinaryDataEntry;

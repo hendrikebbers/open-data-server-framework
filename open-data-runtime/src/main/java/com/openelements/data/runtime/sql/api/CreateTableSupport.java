@@ -1,7 +1,6 @@
-package com.openelements.data.runtime.sql;
+package com.openelements.data.runtime.sql.api;
 
 import com.openelements.data.runtime.data.DataType;
-import com.openelements.data.runtime.sql.connection.SqlConnectionImpl;
 import com.openelements.data.runtime.sql.implementation.TableRepository;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import java.util.Objects;

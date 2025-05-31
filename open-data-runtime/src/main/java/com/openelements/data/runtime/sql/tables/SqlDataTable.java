@@ -1,6 +1,6 @@
 package com.openelements.data.runtime.sql.tables;
 
-import com.openelements.data.runtime.sql.SqlDialect;
+import com.openelements.data.runtime.sql.api.SqlDialect;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
 import java.lang.reflect.Type;
 import java.util.ArrayList;

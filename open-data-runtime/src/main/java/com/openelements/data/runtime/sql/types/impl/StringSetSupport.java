@@ -3,7 +3,7 @@ package com.openelements.data.runtime.sql.types.impl;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.h2.H2Dialect;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
 import java.lang.reflect.Type;

@@ -3,7 +3,7 @@ package com.openelements.data.runtime.integration;
 import com.openelements.data.runtime.api.Page;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.data.impl.VirtualDataRepository;
-import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.implementation.TableRepository;
 import java.sql.SQLException;
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.openelements.data.runtime.sql.connection;
 
-import com.openelements.data.runtime.sql.ConnectionProvider;
+import com.openelements.data.runtime.sql.api.ConnectionProvider;
 import com.openelements.data.runtime.sql.statement.LoggableConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;

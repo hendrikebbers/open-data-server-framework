@@ -5,7 +5,7 @@ import com.openelements.data.runtime.api.DataSource;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.integration.DataContextFactory;
 import com.openelements.data.runtime.integration.DataRepository;
-import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.server.internal.handler.DataHandler;
 import com.openelements.data.server.internal.handler.DataHandlerImpl;
 import com.openelements.data.server.internal.handler.GetAllHandler;
