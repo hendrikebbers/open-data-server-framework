@@ -20,6 +20,8 @@ import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +31,9 @@ public class LoggablePreparedStatement extends LoggableStatement implements Prep
 
     private final PreparedStatement delegate;
 
-    public LoggablePreparedStatement(PreparedStatement delegate) {
+    public LoggablePreparedStatement(@NonNull final PreparedStatement delegate) {
         super(delegate);
-        this.delegate = delegate;
+        this.delegate = Objects.requireNonNull(delegate, "PreparedStatement delegate must not be null");
     }
 
     @Override

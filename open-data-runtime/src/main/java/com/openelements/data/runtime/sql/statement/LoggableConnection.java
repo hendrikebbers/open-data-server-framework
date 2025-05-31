@@ -16,15 +16,17 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import org.jspecify.annotations.NonNull;
 
 public class LoggableConnection implements Connection {
 
     private final Connection innerConnection;
 
-    public LoggableConnection(Connection innerConnection) {
-        this.innerConnection = innerConnection;
+    public LoggableConnection(@NonNull Connection innerConnection) {
+        this.innerConnection = Objects.requireNonNull(innerConnection, "innerConnection must not be null");
     }
 
     @Override

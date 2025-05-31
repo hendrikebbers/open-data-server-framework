@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +18,9 @@ public class LoggableStatement implements Statement {
 
     private final Statement delegate;
 
-    public LoggableStatement(Statement delegate) {this.delegate = delegate;}
+    public LoggableStatement(@NonNull final Statement delegate) {
+        this.delegate = Objects.requireNonNull(delegate, "Statement delegate must not be null");
+    }
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {

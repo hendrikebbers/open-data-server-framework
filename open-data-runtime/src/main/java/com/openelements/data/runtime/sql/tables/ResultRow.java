@@ -1,14 +1,18 @@
 package com.openelements.data.runtime.sql.tables;
 
 import java.sql.SQLException;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public interface ResultRow {
 
-    boolean containsColumn(String columnName);
+    boolean containsColumn(@NonNull String columnName);
 
-    boolean containsColumn(TableColumn<?, ?> column);
+    boolean containsColumn(@NonNull TableColumn<?, ?> column);
 
-    <T> T getJavaValue(String columnName) throws SQLException;
+    @Nullable
+    <T> T getJavaValue(@NonNull String columnName) throws SQLException;
 
-    <T, U> T getJavaValue(TableColumn<T, U> column) throws SQLException;
+    @Nullable
+    <T, U> T getJavaValue(@NonNull TableColumn<T, U> column) throws SQLException;
 }
