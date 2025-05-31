@@ -6,7 +6,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Optional;
 
-public record DataType<E extends Record>(String name, boolean publiclyAvailable, Class<E> dataClass,
+public record DataType<E extends Record>(String name, boolean publiclyAvailable, boolean virtual, boolean view, Class<E> dataClass,
                                          List<DataAttribute<E, ?>> attributes) {
 
     public E createInstance(List<Object> constructorParams)

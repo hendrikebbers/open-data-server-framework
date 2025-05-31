@@ -1,7 +1,7 @@
 package com.openelements.data.server.internal.handler;
 
+import com.openelements.data.runtime.Page;
 import com.openelements.data.runtime.data.DataType;
-import com.openelements.data.runtime.data.Page;
 import java.util.List;
 
 public interface DataHandler<E extends Record, D extends DataType<E>> {

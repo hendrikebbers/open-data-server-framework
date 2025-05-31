@@ -4,6 +4,7 @@ import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.tables.ResultRow;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;
+import com.openelements.data.runtime.sql.tables.TableResultRow;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -77,7 +78,7 @@ public class SqlStatement {
         final PreparedStatement preparedStatement = toPreparedStatement();
         final ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-            ResultRow resultRow = new ResultRow(sqlConnection, table, resultSet);
+            ResultRow resultRow = new TableResultRow(sqlConnection, table, resultSet);
             resultRows.add(resultRow);
         }
         return resultRows;

@@ -16,4 +16,8 @@ public @interface Data {
     boolean visible() default true;
 
     boolean publiclyAvailable() default true;
+
+    boolean isView() default false;
+
+    boolean isVirtual() default false;
 }

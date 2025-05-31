@@ -2,6 +2,7 @@ package com.openelements.data.runtime.data;
 
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
+import com.openelements.data.runtime.DataTypeProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +26,8 @@ public class DataLoader {
     public static DataType load(Class<? extends Record> dataType) {
         final String dataTypeName;
         final boolean publiclyAvailable;
+        final boolean virtual;
+        final boolean view;
         if (dataType.isAnnotationPresent(Data.class)) {
             final Data data = dataType.getAnnotation(Data.class);
             if (data.name() != null && !data.name().isEmpty()) {
@@ -33,12 +36,16 @@ public class DataLoader {
                 dataTypeName = dataType.getSimpleName();
             }
             publiclyAvailable = data.publiclyAvailable();
+            virtual = data.isVirtual();
+            view = data.isView();
         } else {
             dataTypeName = dataType.getSimpleName();
             publiclyAvailable = true;
+            virtual = false;
+            view = false;
         }
         List<DataAttribute> attributes = loadAttributes(dataType);
-        return new DataType(dataTypeName, publiclyAvailable, dataType, attributes);
+        return new DataType(dataTypeName, publiclyAvailable, virtual, view, dataType, attributes);
     }
 
     public static List<DataAttribute> loadAttributes(Class<? extends Record> dataType) {

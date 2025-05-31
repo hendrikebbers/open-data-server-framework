@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.data;
+package com.openelements.data.runtime;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -21,4 +21,5 @@ public interface DataContext {
         store(dataType, List.of(data));
     }
 
+    KeyValueStore getKeyValueStore(String name);
 }

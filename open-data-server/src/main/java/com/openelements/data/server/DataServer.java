@@ -1,12 +1,12 @@
 package com.openelements.data.server;
 
+import com.openelements.data.runtime.DataSource;
 import com.openelements.data.runtime.data.DataLoader;
-import com.openelements.data.runtime.data.DataSource;
+import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.SqlDataContext;
-import com.openelements.data.runtime.sql.repositories.DataRepository;
-import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
+import com.openelements.data.runtime.sql.repositories.TableRepository;
 import com.openelements.data.server.internal.handler.DataHandler;
 import com.openelements.data.server.internal.handler.DataHandlerImpl;
 import com.openelements.data.server.internal.handler.GetAllHandler;
@@ -72,7 +72,7 @@ public class DataServer {
                 sqlConnection);
         try {
             for (DataType<?> dataType : DataLoader.loadData()) {
-                final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, sqlConnection);
+                final DataRepository<?> dataRepository = new TableRepository(dataType, sqlConnection);
                 dataContext.addDataType(dataType);
                 DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
                 routingBuilder.get("/" + handler.getName(), new GetAllHandler<>(handler));

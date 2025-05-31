@@ -1,9 +1,10 @@
 package com.openelements.data.runtime.sql;
 
-import com.openelements.data.runtime.data.DataContext;
+import com.openelements.data.runtime.DataContext;
+import com.openelements.data.runtime.KeyValueStore;
+import com.openelements.data.runtime.Page;
+import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
-import com.openelements.data.runtime.data.Page;
-import com.openelements.data.runtime.sql.repositories.DataRepository;
 import com.openelements.data.runtime.types.DataAttributeDefinition;
 import com.openelements.data.runtime.types.DataDefinition;
 import com.openelements.data.runtime.types.DataUpdate;
@@ -89,6 +90,11 @@ public class SqlDataContext implements DataContext {
         } catch (SQLException e) {
             throw new RuntimeException("Error in storing data update", e);
         }
+    }
+
+    @Override
+    public KeyValueStore getKeyValueStore(String name) {
+        return new SqlKeyValueStore(name, connection);
     }
 
     private <E extends Record> Optional<DataRepository<E>> getRepository(Class<E> dataType) {

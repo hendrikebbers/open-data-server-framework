@@ -1,8 +1,9 @@
 package com.openelements.data.runtime.sql.repositories;
 
+import com.openelements.data.runtime.Page;
 import com.openelements.data.runtime.data.DataAttribute;
+import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
-import com.openelements.data.runtime.data.Page;
 import com.openelements.data.runtime.data.PageImpl;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
@@ -18,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
+public class TableRepository<E extends Record> implements DataRepository<E> {
 
     private final SqlDataTable table;
 
@@ -26,16 +27,17 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     private final DataType<E> dataType;
 
-    public DataRepositoryImpl(DataType<E> dataType, SqlConnection connection) {
+    public TableRepository(DataType<E> dataType, SqlConnection connection) {
         this.dataType = dataType;
-        this.table = DataRepositoryImpl.createTable(dataType, connection);
+        this.table = TableRepository.createTable(dataType, connection);
         this.connection = connection;
     }
 
     @Override
     public List<E> getAll() throws SQLException {
         return connection.runInTransaction(() -> {
-            final List<ResultRow> resultRows = getSqlStatementFactory().createSelectStatement(table).executeQuery();
+            final List<ResultRow> resultRows = getSqlStatementFactory().createSelectStatement(table)
+                    .executeQuery();
             try {
                 return convertList(dataType, resultRows);
             } catch (Exception e) {

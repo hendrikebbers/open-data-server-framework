@@ -1,42 +1,14 @@
 package com.openelements.data.runtime.sql.tables;
 
-import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.types.SqlTypeSupport;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
-public class ResultRow {
+public interface ResultRow {
 
-    private final Map<TableColumn<?, ?>, Object> nativeSqlValues = new HashMap<>();
+    boolean containsColumn(String columnName);
 
-    private final SqlConnection connection;
+    boolean containsColumn(TableColumn<?, ?> column);
 
-    public ResultRow(SqlConnection connection, SqlDataTable table, ResultSet rowSet) {
-        this.connection = connection;
-        table.getDataColumns().forEach(column -> {
-            try {
-                Object value = rowSet.getObject(column.getName());
-                nativeSqlValues.put(column, value);
-            } catch (SQLException e) {
-                throw new RuntimeException("Error retrieving value for column: " + column.getName(), e);
-            }
-        });
-    }
+    <T> T getJavaValue(String columnName) throws SQLException;
 
-    public <T> T getJavaValue(String columnName) throws SQLException {
-        final TableColumn<?, ?> column = nativeSqlValues.keySet().stream()
-                .filter(col -> col.getName().equals(columnName))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No column found with name: " + columnName));
-        return (T) getJavaValue(column);
-    }
-
-    public <T, U> T getJavaValue(TableColumn<T, U> column) throws SQLException {
-        final Object nativeSqlValue = nativeSqlValues.get(column);
-        final SqlTypeSupport<T, U> typeSupport = column.getTypeSupport();
-        final U normalizedValue = typeSupport.normalizeSqlValue(nativeSqlValue);
-        return typeSupport.convertToJavaValue(normalizedValue, connection);
-    }
+    <T, U> T getJavaValue(TableColumn<T, U> column) throws SQLException;
 }

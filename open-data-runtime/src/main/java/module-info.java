@@ -15,11 +15,12 @@ module com.openelements.data.runtime {
     exports com.openelements.data.runtime.sql.statement;
     exports com.openelements.data.runtime.h2;
     exports com.openelements.data.runtime.sql.types.impl;
+    exports com.openelements.data.runtime;
 
     uses com.openelements.data.runtime.sql.types.SqlTypeSupport;
 
-    uses com.openelements.data.runtime.data.DataSource;
-    uses com.openelements.data.runtime.data.DataTypeProvider;
+    uses com.openelements.data.runtime.DataSource;
+    uses com.openelements.data.runtime.DataTypeProvider;
     uses com.openelements.data.runtime.data.TranslationProvider;
 
     provides com.openelements.data.runtime.sql.types.SqlTypeSupport with

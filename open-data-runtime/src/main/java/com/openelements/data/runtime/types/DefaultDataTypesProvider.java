@@ -1,6 +1,6 @@
 package com.openelements.data.runtime.types;
 
-import com.openelements.data.runtime.data.DataTypeProvider;
+import com.openelements.data.runtime.DataTypeProvider;
 import java.util.Set;
 
 public class DefaultDataTypesProvider implements DataTypeProvider {

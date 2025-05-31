@@ -2,10 +2,10 @@ package com.openelements.data.runtime.types;
 
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
+import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.repositories.DataRepository;
-import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
+import com.openelements.data.runtime.sql.repositories.TableRepository;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
 import com.openelements.data.runtime.sql.tables.ResultRow;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
@@ -24,7 +24,7 @@ public record BinaryDataEntry(@Attribute(partOfIdentifier = true, required = tru
     }
 
     public static SqlDataTable getSqlDataTable(SqlConnection sqlConnection) {
-        return DataRepositoryImpl.createTable(getDataType(), sqlConnection);
+        return TableRepository.createTable(getDataType(), sqlConnection);
     }
 
     public static DataRepository<BinaryDataEntry> getDataRepository(SqlConnection sqlConnection) {
@@ -39,7 +39,7 @@ public record BinaryDataEntry(@Attribute(partOfIdentifier = true, required = tru
         selectStatement.set("id", reference);
         try {
             final List<ResultRow> resultRows = selectStatement.executeQuery();
-            List<BinaryDataEntry> result = DataRepositoryImpl.convertList(dataType, resultRows);
+            List<BinaryDataEntry> result = TableRepository.convertList(dataType, resultRows);
             if (result.isEmpty()) {
                 return Optional.empty();
             }

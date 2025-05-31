@@ -1,8 +1,8 @@
 package com.openelements.data.server.internal.handler;
 
+import com.openelements.data.runtime.Page;
+import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
-import com.openelements.data.runtime.data.Page;
-import com.openelements.data.runtime.sql.repositories.DataRepository;
 import java.util.List;
 import java.util.Objects;
 

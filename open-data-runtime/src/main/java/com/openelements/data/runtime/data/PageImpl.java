@@ -1,5 +1,6 @@
 package com.openelements.data.runtime.data;
 
+import com.openelements.data.runtime.Page;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;

@@ -1,8 +1,9 @@
-package com.openelements.data.runtime.sql.repositories;
+package com.openelements.data.runtime.data;
 
-import com.openelements.data.runtime.data.DataType;
-import com.openelements.data.runtime.data.Page;
+import com.openelements.data.runtime.Page;
 import com.openelements.data.runtime.sql.SqlConnection;
+import com.openelements.data.runtime.sql.repositories.TableRepository;
+import com.openelements.data.runtime.sql.repositories.ViewRepository;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -23,6 +24,12 @@ public interface DataRepository<E extends Record> {
     }
 
     static <E extends Record> DataRepository<E> of(DataType<E> dataType, SqlConnection connection) {
-        return new DataRepositoryImpl(dataType, connection);
+        if (dataType.view()) {
+            return new ViewRepository<>(null, connection);
+        }
+        if (dataType.virtual()) {
+            return new VirtualDataRepository<>();
+        }
+        return new TableRepository(dataType, connection);
     }
 }

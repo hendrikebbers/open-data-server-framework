@@ -1,8 +1,8 @@
 package com.openelements.data.sample;
 
-import com.openelements.data.runtime.data.DataContext;
-import com.openelements.data.runtime.data.DataSource;
-import com.openelements.data.runtime.data.DataTypeProvider;
+import com.openelements.data.runtime.DataContext;
+import com.openelements.data.runtime.DataSource;
+import com.openelements.data.runtime.DataTypeProvider;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
