@@ -3,6 +3,7 @@ package com.openelements.data.runtime.types;
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
 import com.openelements.data.api.data.Language;
+import com.openelements.data.runtime.data.ApiData;
 import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
@@ -15,7 +16,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
-@Data(name = "OE_I18N_STRING_ENTRY")
+@ApiData
+@Data
 public record I18nStringEntry(@Attribute(partOfIdentifier = true, required = true) UUID reference,
                               @Attribute(partOfIdentifier = true, required = true) Language language,
                               String content) {

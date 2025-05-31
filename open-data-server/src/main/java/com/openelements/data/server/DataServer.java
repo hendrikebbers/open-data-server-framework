@@ -75,8 +75,14 @@ public class DataServer {
                 final DataRepository<?> dataRepository = new TableRepository(dataType, sqlConnection);
                 dataContext.addDataType(dataType);
                 DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
-                routingBuilder.get("/" + handler.getName(), new GetAllHandler<>(handler));
-                log.info("Registered handler: {}", "/" + handler.getName());
+                final String path;
+                if (dataType.api()) {
+                    path = "/api/" + toRestUrlPath(dataType.name());
+                } else {
+                    path = "/records/" + toRestUrlPath(dataType.name());
+                }
+                routingBuilder.get(path, new GetAllHandler<>(handler));
+                log.info("Registered handler: {}", path);
             }
             dataContext.initialize();
         } catch (SQLException e) {
@@ -92,5 +98,27 @@ public class DataServer {
                 .allowOrigins("*")
                 .allowMethods("GET")
                 .build();
+    }
+
+    public static String toRestUrlPath(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+        final StringBuilder result = new StringBuilder();
+        char[] chars = input.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if (Character.isUpperCase(c) && i > 0 &&
+                    (Character.isLowerCase(chars[i - 1]) || Character.isDigit(chars[i - 1]))) {
+                result.append('-');
+            } else if (Character.isUpperCase(c) && i > 0 &&
+                    Character.isUpperCase(chars[i - 1]) &&
+                    i + 1 < chars.length &&
+                    Character.isLowerCase(chars[i + 1])) {
+                result.append('-');
+            }
+            result.append(Character.toLowerCase(c));
+        }
+        return result.toString();
     }
 }

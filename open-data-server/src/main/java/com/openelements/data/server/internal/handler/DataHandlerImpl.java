@@ -42,8 +42,4 @@ public class DataHandlerImpl<E extends Record, D extends DataType<E>> implements
         return dataType.publiclyAvailable();
     }
 
-    @Override
-    public String getName() {
-        return dataType.name();
-    }
 }

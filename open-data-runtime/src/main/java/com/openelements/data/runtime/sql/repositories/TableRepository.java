@@ -12,6 +12,7 @@ import com.openelements.data.runtime.sql.tables.ResultRow;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
+import com.openelements.data.runtime.util.CaseConverter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -227,6 +228,12 @@ public class TableRepository<E extends Record> implements DataRepository<E> {
                 keyColumns.add(column);
             }
         });
-        return new SqlDataTable(connection.getSqlDialect(), dataType.name(), dataColumns, keyColumns);
+        final String tableName;
+        if (dataType.api()) {
+            tableName = "RECORD_STORE_API_" + CaseConverter.toUpperSnakeCase(dataType.name());
+        } else {
+            tableName = CaseConverter.toUpperSnakeCase(dataType.name());
+        }
+        return new SqlDataTable(connection.getSqlDialect(), tableName, dataColumns, keyColumns);
     }
 }

@@ -41,8 +41,9 @@ public class DataLoader {
             publiclyAvailable = true;
             virtual = false;
         }
+        final boolean isApi = dataType.isAnnotationPresent(ApiData.class);
         List<DataAttribute> attributes = loadAttributes(dataType);
-        return new DataType(dataTypeName, publiclyAvailable, virtual, dataType, attributes);
+        return new DataType(dataTypeName, isApi, publiclyAvailable, virtual, dataType, attributes);
     }
 
     public static List<DataAttribute> loadAttributes(Class<? extends Record> dataType) {

@@ -16,5 +16,4 @@ public interface DataHandler<E extends Record, D extends DataType<E>> {
 
     boolean isPubliclyAvailable();
 
-    String getName();
 }

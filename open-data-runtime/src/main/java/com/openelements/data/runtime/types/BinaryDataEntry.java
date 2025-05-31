@@ -2,6 +2,7 @@ package com.openelements.data.runtime.types;
 
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
+import com.openelements.data.runtime.data.ApiData;
 import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
@@ -14,7 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Data(name = "OE_BINARY_DATA_ENTRY")
+@ApiData
+@Data
 public record BinaryDataEntry(@Attribute(partOfIdentifier = true, required = true) UUID id,
                               String name,
                               ByteArray content) {
