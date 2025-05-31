@@ -14,6 +14,7 @@ module com.openelements.data.runtime {
     exports com.openelements.data.runtime.h2;
     exports com.openelements.data.runtime.sql.types.impl;
     exports com.openelements.data.runtime;
+    exports com.openelements.data.runtime.types;
 
     uses com.openelements.data.runtime.sql.types.SqlTypeSupport;
 

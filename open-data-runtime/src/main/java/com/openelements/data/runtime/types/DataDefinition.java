@@ -11,6 +11,7 @@ public record DataDefinition(
         @Attribute(partOfIdentifier = true, required = true) String dataIdentifier,
         I18nString name,
         I18nString description,
+        boolean isVirtual,
         ZonedDateTime createdAt) {
 
     public static DataDefinition of(DataType dataType) {
@@ -18,6 +19,7 @@ public record DataDefinition(
                 dataType.name(),
                 null,
                 null,
+                dataType.virtual(),
                 ZonedDateTime.now());
     }
 }

@@ -27,7 +27,6 @@ public class DataLoader {
         final String dataTypeName;
         final boolean publiclyAvailable;
         final boolean virtual;
-        final boolean view;
         if (dataType.isAnnotationPresent(Data.class)) {
             final Data data = dataType.getAnnotation(Data.class);
             if (data.name() != null && !data.name().isEmpty()) {
@@ -37,15 +36,13 @@ public class DataLoader {
             }
             publiclyAvailable = data.publiclyAvailable();
             virtual = data.isVirtual();
-            view = data.isView();
         } else {
             dataTypeName = dataType.getSimpleName();
             publiclyAvailable = true;
             virtual = false;
-            view = false;
         }
         List<DataAttribute> attributes = loadAttributes(dataType);
-        return new DataType(dataTypeName, publiclyAvailable, virtual, view, dataType, attributes);
+        return new DataType(dataTypeName, publiclyAvailable, virtual, dataType, attributes);
     }
 
     public static List<DataAttribute> loadAttributes(Class<? extends Record> dataType) {
