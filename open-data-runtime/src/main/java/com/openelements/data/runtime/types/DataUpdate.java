@@ -2,10 +2,11 @@ package com.openelements.data.runtime.types;
 
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
+import com.openelements.data.runtime.data.ApiData;
+import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.repositories.DataRepository;
-import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
+import com.openelements.data.runtime.sql.repositories.TableRepository;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;
@@ -17,7 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Data(name = "OE_DATA_UPDATE")
+@ApiData
+@Data
 public record DataUpdate<E extends Record>(@Attribute(required = true, partOfIdentifier = true) String dataIdentifier,
                                            @Attribute(required = true, partOfIdentifier = true) ZonedDateTime timestamp,
                                            @Attribute(required = true) int count) {
@@ -27,7 +29,7 @@ public record DataUpdate<E extends Record>(@Attribute(required = true, partOfIde
     }
 
     public static SqlDataTable getSqlDataTable(SqlConnection sqlConnection) {
-        return DataRepositoryImpl.createTable(getDataType(), sqlConnection);
+        return TableRepository.createTable(getDataType(), sqlConnection);
     }
 
     public static DataRepository<DataUpdate> getDataRepository(SqlConnection sqlConnection) {

@@ -21,8 +21,11 @@ public class PrimitiveLongSupport extends AbstractMatchingSqlTypeSupport<Long> {
         if (sqlValue == null) {
             return null; // Handle null case
         }
-        if (sqlValue instanceof Long) {
-            return (Long) sqlValue; // Directly return if already a Long
+        if (Integer.class.isAssignableFrom(sqlValue.getClass())) {
+            return ((Long) sqlValue).longValue();
+        }
+        if (Integer.TYPE.isAssignableFrom(sqlValue.getClass())) {
+            return ((Long) sqlValue).longValue();
         }
         return super.normalizeSqlValue(sqlValue);
     }

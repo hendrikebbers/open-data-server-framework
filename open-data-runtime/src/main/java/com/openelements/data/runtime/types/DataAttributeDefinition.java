@@ -3,11 +3,13 @@ package com.openelements.data.runtime.types;
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
 import com.openelements.data.api.types.I18nString;
+import com.openelements.data.runtime.data.ApiData;
 import com.openelements.data.runtime.data.DataAttribute;
 import com.openelements.data.runtime.data.DataType;
 import java.util.List;
 
-@Data(name = "OE_DATA_ATTRIBUTE_DEFINITION")
+@ApiData
+@Data
 public record DataAttributeDefinition(
         @Attribute(partOfIdentifier = true, required = true) String identifier,
         @Attribute(partOfIdentifier = true, required = true) String dataIdentifier,

@@ -1,8 +1,9 @@
 package com.openelements.data.runtime.sql.repositories;
 
+import com.openelements.data.runtime.Page;
 import com.openelements.data.runtime.data.DataAttribute;
+import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
-import com.openelements.data.runtime.data.Page;
 import com.openelements.data.runtime.data.PageImpl;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
@@ -11,14 +12,17 @@ import com.openelements.data.runtime.sql.tables.ResultRow;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
+import com.openelements.data.runtime.util.CaseConverter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
-public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
+public class TableRepository<E extends Record> implements DataRepository<E> {
 
     private final SqlDataTable table;
 
@@ -26,16 +30,18 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
 
     private final DataType<E> dataType;
 
-    public DataRepositoryImpl(DataType<E> dataType, SqlConnection connection) {
-        this.dataType = dataType;
-        this.table = DataRepositoryImpl.createTable(dataType, connection);
-        this.connection = connection;
+    public TableRepository(@NonNull final DataType<E> dataType, @NonNull final SqlConnection connection) {
+        this.dataType = Objects.requireNonNull(dataType, "DataType must not be null");
+        this.connection = Objects.requireNonNull(connection, "SqlConnection must not be null");
+        this.table = TableRepository.createTable(dataType, connection);
     }
 
+    @NonNull
     @Override
     public List<E> getAll() throws SQLException {
         return connection.runInTransaction(() -> {
-            final List<ResultRow> resultRows = getSqlStatementFactory().createSelectStatement(table).executeQuery();
+            final List<ResultRow> resultRows = getSqlStatementFactory().createSelectStatement(table)
+                    .executeQuery();
             try {
                 return convertList(dataType, resultRows);
             } catch (Exception e) {
@@ -44,6 +50,7 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         });
     }
 
+    @NonNull
     @Override
     public Page<E> getPage(int pageNumber, int pageSize)
             throws SQLException {
@@ -80,7 +87,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     }
 
     @Override
-    public void store(List<E> data) throws SQLException {
+    public void store(@NonNull final List<E> data) throws SQLException {
+        Objects.requireNonNull(data, "Data must not be null");
         connection.runInTransaction(() -> {
             for (E e : data) {
                 try {
@@ -93,7 +101,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
     }
 
     @Override
-    public void store(E data) throws SQLException {
+    public void store(@NonNull final E data) throws SQLException {
+        Objects.requireNonNull(data, "Data must not be null");
         connection.runInTransaction(() -> {
             try {
                 storeImpl(data);
@@ -103,7 +112,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         });
     }
 
-    private void storeImpl(E data) throws SQLException {
+    private void storeImpl(@NonNull final E data) throws SQLException {
+        Objects.requireNonNull(data, "Data must not be null");
         if (contains(data)) {
             update(data);
         } else {
@@ -111,7 +121,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         }
     }
 
-    private void update(E data) throws SQLException {
+    private void update(@NonNull E data) throws SQLException {
+        Objects.requireNonNull(data, "Data must not be null");
         final SqlStatement sqlStatement = getSqlStatementFactory().createUpdateStatement(table);
         for (TableColumn column : table.getColumnsWithoutKeys()) {
             if (column.isReference()) {
@@ -129,7 +140,11 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         sqlStatement.executeUpdate();
     }
 
-    private <D, T> Optional<T> getSqlValueForColumn(E data, TableColumn<D, T> column) throws SQLException {
+    @NonNull
+    private <D, T> Optional<T> getSqlValueForColumn(@NonNull final E data, @NonNull final TableColumn<D, T> column)
+            throws SQLException {
+        Objects.requireNonNull(data, "Data must not be null");
+        Objects.requireNonNull(column, "Column must not be null");
         return getJavaValueForColumn(data, column).map(javaValue -> {
             try {
                 return column.getSqlValue(javaValue, connection);
@@ -139,13 +154,19 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         });
     }
 
-    private <D, T> Optional<D> getJavaValueForColumn(E data, TableColumn<D, T> column) {
+    @NonNull
+    private <D, T> Optional<D> getJavaValueForColumn(@NonNull final E data, @NonNull final TableColumn<D, T> column) {
+        Objects.requireNonNull(data, "Data must not be null");
+        Objects.requireNonNull(column, "Column must not be null");
         return (Optional<D>) dataType.getAttribute(column.getName())
                 .map(attribute -> attribute.getFor(data));
     }
 
-    private <D, U> U updateReference(E data, TableColumn<D, U> column)
+    @NonNull
+    private <D, U> U updateReference(@NonNull E data, @NonNull TableColumn<D, U> column)
             throws SQLException {
+        Objects.requireNonNull(data, "Data must not be null");
+        Objects.requireNonNull(column, "Column must not be null");
         final SqlStatement selectColumnStatementSql = getSqlStatementFactory().createSelectStatement(table,
                 List.of(column), table.getKeyColumns());
         for (TableColumn keyColumn : table.getKeyColumns()) {
@@ -162,7 +183,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         return column.updateReference(currentValue, javaValue, connection);
     }
 
-    private void insert(E data) throws SQLException {
+    private void insert(@NonNull final E data) throws SQLException {
+        Objects.requireNonNull(data, "Data must not be null");
         final SqlStatement sqlStatement = getSqlStatementFactory().createInsertStatement(table);
         for (TableColumn column : table.getColumns()) {
             if (column.isReference()) {
@@ -178,7 +200,8 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         sqlStatement.executeUpdate();
     }
 
-    private boolean contains(E data) throws SQLException {
+    private boolean contains(@NonNull final E data) throws SQLException {
+        Objects.requireNonNull(data, "Data must not be null");
         final SqlStatement sqlStatement = getSqlStatementFactory().createFindStatement(table);
         for (TableColumn keyColumn : table.getKeyColumns()) {
             final Object value = getSqlValueForColumn(data, keyColumn).orElseThrow();
@@ -187,21 +210,30 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         return !sqlStatement.executeQuery().isEmpty();
     }
 
+    @NonNull
     private SqlStatementFactory getSqlStatementFactory() {
         return connection.getSqlStatementFactory();
     }
 
-    public static <E extends Record> List<E> convertList(DataType<E> dataType, List<ResultRow> resultRows)
+    @NonNull
+    public static <E extends Record> List<E> convertList(@NonNull final DataType<E> dataType,
+            @NonNull final List<ResultRow> resultRows)
             throws Exception {
-        List<E> records = new ArrayList<>();
-        for (ResultRow resultRow : resultRows) {
+        Objects.requireNonNull(dataType, "DataType must not be null");
+        Objects.requireNonNull(resultRows, "ResultRows must not be null");
+        final List<E> records = new ArrayList<>();
+        for (final ResultRow resultRow : resultRows) {
             records.add(convert(dataType, resultRow));
         }
         return Collections.unmodifiableList(records);
     }
 
-    public static <E extends Record> E convert(DataType<E> dataType, ResultRow resultRow) throws Exception {
-        List<Object> recordComponents = new ArrayList<>();
+    @NonNull
+    public static <E extends Record> E convert(@NonNull final DataType<E> dataType, @NonNull final ResultRow resultRow)
+            throws Exception {
+        Objects.requireNonNull(dataType, "DataType must not be null");
+        Objects.requireNonNull(resultRow, "ResultRow must not be null");
+        final List<Object> recordComponents = new ArrayList<>();
         dataType.attributes().forEach(attribute -> {
             try {
                 recordComponents.add(resultRow.getJavaValue(attribute.name()));
@@ -212,19 +244,29 @@ public class DataRepositoryImpl<E extends Record> implements DataRepository<E> {
         return dataType.createInstance(recordComponents);
     }
 
-    public static <E extends Record> SqlDataTable createTable(DataType<E> dataType, SqlConnection connection) {
-        List<TableColumn<?, ?>> dataColumns = new ArrayList<>();
-        List<TableColumn<?, ?>> keyColumns = new ArrayList<>();
+    @NonNull
+    public static <E extends Record> SqlDataTable createTable(@NonNull final DataType<E> dataType,
+            @NonNull final SqlConnection connection) {
+        Objects.requireNonNull(dataType, "DataType must not be null");
+        Objects.requireNonNull(connection, "SqlConnection must not be null");
+        final List<TableColumn<?, ?>> dataColumns = new ArrayList<>();
+        final List<TableColumn<?, ?>> keyColumns = new ArrayList<>();
 
         dataType.attributes().forEach(attribute -> {
-            SqlTypeSupport typeSupport = connection.getSqlDialect().getSqlTypeSupportForJavaType(attribute.type())
+            final SqlTypeSupport typeSupport = connection.getSqlDialect().getSqlTypeSupportForJavaType(attribute.type())
                     .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + dataType.dataClass()));
-            TableColumn column = new TableColumn<>(attribute.name(), attribute.required(), typeSupport);
+            final TableColumn column = new TableColumn<>(attribute.name(), attribute.required(), typeSupport);
             dataColumns.add(column);
             if (attribute.partOfIdentifier()) {
                 keyColumns.add(column);
             }
         });
-        return new SqlDataTable(connection.getSqlDialect(), dataType.name(), dataColumns, keyColumns);
+        final String tableName;
+        if (dataType.api()) {
+            tableName = "RECORD_STORE_API_" + CaseConverter.toUpperSnakeCase(dataType.name());
+        } else {
+            tableName = CaseConverter.toUpperSnakeCase(dataType.name());
+        }
+        return new SqlDataTable(connection.getSqlDialect(), tableName, dataColumns, keyColumns);
     }
 }

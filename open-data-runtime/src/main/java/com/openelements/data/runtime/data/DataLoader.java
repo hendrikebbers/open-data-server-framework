@@ -2,15 +2,21 @@ package com.openelements.data.runtime.data;
 
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
+import com.openelements.data.api.data.Reference;
+import com.openelements.data.runtime.DataTypeProvider;
+import com.openelements.data.runtime.RecordStoreApiDataTypesProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import org.jspecify.annotations.NonNull;
 
 public class DataLoader {
 
+    @NonNull
     public static Set<DataType<?>> loadData() {
         final Set<DataType<?>> dataTypes = new HashSet<>();
         final Set<DataTypeProvider> instances = DataTypeProvider.getInstances();
@@ -19,12 +25,18 @@ public class DataLoader {
                     final DataType dataTypeInstance = load(dataType);
                     dataTypes.add(dataTypeInstance);
                 });
+        RecordStoreApiDataTypesProvider.getInstance().getDataTypes().stream()
+                .map(DataLoader::load)
+                .forEach(dataType -> dataTypes.add(dataType));
         return Collections.unmodifiableSet(dataTypes);
     }
 
-    public static DataType load(Class<? extends Record> dataType) {
+    @NonNull
+    public static DataType load(@NonNull final Class<? extends Record> dataType) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         final String dataTypeName;
         final boolean publiclyAvailable;
+        final boolean virtual;
         if (dataType.isAnnotationPresent(Data.class)) {
             final Data data = dataType.getAnnotation(Data.class);
             if (data.name() != null && !data.name().isEmpty()) {
@@ -33,15 +45,20 @@ public class DataLoader {
                 dataTypeName = dataType.getSimpleName();
             }
             publiclyAvailable = data.publiclyAvailable();
+            virtual = data.isVirtual();
         } else {
             dataTypeName = dataType.getSimpleName();
             publiclyAvailable = true;
+            virtual = false;
         }
-        List<DataAttribute> attributes = loadAttributes(dataType);
-        return new DataType(dataTypeName, publiclyAvailable, dataType, attributes);
+        final boolean isApi = dataType.isAnnotationPresent(ApiData.class);
+        final List<DataAttribute> attributes = loadAttributes(dataType);
+        return new DataType(dataTypeName, isApi, publiclyAvailable, virtual, dataType, attributes);
     }
 
-    public static List<DataAttribute> loadAttributes(Class<? extends Record> dataType) {
+    @NonNull
+    public static List<DataAttribute> loadAttributes(@NonNull final Class<? extends Record> dataType) {
+        Objects.requireNonNull(dataType, "dataType must not be null");
         final List<DataAttribute> attributes = new ArrayList<>();
         Arrays.asList(dataType.getRecordComponents()).forEach(component -> {
             final String name;
@@ -76,8 +93,13 @@ public class DataLoader {
             } else {
                 required = false;
             }
+            final Set<DataAttributeReference> references = new HashSet<>();
+            if (component.isAnnotationPresent(Reference.class)) {
+                final Reference reference = component.getAnnotation(Reference.class);
+                references.add(new DataAttributeReference(reference.toType(), reference.toAttribute()));
+            }
             final DataAttribute attribute = new DataAttribute(name, order, required, partOfIdentifier,
-                    component.getGenericType());
+                    component.getGenericType(), Collections.unmodifiableSet(references));
             attributes.add(attribute);
         });
         return Collections.unmodifiableList(attributes);

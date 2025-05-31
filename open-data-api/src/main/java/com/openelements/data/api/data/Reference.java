@@ -7,15 +7,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ElementType.RECORD_COMPONENT})
 @Documented
-public @interface Data {
+public @interface Reference {
 
-    String name() default "";
+    Class<? extends Record> toType();
 
-    boolean visible() default true;
-
-    boolean publiclyAvailable() default true;
-    
-    boolean isVirtual() default false;
+    String toAttribute();
 }

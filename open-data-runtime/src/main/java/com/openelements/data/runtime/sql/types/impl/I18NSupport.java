@@ -2,9 +2,9 @@ package com.openelements.data.runtime.sql.types.impl;
 
 import com.openelements.data.api.data.Language;
 import com.openelements.data.api.types.I18nString;
+import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.h2.H2Dialect;
 import com.openelements.data.runtime.sql.SqlConnection;
-import com.openelements.data.runtime.sql.repositories.DataRepository;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import com.openelements.data.runtime.types.I18nStringEntry;
 import java.sql.SQLException;
@@ -50,6 +50,9 @@ public class I18NSupport extends AbstractSqlTypeSupport<I18nString, UUID> {
 
     @Override
     public UUID insertReference(I18nString javaValue, SqlConnection connection) throws SQLException {
+        if (javaValue == null || javaValue.translations().isEmpty()) {
+            return null; // Handle empty or null I18nString
+        }
         UUID newReference = UUID.randomUUID();
         insertForReference(newReference, javaValue, connection);
         return newReference;

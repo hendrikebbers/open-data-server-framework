@@ -1,11 +1,9 @@
 module com.openelements.data.runtime {
     requires com.openelements.data.api;
-    requires org.jspecify;
+    requires static org.jspecify;
     requires org.slf4j;
-    requires jdk.dynalink;
     requires com.google.gson;
     requires java.sql;
-    requires java.desktop;
 
     exports com.openelements.data.runtime.sql;
     exports com.openelements.data.runtime.sql.repositories;
@@ -15,12 +13,13 @@ module com.openelements.data.runtime {
     exports com.openelements.data.runtime.sql.statement;
     exports com.openelements.data.runtime.h2;
     exports com.openelements.data.runtime.sql.types.impl;
+    exports com.openelements.data.runtime;
+    exports com.openelements.data.runtime.types;
 
     uses com.openelements.data.runtime.sql.types.SqlTypeSupport;
 
-    uses com.openelements.data.runtime.data.DataSource;
-    uses com.openelements.data.runtime.data.DataTypeProvider;
-    uses com.openelements.data.runtime.data.TranslationProvider;
+    uses com.openelements.data.runtime.DataSource;
+    uses com.openelements.data.runtime.DataTypeProvider;
 
     provides com.openelements.data.runtime.sql.types.SqlTypeSupport with
             com.openelements.data.runtime.sql.types.impl.BigDecimalSupport,

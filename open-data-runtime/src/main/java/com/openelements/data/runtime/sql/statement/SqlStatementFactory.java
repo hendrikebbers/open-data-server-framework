@@ -3,51 +3,70 @@ package com.openelements.data.runtime.sql.statement;
 import com.openelements.data.runtime.sql.tables.SqlDataTable;
 import com.openelements.data.runtime.sql.tables.TableColumn;
 import java.util.List;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 
 public interface SqlStatementFactory {
 
-    SqlStatement createTableCreateStatement(SqlDataTable table);
+    @NonNull
+    SqlStatement createTableCreateStatement(@NonNull SqlDataTable table, boolean ifNotExists);
 
-    SqlStatement createUniqueIndexStatement(SqlDataTable table);
+    @NonNull
+    SqlStatement createUniqueIndexStatement(@NonNull SqlDataTable table, boolean ifNotExists);
 
-    SqlStatement createSelectStatement(SqlDataTable table,
-            List<TableColumn<?, ?>> selectColumns,
-            List<TableColumn<?, ?>> whereColumns);
+    @NonNull
+    SqlStatement createSelectStatement(@NonNull SqlDataTable table,
+            @NonNull List<TableColumn<?, ?>> selectColumns,
+            @NonNull List<TableColumn<?, ?>> whereColumns);
 
-    SqlStatement createSelectPageStatement(SqlDataTable table, int pageNumber,
-            int pageSize, List<TableColumn<?, ?>> selectColumns,
-            List<TableColumn<?, ?>> whereColumns);
+    @NonNull
+    SqlStatement createSelectPageStatement(@NonNull SqlDataTable table, int pageNumber,
+            int pageSize, @NonNull List<TableColumn<?, ?>> selectColumns,
+            @NonNull List<TableColumn<?, ?>> whereColumns);
 
-    SqlStatement createSelectCountStatement(SqlDataTable table,
-            List<TableColumn<?, ?>> whereColumns);
+    @NonNull
+    SqlStatement createSelectCountStatement(@NonNull SqlDataTable table,
+            @NonNull List<TableColumn<?, ?>> whereColumns);
 
-    SqlStatement createUpdateStatement(SqlDataTable table,
-            List<TableColumn<?, ?>> toUpdateColumns,
-            List<TableColumn<?, ?>> whereColumns);
+    @NonNull
+    SqlStatement createUpdateStatement(@NonNull SqlDataTable table,
+            @NonNull List<TableColumn<?, ?>> toUpdateColumns,
+            @NonNull List<TableColumn<?, ?>> whereColumns);
 
-    SqlStatement createDeleteStatement(SqlDataTable table,
-            List<TableColumn<?, ?>> whereColumns);
+    @NonNull
+    SqlStatement createDeleteStatement(@NonNull SqlDataTable table,
+            @NonNull List<TableColumn<?, ?>> whereColumns);
 
-    SqlStatement createInsertStatement(SqlDataTable table);
+    @NonNull
+    SqlStatement createInsertStatement(@NonNull SqlDataTable table);
 
-    default SqlStatement createFindStatement(SqlDataTable table) {
+    @NonNull
+    default SqlStatement createFindStatement(@NonNull final SqlDataTable table) {
+        Objects.requireNonNull(table, "table must not be null");
         return createSelectStatement(table, table.getColumns(), table.getKeyColumns());
     }
 
-    default SqlStatement createSelectStatement(SqlDataTable table) {
+    @NonNull
+    default SqlStatement createSelectStatement(@NonNull final SqlDataTable table) {
+        Objects.requireNonNull(table, "table must not be null");
         return createSelectStatement(table, table.getColumns(), List.of());
     }
 
-    default SqlStatement createSelectPageStatement(SqlDataTable table, int pageNumber,
-            int pageSize) {
+    @NonNull
+    default SqlStatement createSelectPageStatement(@NonNull final SqlDataTable table, final int pageNumber,
+            final int pageSize) {
+        Objects.requireNonNull(table, "table must not be null");
         return createSelectPageStatement(table, pageNumber, pageSize, table.getColumns(), List.of());
     }
 
-    default SqlStatement createSelectCountStatement(SqlDataTable table) {
+    @NonNull
+    default SqlStatement createSelectCountStatement(@NonNull final SqlDataTable table) {
         return createSelectCountStatement(table, List.of());
     }
 
-    default SqlStatement createUpdateStatement(SqlDataTable table) {
+    @NonNull
+    default SqlStatement createUpdateStatement(@NonNull final SqlDataTable table) {
+        Objects.requireNonNull(table, "table must not be null");
         return createUpdateStatement(table, table.getColumnsWithoutKeys(), table.getKeyColumns());
     }
 

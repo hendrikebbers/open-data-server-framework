@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.data;
+package com.openelements.data.runtime;
 
 import java.util.List;
 

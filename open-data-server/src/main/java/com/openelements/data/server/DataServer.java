@@ -1,12 +1,12 @@
 package com.openelements.data.server;
 
+import com.openelements.data.runtime.DataSource;
 import com.openelements.data.runtime.data.DataLoader;
-import com.openelements.data.runtime.data.DataSource;
+import com.openelements.data.runtime.data.DataRepository;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.sql.SqlConnection;
 import com.openelements.data.runtime.sql.SqlDataContext;
-import com.openelements.data.runtime.sql.repositories.DataRepository;
-import com.openelements.data.runtime.sql.repositories.DataRepositoryImpl;
+import com.openelements.data.runtime.sql.repositories.TableRepository;
 import com.openelements.data.server.internal.handler.DataHandler;
 import com.openelements.data.server.internal.handler.DataHandlerImpl;
 import com.openelements.data.server.internal.handler.GetAllHandler;
@@ -72,11 +72,17 @@ public class DataServer {
                 sqlConnection);
         try {
             for (DataType<?> dataType : DataLoader.loadData()) {
-                final DataRepository<?> dataRepository = new DataRepositoryImpl(dataType, sqlConnection);
+                final DataRepository<?> dataRepository = new TableRepository(dataType, sqlConnection);
                 dataContext.addDataType(dataType);
                 DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
-                routingBuilder.get("/" + handler.getName(), new GetAllHandler<>(handler));
-                log.info("Registered handler: {}", "/" + handler.getName());
+                final String path;
+                if (dataType.api()) {
+                    path = "/api/" + toRestUrlPath(dataType.name());
+                } else {
+                    path = "/records/" + toRestUrlPath(dataType.name());
+                }
+                routingBuilder.get(path, new GetAllHandler<>(handler));
+                log.info("Registered handler: {}", path);
             }
             dataContext.initialize();
         } catch (SQLException e) {
@@ -92,5 +98,27 @@ public class DataServer {
                 .allowOrigins("*")
                 .allowMethods("GET")
                 .build();
+    }
+
+    public static String toRestUrlPath(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+        final StringBuilder result = new StringBuilder();
+        char[] chars = input.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if (Character.isUpperCase(c) && i > 0 &&
+                    (Character.isLowerCase(chars[i - 1]) || Character.isDigit(chars[i - 1]))) {
+                result.append('-');
+            } else if (Character.isUpperCase(c) && i > 0 &&
+                    Character.isUpperCase(chars[i - 1]) &&
+                    i + 1 < chars.length &&
+                    Character.isLowerCase(chars[i + 1])) {
+                result.append('-');
+            }
+            result.append(Character.toLowerCase(c));
+        }
+        return result.toString();
     }
 }
