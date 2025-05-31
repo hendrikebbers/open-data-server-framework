@@ -1,11 +1,9 @@
 module com.openelements.data.runtime {
     requires com.openelements.data.api;
-    requires org.jspecify;
+    requires static org.jspecify;
     requires org.slf4j;
-    requires jdk.dynalink;
     requires com.google.gson;
     requires java.sql;
-    requires java.desktop;
 
     exports com.openelements.data.runtime.sql;
     exports com.openelements.data.runtime.sql.repositories;
