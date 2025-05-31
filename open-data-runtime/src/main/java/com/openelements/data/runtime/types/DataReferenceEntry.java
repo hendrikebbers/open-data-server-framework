@@ -22,10 +22,11 @@ public record DataReferenceEntry(@Attribute(partOfIdentifier = true, required = 
         final List<DataReferenceEntry> entries = new ArrayList<>();
         for (DataAttribute<?, ?> attribute : dataType.attributes()) {
             for (DataAttributeReference reference : attribute.references()) {
-                DataReferenceEntry entry = new DataReferenceEntry(
+                final DataType<?> referenceType = DataType.of(reference.toType());
+                final DataReferenceEntry entry = new DataReferenceEntry(
                         dataType.name(),
                         attribute.name(),
-                        reference.toType().getName(),
+                        referenceType.name(),
                         reference.toAttribute(),
                         null,
                         null

@@ -50,6 +50,9 @@ public class I18NSupport extends AbstractSqlTypeSupport<I18nString, UUID> {
 
     @Override
     public UUID insertReference(I18nString javaValue, SqlConnection connection) throws SQLException {
+        if (javaValue == null || javaValue.translations().isEmpty()) {
+            return null; // Handle empty or null I18nString
+        }
         UUID newReference = UUID.randomUUID();
         insertForReference(newReference, javaValue, connection);
         return newReference;
