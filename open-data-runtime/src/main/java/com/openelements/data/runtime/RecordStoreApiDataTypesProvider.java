@@ -8,11 +8,11 @@ import com.openelements.data.runtime.types.I18nStringEntry;
 import com.openelements.data.runtime.types.KeyValueStoreEntry;
 import java.util.Set;
 
-public class DefaultDataTypesProvider implements DataTypeProvider {
+public class RecordStoreApiDataTypesProvider implements DataTypeProvider {
 
-    private static final DefaultDataTypesProvider INSTANCE = new DefaultDataTypesProvider();
+    private static final RecordStoreApiDataTypesProvider INSTANCE = new RecordStoreApiDataTypesProvider();
 
-    private DefaultDataTypesProvider() {
+    private RecordStoreApiDataTypesProvider() {
     }
 
     @Override
@@ -21,7 +21,7 @@ public class DefaultDataTypesProvider implements DataTypeProvider {
                 I18nStringEntry.class, KeyValueStoreEntry.class);
     }
 
-    public static DefaultDataTypesProvider getInstance() {
+    public static RecordStoreApiDataTypesProvider getInstance() {
         return INSTANCE;
     }
 

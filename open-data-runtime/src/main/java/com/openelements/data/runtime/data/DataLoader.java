@@ -3,6 +3,7 @@ package com.openelements.data.runtime.data;
 import com.openelements.data.api.data.Attribute;
 import com.openelements.data.api.data.Data;
 import com.openelements.data.runtime.DataTypeProvider;
+import com.openelements.data.runtime.RecordStoreApiDataTypesProvider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +21,9 @@ public class DataLoader {
                     final DataType dataTypeInstance = load(dataType);
                     dataTypes.add(dataTypeInstance);
                 });
+        RecordStoreApiDataTypesProvider.getInstance().getDataTypes().stream()
+                .map(DataLoader::load)
+                .forEach(dataType -> dataTypes.add(dataType));
         return Collections.unmodifiableSet(dataTypes);
     }
 

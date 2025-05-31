@@ -77,6 +77,10 @@ public class SqlDataContext implements DataContext {
 
     @Override
     public <T extends Record> void store(Class<T> dataType, List<T> data) {
+        DataType<T> dataTypeInstance = DataType.of(dataType);
+        if (dataTypeInstance.api()) {
+            throw new IllegalArgumentException("Cannot store data for API data type: " + dataType);
+        }
         try {
             final DataRepository<T> repository = getRepository(dataType).orElseThrow(
                     () -> new IllegalStateException("No data repository found for data type: " + dataType));
