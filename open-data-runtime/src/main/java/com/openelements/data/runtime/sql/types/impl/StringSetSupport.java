@@ -5,9 +5,11 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.h2.H2Dialect;
+import com.openelements.data.runtime.sql.postgres.PostgresDialect;
 import com.openelements.data.runtime.sql.types.SqlTypeSupport;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -30,7 +32,7 @@ public class StringSetSupport implements SqlTypeSupport<Set<String>, String> {
             javaType = StringSetSupport.class.getDeclaredField("FIELD_FOR_TYPE").getGenericType();
             sqlType = String.class;
             nativeSqlType = "VARCHAR";
-            supportedJdbcDrivers = Set.of(H2Dialect.DRIVER_CLASS_NAME);
+            supportedJdbcDrivers = Set.of(H2Dialect.DRIVER_CLASS_NAME, PostgresDialect.DRIVER_CLASS_NAME);
         } catch (NoSuchFieldException e) {
             throw new RuntimeException("Failed to get field type for StringSetSupport", e);
         }
@@ -54,6 +56,11 @@ public class StringSetSupport implements SqlTypeSupport<Set<String>, String> {
     @Override
     public Class<String> getSqlType() {
         return sqlType;
+    }
+
+    @Override
+    public int getJdbcTypeCode() {
+        return Types.VARCHAR;
     }
 
     @Override

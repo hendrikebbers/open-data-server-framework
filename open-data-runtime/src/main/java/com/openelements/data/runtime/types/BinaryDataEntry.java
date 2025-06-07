@@ -2,6 +2,7 @@ package com.openelements.data.runtime.types;
 
 import com.openelements.data.runtime.api.Attribute;
 import com.openelements.data.runtime.api.Data;
+import com.openelements.data.runtime.api.types.Binary;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.data.impl.ApiData;
 import com.openelements.data.runtime.integration.DataRepository;
@@ -21,7 +22,12 @@ import org.jspecify.annotations.NonNull;
 @Data
 public record BinaryDataEntry(@Attribute(partOfIdentifier = true, required = true) UUID id,
                               String name,
-                              ByteArray content) {
+                              ByteArray data) implements Binary {
+
+    @Override
+    public @NonNull byte[] content() {
+        return data.value();
+    }
 
     public static DataRepository<BinaryDataEntry> getDataRepository(@NonNull final SqlConnection sqlConnection) {
         return DataRepository.of(DataType.of(BinaryDataEntry.class), sqlConnection);

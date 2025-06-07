@@ -55,6 +55,19 @@ public class SqlConnectionImpl implements SqlConnection {
     private Connection getOrCreateConnection() throws SQLException {
         final Connection connection = connectionThreadLocal.get();
         if (connection != null) {
+            if (!connection.isValid(5)) {
+                try {
+                    if (!connection.isClosed()) {
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    log.warn("Failed to close invalid connection", e);
+                }
+                log.info("Connection in thread-local is not valid anymore, acquiring a new connection");
+                final Connection newConnection = connectionProvider.getConnection();
+                connectionThreadLocal.set(newConnection);
+                return newConnection;
+            }
             return connection;
         }
         log.debug("No connection found in thread-local, acquiring a new connection");
@@ -74,25 +87,28 @@ public class SqlConnectionImpl implements SqlConnection {
         final UUID transactionId = UUID.randomUUID();
         transactionThreadLocal.set(transactionId);
         try {
-            log.info("Transaction '{}' started", transactionId);
             connection.setAutoCommit(false);
             try {
-                final T result = callable.call();
-                connection.commit();
-                log.info("Transaction '{}' committed", transactionId);
-                return result;
+                log.debug("Transaction '{}' started", transactionId);
+                try {
+                    final T result = callable.call();
+                    connection.commit();
+                    log.debug("Transaction '{}' committed", transactionId);
+                    return result;
+                } catch (Exception e) {
+                    log.error("Transaction '{}' failed. Will try to roll back", transactionId, e);
+                    try {
+                        connection.rollback();
+                        log.error("Transaction '" + transactionId + "' rolled back", e);
+                    } catch (SQLException rollbackEx) {
+                        log.error("Transaction '" + transactionId + "' failed to roll back", rollbackEx);
+                        throw new SQLException("Transaction failed and was not able to be rolled back", e);
+                    }
+                    throw new SQLException("Transaction failed and rolled back", e);
+                }
             } finally {
                 connection.setAutoCommit(true);
             }
-        } catch (Exception e) {
-            try {
-                connection.rollback();
-                log.error("Transaction '" + transactionId + "' rolled back", e);
-            } catch (SQLException rollbackEx) {
-                log.error("Transaction '" + transactionId + "' failed to roll back", rollbackEx);
-                throw new SQLException("Transaction failed and was not able to be rolled back", e);
-            }
-            throw new SQLException("Transaction failed and rolled back", e);
         } finally {
             transactionThreadLocal.remove();
         }

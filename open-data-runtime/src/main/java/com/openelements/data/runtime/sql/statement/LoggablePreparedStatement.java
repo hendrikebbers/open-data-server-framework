@@ -38,13 +38,13 @@ public class LoggablePreparedStatement extends LoggableStatement implements Prep
 
     @Override
     public ResultSet executeQuery() throws SQLException {
-        log.info("Executing query: {}", delegate.toString());
+        log.debug("Executing query: {}", delegate.toString());
         return delegate.executeQuery();
     }
 
     @Override
     public int executeUpdate() throws SQLException {
-        log.info("Executing update: {}", delegate.toString());
+        log.debug("Executing update: {}", delegate.toString());
         return delegate.executeUpdate();
     }
 
@@ -150,7 +150,7 @@ public class LoggablePreparedStatement extends LoggableStatement implements Prep
 
     @Override
     public boolean execute() throws SQLException {
-        log.info("Executing query: {}", delegate.toString());
+        log.debug("Executing query: {}", delegate.toString());
         return delegate.execute();
     }
 

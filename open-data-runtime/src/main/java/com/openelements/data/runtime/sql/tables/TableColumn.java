@@ -72,4 +72,19 @@ public class TableColumn<D, U> {
     public Class<U> getSqlClass() {
         return typeSupport.getSqlType();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TableColumn<?, ?> column = (TableColumn<?, ?>) o;
+        return notNull == column.notNull && Objects.equals(typeSupport, column.typeSupport)
+                && Objects.equals(name, column.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(typeSupport, notNull, name);
+    }
 }

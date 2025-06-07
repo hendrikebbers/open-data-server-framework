@@ -4,6 +4,8 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import org.jspecify.annotations.NonNull;
 
 public interface DataContext {
@@ -28,4 +30,17 @@ public interface DataContext {
 
     @NonNull
     KeyValueStore getKeyValueStore(@NonNull String name);
+
+    ScheduledFuture<?> scheduleWithFixedDelay(long initialDelay,
+            long delay,
+            TimeUnit unit, UpdateTask task);
+
+    default ScheduledFuture<?> scheduleWithFixedDelay(long delay,
+            TimeUnit unit, UpdateTask task) {
+        return scheduleWithFixedDelay(0, delay, unit, task);
+    }
+
+    interface UpdateTask {
+        void run(DataContext dataContext) throws Exception;
+    }
 }

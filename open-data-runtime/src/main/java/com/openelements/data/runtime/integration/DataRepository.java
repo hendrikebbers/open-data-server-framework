@@ -7,7 +7,6 @@ import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.implementation.TableRepository;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 public interface DataRepository<E extends Record> {
 
@@ -17,9 +16,9 @@ public interface DataRepository<E extends Record> {
 
     long getCount() throws SQLException;
 
-    void store(List<E> data) throws SQLException;
+    StoreResult store(List<E> data) throws SQLException;
 
-    void store(E data) throws SQLException;
+    StoreResult store(E data) throws SQLException;
 
     static <E extends Record> DataRepository<E> of(Class<E> dataType, SqlConnection connection) {
         return of(DataType.of(dataType), connection);

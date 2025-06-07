@@ -5,9 +5,11 @@ import com.openelements.data.runtime.api.types.I18nString;
 import com.openelements.data.runtime.integration.DataRepository;
 import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.h2.H2Dialect;
+import com.openelements.data.runtime.sql.postgres.PostgresDialect;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import com.openelements.data.runtime.types.I18nStringEntry;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,7 @@ public class I18NSupport extends AbstractSqlTypeSupport<I18nString, UUID> {
 
     @Override
     public Set<String> getSupportedJdbcDrivers() {
-        return Set.of(H2Dialect.DRIVER_CLASS_NAME);
+        return Set.of(H2Dialect.DRIVER_CLASS_NAME, PostgresDialect.DRIVER_CLASS_NAME);
     }
 
     @Override
@@ -73,14 +75,25 @@ public class I18NSupport extends AbstractSqlTypeSupport<I18nString, UUID> {
     @Override
     public UUID updateReference(UUID currentValue, I18nString javaValue, SqlConnection connection)
             throws SQLException {
-        I18nStringEntry.deleteForReference(currentValue, connection);
-        insertForReference(currentValue, javaValue, connection);
-        return currentValue; // Return the same reference after update
+        if (currentValue != null) {
+            I18nStringEntry.deleteForReference(currentValue, connection);
+        }
+        if (javaValue != null) {
+            insertForReference(currentValue, javaValue, connection);
+            return currentValue; // Return the same reference after update
+        } else {
+            return null; // Handle case where javaValue is null
+        }
     }
 
     @Override
     public Class<UUID> getSqlType() {
         return UUID.class;
+    }
+
+    @Override
+    public int getJdbcTypeCode() {
+        return Types.VARCHAR;
     }
 
     @Override

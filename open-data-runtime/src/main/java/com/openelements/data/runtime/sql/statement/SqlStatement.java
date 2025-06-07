@@ -8,6 +8,7 @@ import com.openelements.data.runtime.sql.tables.TableResultRow;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,14 +17,18 @@ import java.util.Map;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SqlStatement {
+
+    private final static Logger log = LoggerFactory.getLogger(SqlStatement.class);
 
     private String statement;
 
     private final List<TableColumn<?, ?>> columns;
 
-    private final Map<String, Object> values;
+    private final Map<TableColumn<?, ?>, Object> values;
 
     private final SqlDataTable table;
 
@@ -42,7 +47,16 @@ public class SqlStatement {
 
     public void set(@NonNull final String name, @Nullable final Object value) {
         Objects.requireNonNull(name, "Column name must not be null");
-        values.put(name, value);
+        TableColumn<?, ?> column = columns.stream()
+                .filter(c -> c.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Column " + name + " not found"));
+        set(column, value);
+    }
+
+    public void set(@NonNull final TableColumn column, @Nullable final Object value) {
+        Objects.requireNonNull(column, "Column must not be null");
+        values.put(column, value);
     }
 
     public void set(final int index, @Nullable final Object value) {
@@ -50,16 +64,19 @@ public class SqlStatement {
             throw new IndexOutOfBoundsException(
                     "Index " + index + " is out of bounds for columns size " + columns.size());
         }
-        values.put(columns.get(index).getName(), value);
+        set(columns.get(index), value);
     }
 
     public void validate() {
         columns.stream()
-                .filter(column -> !values.containsKey(column.getName()))
+                .filter(column -> !values.containsKey(column))
                 .findAny()
-                .ifPresent(name -> {
+                .ifPresent(column -> {
+                    values.entrySet().forEach(entry -> log.warn("Column '{}' is set to '{}'", entry.getKey().getName(),
+                            entry.getValue()));
                     throw new IllegalArgumentException(
-                            "Missing value for column " + (columns.indexOf(name) + 1) + " with name '" + name
+                            "Missing value for column " + (columns.indexOf(column) + 1) + " with name '"
+                                    + column.getName()
                                     + "'  of prepared statement '" + statement);
                 });
     }
@@ -69,9 +86,14 @@ public class SqlStatement {
         validate();
         final PreparedStatement preparedStatement = sqlConnection.prepareStatement(statement);
         for (int i = 0; i < columns.size(); i++) {
-            final String name = columns.get(i).getName();
-            final Object value = values.get(name);
-            preparedStatement.setObject(i + 1, value);
+            final TableColumn<?, ?> column = columns.get(i);
+            final Object value = values.get(column);
+            final int jdbcTypeCode = column.getTypeSupport().getJdbcTypeCode();
+            if (value == null) {
+                preparedStatement.setNull(i + 1, Types.NULL);
+            } else {
+                preparedStatement.setObject(i + 1, value, jdbcTypeCode);
+            }
         }
         return preparedStatement;
     }

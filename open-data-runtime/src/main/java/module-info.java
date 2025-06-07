@@ -1,3 +1,8 @@
+import com.openelements.data.runtime.sql.h2.types.H2ByteArraySupport;
+import com.openelements.data.runtime.sql.postgres.PostgresByteArraySupport;
+import com.openelements.data.runtime.sql.types.impl.BinarySupport;
+import com.openelements.data.runtime.sql.types.impl.ZonedDateTimeSupport;
+
 module com.openelements.data.runtime {
     requires org.slf4j;
     requires com.google.gson;
@@ -7,8 +12,8 @@ module com.openelements.data.runtime {
     exports com.openelements.data.runtime.api;
     exports com.openelements.data.runtime.api.types;
     exports com.openelements.data.runtime.sql.api;
-    exports com.openelements.data.runtime.data to com.openelements.data.server;
-    exports com.openelements.data.runtime.integration to com.openelements.data.server;
+    exports com.openelements.data.runtime.data to com.openelements.recordstore.server;
+    exports com.openelements.data.runtime.integration to com.openelements.recordstore.server;
 
     uses com.openelements.data.runtime.sql.types.SqlTypeSupport;
     uses com.openelements.data.runtime.api.DataSource;
@@ -16,9 +21,10 @@ module com.openelements.data.runtime {
 
     provides com.openelements.data.runtime.sql.types.SqlTypeSupport with
             com.openelements.data.runtime.sql.types.impl.BigDecimalSupport,
-            com.openelements.data.runtime.sql.types.impl.BinaryDataSupport,
+            BinarySupport,
             com.openelements.data.runtime.sql.types.impl.BooleanSupport,
-            com.openelements.data.runtime.sql.types.impl.ByteArraySupport,
+            H2ByteArraySupport,
+            PostgresByteArraySupport,
             com.openelements.data.runtime.sql.types.impl.ClassSupport,
             com.openelements.data.runtime.sql.types.impl.DoubleSupport,
             com.openelements.data.runtime.sql.types.impl.EnumSupport,
@@ -36,6 +42,6 @@ module com.openelements.data.runtime {
             com.openelements.data.runtime.sql.types.impl.URISupport,
             com.openelements.data.runtime.sql.types.impl.UUIDSupport,
             com.openelements.data.runtime.sql.types.impl.YearMonthSupport,
-            com.openelements.data.runtime.sql.types.impl.ZonedDateTimeSupport;
+            ZonedDateTimeSupport;
 
 }

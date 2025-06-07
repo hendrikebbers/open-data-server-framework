@@ -13,7 +13,7 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 @ApiData
-@Data
+@Data(isVirtual = true)
 public record DataReferenceEntry(@Attribute(partOfIdentifier = true, required = true) String dataIdentifierA,
                                  @Attribute(partOfIdentifier = true, required = true) String attributeIdentifiersA,
                                  @Attribute(partOfIdentifier = true, required = true) String dataIdentifierB,

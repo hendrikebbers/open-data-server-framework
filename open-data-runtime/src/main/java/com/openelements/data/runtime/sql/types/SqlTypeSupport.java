@@ -16,6 +16,8 @@ public interface SqlTypeSupport<T, U> {
 
     Class<U> getSqlType();
 
+    int getJdbcTypeCode();
+
     default U normalizeSqlValue(Object sqlValue) throws SQLException {
         if (sqlValue == null) {
             return null; // Handle null case

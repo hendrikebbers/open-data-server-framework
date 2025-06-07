@@ -18,7 +18,7 @@
 
   <modules>
     <module>open-data-runtime</module>
-    <module>open-data-server</module>
+    <module>recordstore-server</module>
   </modules>
 
 </project>

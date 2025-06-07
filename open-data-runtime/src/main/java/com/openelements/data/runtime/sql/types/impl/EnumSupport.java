@@ -4,9 +4,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.h2.H2Dialect;
+import com.openelements.data.runtime.sql.postgres.PostgresDialect;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Set;
 
 public class EnumSupport extends AbstractSqlTypeSupport<Enum, String> {
@@ -21,8 +23,13 @@ public class EnumSupport extends AbstractSqlTypeSupport<Enum, String> {
     }
 
     @Override
+    public int getJdbcTypeCode() {
+        return Types.VARCHAR;
+    }
+
+    @Override
     public Set<String> getSupportedJdbcDrivers() {
-        return Set.of(H2Dialect.DRIVER_CLASS_NAME);
+        return Set.of(H2Dialect.DRIVER_CLASS_NAME, PostgresDialect.DRIVER_CLASS_NAME);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.openelements.data.runtime.data.DataAttribute;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.data.impl.PageImpl;
 import com.openelements.data.runtime.integration.DataRepository;
+import com.openelements.data.runtime.integration.StoreResult;
 import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
 import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.jspecify.annotations.NonNull;
 
 public class TableRepository<E extends Record> implements DataRepository<E> {
@@ -87,37 +89,44 @@ public class TableRepository<E extends Record> implements DataRepository<E> {
     }
 
     @Override
-    public void store(@NonNull final List<E> data) throws SQLException {
+    public StoreResult store(@NonNull final List<E> data) throws SQLException {
         Objects.requireNonNull(data, "Data must not be null");
-        connection.runInTransaction(() -> {
+        return connection.runInTransaction(() -> {
+            final AtomicInteger insertedCount = new AtomicInteger(0);
+            final AtomicInteger updatedCount = new AtomicInteger(0);
             for (E e : data) {
                 try {
-                    storeImpl(e);
+                    final StoreResult storeResult = storeImpl(e);
+                    insertedCount.addAndGet(storeResult.inserted());
+                    updatedCount.addAndGet(storeResult.updated());
                 } catch (SQLException ex) {
                     throw new RuntimeException("Error storing data", ex);
                 }
             }
+            return new StoreResult(updatedCount.get(), insertedCount.get());
         });
     }
 
     @Override
-    public void store(@NonNull final E data) throws SQLException {
+    public StoreResult store(@NonNull final E data) throws SQLException {
         Objects.requireNonNull(data, "Data must not be null");
-        connection.runInTransaction(() -> {
+        return connection.runInTransaction(() -> {
             try {
-                storeImpl(data);
+                return storeImpl(data);
             } catch (SQLException e) {
                 throw new RuntimeException("Error storing data", e);
             }
         });
     }
 
-    private void storeImpl(@NonNull final E data) throws SQLException {
+    private StoreResult storeImpl(@NonNull final E data) throws SQLException {
         Objects.requireNonNull(data, "Data must not be null");
         if (contains(data)) {
             update(data);
+            return new StoreResult(1, 0);
         } else {
             insert(data);
+            return new StoreResult(0, 1);
         }
     }
 
@@ -205,7 +214,7 @@ public class TableRepository<E extends Record> implements DataRepository<E> {
         final SqlStatement sqlStatement = getSqlStatementFactory().createFindStatement(table);
         for (TableColumn keyColumn : table.getKeyColumns()) {
             final Object value = getSqlValueForColumn(data, keyColumn).orElseThrow();
-            sqlStatement.set(keyColumn.getName(), value);
+            sqlStatement.set(keyColumn, value);
         }
         return !sqlStatement.executeQuery().isEmpty();
     }
@@ -254,7 +263,7 @@ public class TableRepository<E extends Record> implements DataRepository<E> {
 
         dataType.attributes().forEach(attribute -> {
             final SqlTypeSupport typeSupport = connection.getSqlDialect().getSqlTypeSupportForJavaType(attribute.type())
-                    .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + dataType.dataClass()));
+                    .orElseThrow(() -> new IllegalArgumentException("Unsupported data type " + attribute.type()));
             final TableColumn column = new TableColumn<>(attribute.name(), attribute.required(), typeSupport);
             dataColumns.add(column);
             if (attribute.partOfIdentifier()) {

@@ -4,12 +4,14 @@ import com.openelements.data.runtime.api.Page;
 import com.openelements.data.runtime.data.DataAttribute;
 import com.openelements.data.runtime.data.DataType;
 import com.openelements.data.runtime.integration.DataRepository;
+import com.openelements.data.runtime.integration.StoreResult;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -71,19 +73,24 @@ public class VirtualDataRepository<E extends Record> implements DataRepository<E
     }
 
     @Override
-    public void store(@NonNull final List<E> data) throws SQLException {
+    public StoreResult store(@NonNull final List<E> data) throws SQLException {
         Objects.requireNonNull(data, "Data list cannot be null");
+        AtomicInteger insertedCount = new AtomicInteger(0);
+        AtomicInteger updatedCount = new AtomicInteger(0);
         data.forEach(d -> {
             try {
-                store(d);
+                StoreResult storeResult = store(d);
+                insertedCount.addAndGet(storeResult.inserted());
+                updatedCount.addAndGet(storeResult.updated());
             } catch (SQLException e) {
                 throw new RuntimeException("Error storing data", e);
             }
         });
+        return new StoreResult(updatedCount.get(), insertedCount.get());
     }
 
     @Override
-    public void store(@NonNull E data) throws SQLException {
+    public StoreResult store(@NonNull E data) throws SQLException {
         Objects.requireNonNull(data, "Data cannot be null");
         final Predicate<E> check = DataType.of((Class<E>) data.getClass()).attributes().stream()
                 .filter(attr -> attr.partOfIdentifier())
@@ -99,10 +106,11 @@ public class VirtualDataRepository<E extends Record> implements DataRepository<E
                     }
                     return e;
                 });
-                return; // Data already exists, so we replace it
+                return new StoreResult(1, 0);
             }
         }
         dataList.add(data);
+        return new StoreResult(0, 1);
     }
 
     @NonNull

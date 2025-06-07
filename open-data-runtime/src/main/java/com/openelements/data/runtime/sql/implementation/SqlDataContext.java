@@ -1,6 +1,7 @@
 package com.openelements.data.runtime.sql.implementation;
 
 import com.openelements.data.runtime.api.DataContext;
+import com.openelements.data.runtime.api.DataTypeProvider;
 import com.openelements.data.runtime.api.KeyValueStore;
 import com.openelements.data.runtime.api.Page;
 import com.openelements.data.runtime.data.DataType;
@@ -18,9 +19,15 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SqlDataContext implements DataContext {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final SqlConnection connection;
 
@@ -32,6 +39,24 @@ public class SqlDataContext implements DataContext {
             @NonNull final SqlConnection connection) {
         this.executor = Objects.requireNonNull(executor, "executor must not be null");
         this.connection = Objects.requireNonNull(connection, "connection must not be null");
+        DataTypeProvider.getInstances().stream()
+                .flatMap(provider -> provider.getDataTypes().stream())
+                .forEach(dataType -> {
+                    try {
+                        final DataType<?> dataTypeInstance = DataType.of(dataType);
+                        final DataRepository<?> repository = DataRepository.of(dataType, connection);
+                        repositories.put(dataType, repository);
+                        final DataDefinition dataDefinition = DataDefinition.of(dataTypeInstance);
+                        DataRepository.of(DataDefinition.class, connection).store(dataDefinition);
+                        final List<DataAttributeDefinition> attributeDefinitions = DataAttributeDefinition.of(
+                                dataTypeInstance);
+                        DataRepository.of(DataAttributeDefinition.class, connection).store(attributeDefinitions);
+                        final List<DataReferenceEntry> attributeReferences = DataReferenceEntry.of(dataTypeInstance);
+                        DataRepository.of(DataReferenceEntry.class, connection).store(attributeReferences);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error initializing record store for datatype " + dataType, e);
+                    }
+                });
     }
 
     @NonNull
@@ -114,23 +139,20 @@ public class SqlDataContext implements DataContext {
             throws SQLException {
         Objects.requireNonNull(dataType, "dataType must not be null");
         final DataRepository<?> dataRepository = repositories.get(dataType);
-        if (dataRepository != null) {
-            return (DataRepository<E>) dataRepository;
+        if (dataRepository == null) {
+            throw new IllegalArgumentException("No data repository found for data type: " + dataType);
         }
-        final DataType<E> dataTypeInstance = DataType.of(dataType);
+        return (DataRepository<E>) dataRepository;
+    }
 
-        final DataRepository<E> repository = DataRepository.of(dataType, connection);
-        repositories.put(dataType, repository);
-
-        final DataDefinition dataDefinition = DataDefinition.of(dataTypeInstance);
-        DataRepository.of(DataDefinition.class, connection).store(dataDefinition);
-
-        final List<DataAttributeDefinition> attributeDefinitions = DataAttributeDefinition.of(dataTypeInstance);
-        DataRepository.of(DataAttributeDefinition.class, connection).store(attributeDefinitions);
-
-        final List<DataReferenceEntry> attributeReferences = DataReferenceEntry.of(dataTypeInstance);
-        DataRepository.of(DataReferenceEntry.class, connection).store(attributeReferences);
-
-        return repository;
+    @Override
+    public ScheduledFuture<?> scheduleWithFixedDelay(long initialDelay, long delay, TimeUnit unit, UpdateTask task) {
+        return getExecutor().scheduleWithFixedDelay(() -> {
+            try {
+                task.run(this);
+            } catch (Exception e) {
+                log.error("Error in scheduled task", e);
+            }
+        }, initialDelay, delay, unit);
     }
 }

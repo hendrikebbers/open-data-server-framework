@@ -2,9 +2,11 @@ package com.openelements.data.runtime.sql.types.impl;
 
 import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.h2.H2Dialect;
+import com.openelements.data.runtime.sql.postgres.PostgresDialect;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -19,7 +21,7 @@ public class YearMonthSupport extends AbstractSqlTypeSupport<YearMonth, Timestam
 
     @Override
     public Set<String> getSupportedJdbcDrivers() {
-        return Set.of(H2Dialect.DRIVER_CLASS_NAME);
+        return Set.of(H2Dialect.DRIVER_CLASS_NAME, PostgresDialect.DRIVER_CLASS_NAME);
     }
 
     @Override
@@ -44,6 +46,11 @@ public class YearMonthSupport extends AbstractSqlTypeSupport<YearMonth, Timestam
     @Override
     public Class<Timestamp> getSqlType() {
         return Timestamp.class;
+    }
+
+    @Override
+    public int getJdbcTypeCode() {
+        return Types.TIMESTAMP_WITH_TIMEZONE;
     }
 
     @Override

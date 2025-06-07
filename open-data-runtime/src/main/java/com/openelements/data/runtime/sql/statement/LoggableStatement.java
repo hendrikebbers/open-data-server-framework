@@ -24,13 +24,13 @@ public class LoggableStatement implements Statement {
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        log.info("Executing query: {}", sql);
+        log.debug("Executing query: {}", sql);
         return delegate.executeQuery(sql);
     }
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
-        log.info("Executing update: {}", sql);
+        log.debug("Executing update: {}", sql);
         return delegate.executeUpdate(sql);
     }
 
@@ -96,7 +96,7 @@ public class LoggableStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        log.info("Executing: {}", sql);
+        log.debug("Executing: {}", sql);
         return delegate.execute(sql);
     }
 
@@ -161,7 +161,7 @@ public class LoggableStatement implements Statement {
 
     @Override
     public int[] executeBatch() throws SQLException {
-        batches.forEach(sql -> log.info("Executing batch script: {}", sql));
+        batches.forEach(sql -> log.debug("Executing batch script: {}", sql));
         return delegate.executeBatch();
     }
 
