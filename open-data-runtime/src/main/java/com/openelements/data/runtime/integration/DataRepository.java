@@ -2,8 +2,8 @@ package com.openelements.data.runtime.integration;
 
 import com.openelements.data.runtime.api.Page;
 import com.openelements.data.runtime.data.DataType;
-import com.openelements.data.runtime.data.impl.VirtualDataRepository;
 import com.openelements.data.runtime.sql.api.SqlConnection;
+import com.openelements.data.runtime.sql.h2.impl.H2BasedVirtualDataRepository;
 import com.openelements.data.runtime.sql.implementation.TableRepository;
 import java.sql.SQLException;
 import java.util.List;
@@ -27,7 +27,7 @@ public interface DataRepository<E extends Record> {
 
     static <E extends Record> DataRepository<E> of(DataType<E> dataType, SqlConnection connection) {
         if (dataType.virtual()) {
-            return VirtualDataRepository.forType(dataType);
+            return new H2BasedVirtualDataRepository<>(dataType);
         }
         return new TableRepository(dataType, connection);
     }

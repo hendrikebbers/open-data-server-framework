@@ -28,10 +28,10 @@ public class LongSupport extends AbstractMatchingSqlTypeSupport<Long> {
         if (sqlValue == null) {
             return null; // Handle null case
         }
-        if (Integer.class.isAssignableFrom(sqlValue.getClass())) {
+        if (Long.class.isAssignableFrom(sqlValue.getClass())) {
             return ((Long) sqlValue).longValue();
         }
-        if (Integer.TYPE.isAssignableFrom(sqlValue.getClass())) {
+        if (Long.TYPE.isAssignableFrom(sqlValue.getClass())) {
             return ((Long) sqlValue).longValue();
         }
         return super.normalizeSqlValue(sqlValue);

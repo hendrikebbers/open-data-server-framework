@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.data.impl;
+package com.openelements.data.runtime.data;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

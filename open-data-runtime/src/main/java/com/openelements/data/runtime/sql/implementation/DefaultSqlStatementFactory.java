@@ -1,4 +1,4 @@
-package com.openelements.data.runtime.sql.h2.impl;
+package com.openelements.data.runtime.sql.implementation;
 
 import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.statement.SqlStatement;
@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
-public class H2SqlStatementFactory implements SqlStatementFactory {
+public class DefaultSqlStatementFactory implements SqlStatementFactory {
 
     private final SqlConnection sqlConnection;
 
-    public H2SqlStatementFactory(@NonNull final SqlConnection sqlConnection) {
+    public DefaultSqlStatementFactory(@NonNull final SqlConnection sqlConnection) {
         this.sqlConnection = Objects.requireNonNull(sqlConnection, "SqlConnection must not be null");
     }
 

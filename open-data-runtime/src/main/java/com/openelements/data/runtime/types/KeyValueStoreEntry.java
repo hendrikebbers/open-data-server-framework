@@ -2,7 +2,7 @@ package com.openelements.data.runtime.types;
 
 import com.openelements.data.runtime.api.Attribute;
 import com.openelements.data.runtime.api.Data;
-import com.openelements.data.runtime.data.impl.ApiData;
+import com.openelements.data.runtime.data.ApiData;
 
 @ApiData
 @Data

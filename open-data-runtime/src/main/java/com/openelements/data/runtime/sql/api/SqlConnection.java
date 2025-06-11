@@ -2,6 +2,7 @@ package com.openelements.data.runtime.sql.api;
 
 import com.openelements.data.runtime.sql.connection.SqlConnectionImpl;
 import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
+import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.jspecify.annotations.NonNull;
@@ -35,4 +36,6 @@ public interface SqlConnection {
             @NonNull final SqlDialect sqlDialect) {
         return new SqlConnectionImpl(connectionProvider, sqlDialect);
     }
+
+    Blob createBlob() throws SQLException;
 }

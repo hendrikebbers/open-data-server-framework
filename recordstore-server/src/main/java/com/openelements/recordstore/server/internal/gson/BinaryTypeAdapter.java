@@ -7,6 +7,7 @@ import com.openelements.data.runtime.api.types.Binary;
 import com.openelements.data.runtime.data.BinaryReference;
 import com.openelements.recordstore.server.internal.PathResolver;
 import java.io.IOException;
+import java.util.Base64;
 
 public class BinaryTypeAdapter extends TypeAdapter<Binary> {
 
@@ -20,13 +21,14 @@ public class BinaryTypeAdapter extends TypeAdapter<Binary> {
     public void write(JsonWriter jsonWriter, Binary value) throws IOException {
         if (value == null) {
             jsonWriter.nullValue();
+        } else if (value instanceof BinaryReference binaryReference) {
+            jsonWriter.value(binaryReference.id().toString());
         } else {
-            if (value instanceof BinaryReference binaryReference) {
-                jsonWriter.value(binaryReference.id().toString());
-            }
+            jsonWriter.beginObject();
+            jsonWriter.name("name").value(value.name());
+            jsonWriter.name("content").value(Base64.getEncoder().encodeToString(value.content()));
+            jsonWriter.endObject();
         }
-        throw new IOException("Unsupported Binary type: " + value.getClass().getName());
-
     }
 
     @Override

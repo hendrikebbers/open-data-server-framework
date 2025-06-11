@@ -4,6 +4,7 @@ import com.openelements.data.runtime.sql.api.ConnectionProvider;
 import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.api.SqlDialect;
 import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,6 +31,7 @@ public class SqlConnectionImpl implements SqlConnection {
             @NonNull final SqlDialect sqlDialect) {
         this.connectionProvider = Objects.requireNonNull(connectionProvider, "connectionProvider must not be null");
         this.sqlDialect = Objects.requireNonNull(sqlDialect, "sqlDialect must not be null");
+        sqlDialect.loadDriver();
     }
 
     public PreparedStatement prepareStatement(@NonNull final String sql) throws SQLException {
@@ -120,5 +122,10 @@ public class SqlConnectionImpl implements SqlConnection {
             runnable.run();
             return null;
         });
+    }
+
+    @Override
+    public Blob createBlob() throws SQLException {
+        return getOrCreateConnection().createBlob();
     }
 }

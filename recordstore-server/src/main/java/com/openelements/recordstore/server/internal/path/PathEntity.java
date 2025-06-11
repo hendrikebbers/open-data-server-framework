@@ -2,8 +2,10 @@ package com.openelements.recordstore.server.internal.path;
 
 import com.openelements.data.runtime.api.Attribute;
 import com.openelements.data.runtime.api.Data;
+import com.openelements.data.runtime.data.ApiData;
 
-@Data(isVirtual = true)
+@ApiData
+@Data
 public record PathEntity(@Attribute(required = true, partOfIdentifier = true) String dataType,
                          @Attribute(required = true, partOfIdentifier = true) String pathType,
                          @Attribute(required = true) String path) {

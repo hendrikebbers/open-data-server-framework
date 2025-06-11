@@ -12,6 +12,7 @@ module com.openelements.data.runtime {
     exports com.openelements.data.runtime.api;
     exports com.openelements.data.runtime.api.types;
     exports com.openelements.data.runtime.sql.api;
+    exports com.openelements.data.runtime.types to com.openelements.recordstore.server;
     exports com.openelements.data.runtime.data to com.openelements.recordstore.server;
     exports com.openelements.data.runtime.integration to com.openelements.recordstore.server;
 

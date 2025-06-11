@@ -2,7 +2,7 @@ package com.openelements.data.runtime.sql.postgres;
 
 import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.api.SqlDialect;
-import com.openelements.data.runtime.sql.h2.impl.H2SqlStatementFactory;
+import com.openelements.data.runtime.sql.implementation.DefaultSqlStatementFactory;
 import com.openelements.data.runtime.sql.statement.SqlStatementFactory;
 
 public class PostgresDialect implements SqlDialect {
@@ -21,6 +21,6 @@ public class PostgresDialect implements SqlDialect {
 
     @Override
     public SqlStatementFactory getSqlStatementFactory(SqlConnection sqlConnection) {
-        return new H2SqlStatementFactory(sqlConnection);
+        return new DefaultSqlStatementFactory(sqlConnection);
     }
 }

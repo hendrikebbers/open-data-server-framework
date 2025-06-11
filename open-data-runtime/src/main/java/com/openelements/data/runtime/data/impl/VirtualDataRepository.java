@@ -17,6 +17,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.jspecify.annotations.NonNull;
 
+@Deprecated(forRemoval = true)
 public class VirtualDataRepository<E extends Record> implements DataRepository<E> {
 
     private final List<E> dataList;

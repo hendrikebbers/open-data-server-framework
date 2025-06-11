@@ -11,7 +11,11 @@ import com.openelements.recordstore.server.internal.gson.JsonFactory;
 import com.openelements.recordstore.server.internal.handler.DataHandler;
 import com.openelements.recordstore.server.internal.handler.DataHandlerImpl;
 import com.openelements.recordstore.server.internal.handler.GetAllHandler;
+import com.openelements.recordstore.server.internal.handler.GetAllWithPaginationHandler;
+import com.openelements.recordstore.server.internal.handler.GetCountHandler;
+import com.openelements.recordstore.server.internal.handler.OpenApiHandler;
 import com.openelements.recordstore.server.internal.handler.SwaggerInitHandler;
+import com.openelements.recordstore.server.internal.openapi.OpenApiFactory;
 import com.openelements.recordstore.server.internal.path.PathEntity;
 import com.openelements.recordstore.server.internal.path.PathResolverImpl;
 import io.helidon.webserver.WebServer;
@@ -45,11 +49,13 @@ public class DataServer {
     }
 
     public void start() {
+        log.info("Starting DataServer on port {}", port);
         WebServer webServer = WebServer.builder()
                 .port(port)
                 .addRouting(createRouting())
                 .build();
         webServer.start();
+        log.info("DataServer started successfully on port {}", port);
     }
 
     private HttpRouting.Builder createRouting() {
@@ -58,28 +64,54 @@ public class DataServer {
         final HttpRouting.Builder routingBuilder = HttpRouting.builder();
 
         initData(routingBuilder);
-        return routingBuilder.register("/swagger-ui", service)
+        routingBuilder.register("/swagger-ui", service)
                 .get("/swagger-ui/swagger-initializer.js", new SwaggerInitHandler())
                 .register(createCorsSupport());
+        log.info("Swagger UI configured at {}", "/swagger-ui");
+        return routingBuilder;
     }
 
     private void initData(Builder routingBuilder) {
-        final DataContext dataContext = DataContextFactory.createDataContext(
-                Executors.newScheduledThreadPool(8, threadFactory), sqlConnection);
+        log.debug("Loading data types");
         final Set<DataType<?>> dataTypes = DataType.loadData();
+        log.debug("Loaded {} data types", dataTypes.size());
+        log.debug("Initializing data context");
+        final DataContext dataContext = DataContextFactory.createDataContext(
+                Executors.newScheduledThreadPool(8, threadFactory), sqlConnection, dataTypes);
+        log.debug("Initializing json factory");
         final JsonFactory jsonFactory = new JsonFactory(dataTypes, pathResolver);
         for (DataType<?> dataType : dataTypes) {
             final DataRepository<?> dataRepository = DataRepository.of(dataType, sqlConnection);
-            DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
-            final String path;
+            final DataHandler handler = new DataHandlerImpl(dataType, dataRepository);
+            final String allPath;
             if (dataType.api()) {
-                path = "/api/" + toRestUrlPath(dataType.name());
+                allPath = "/api/" + toRestUrlPath(dataType.name()) + "/all";
             } else {
-                path = "/records/" + toRestUrlPath(dataType.name());
+                allPath = "/records/" + toRestUrlPath(dataType.name()) + "/all";
             }
-            pathResolver.registerGetAllPath(dataType, path);
-            routingBuilder.get(path, new GetAllHandler<>(handler, jsonFactory));
-            log.info("Registered handler: {}", path);
+            pathResolver.registerGetAllPath(dataType, allPath);
+            routingBuilder.get(allPath, new GetAllHandler<>(handler, jsonFactory));
+            log.info("Registered handler: {}", allPath);
+
+            final String paginationPath;
+            if (dataType.api()) {
+                paginationPath = "/api/" + toRestUrlPath(dataType.name());
+            } else {
+                paginationPath = "/records/" + toRestUrlPath(dataType.name());
+            }
+            pathResolver.registerGetAllWithPaginationPath(dataType, paginationPath);
+            routingBuilder.get(paginationPath, new GetAllWithPaginationHandler<>(handler, jsonFactory));
+            log.info("Registered handler: {}", paginationPath);
+
+            final String countPath;
+            if (dataType.api()) {
+                countPath = "/api/" + toRestUrlPath(dataType.name()) + "/count";
+            } else {
+                countPath = "/records/" + toRestUrlPath(dataType.name()) + "/count";
+            }
+            pathResolver.registerCountPath(dataType, countPath);
+            routingBuilder.get(countPath, new GetCountHandler<>(handler));
+            log.info("Registered handler: {}", countPath);
         }
         for (DataSource provider : DataSource.getInstances()) {
             provider.install(dataContext);
@@ -87,6 +119,10 @@ public class DataServer {
         dataContext.scheduleWithFixedDelay(0, 1, TimeUnit.MINUTES, context -> {
             context.store(PathEntity.class, pathResolver.getAllPaths());
         });
+        OpenApiFactory openApiFactory = new OpenApiFactory(pathResolver, dataTypes);
+        routingBuilder.get("/openapi", new OpenApiHandler(openApiFactory));
+        log.info("OpenAPI endpoint registered at {}", "/openapi");
+        log.debug("Data context and repositories initialized successfully");
     }
 
     private static CorsSupport createCorsSupport() {

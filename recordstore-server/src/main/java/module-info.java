@@ -18,6 +18,5 @@ module com.openelements.recordstore.server {
     requires io.helidon.webserver;
     requires io.swagger.v3.oas.models;
     requires com.openelements.data.runtime;
-    requires org.yaml.snakeyaml;
     requires static org.jspecify;
 }

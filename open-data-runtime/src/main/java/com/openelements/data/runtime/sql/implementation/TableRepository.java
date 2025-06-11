@@ -184,7 +184,8 @@ public class TableRepository<E extends Record> implements DataRepository<E> {
         }
         final ResultSet resultSet = selectColumnStatementSql.toPreparedStatement().executeQuery();
         resultSet.next();
-        final U currentValue = (U) resultSet.getObject(1, column.getSqlClass());
+        final Object sqlValue = resultSet.getObject(1);
+        final U currentValue = (U) column.getTypeSupport().normalizeSqlValue(sqlValue);
         final Optional<DataAttribute<E, D>> attribute = dataType.getAttribute(column.getName());
         final D javaValue = attribute
                 .map(a -> a.getFor(data))

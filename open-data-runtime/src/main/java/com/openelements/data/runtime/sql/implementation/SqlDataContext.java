@@ -1,7 +1,6 @@
 package com.openelements.data.runtime.sql.implementation;
 
 import com.openelements.data.runtime.api.DataContext;
-import com.openelements.data.runtime.api.DataTypeProvider;
 import com.openelements.data.runtime.api.KeyValueStore;
 import com.openelements.data.runtime.api.Page;
 import com.openelements.data.runtime.data.DataType;
@@ -16,6 +15,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,22 +36,21 @@ public class SqlDataContext implements DataContext {
     private final ScheduledExecutorService executor;
 
     public SqlDataContext(@NonNull final ScheduledExecutorService executor,
-            @NonNull final SqlConnection connection) {
+            @NonNull final SqlConnection connection, Set<DataType<?>> dataTypes) {
         this.executor = Objects.requireNonNull(executor, "executor must not be null");
         this.connection = Objects.requireNonNull(connection, "connection must not be null");
-        DataTypeProvider.getInstances().stream()
-                .flatMap(provider -> provider.getDataTypes().stream())
+        dataTypes.stream()
                 .forEach(dataType -> {
                     try {
-                        final DataType<?> dataTypeInstance = DataType.of(dataType);
+                        log.info("Initializing record store for datatype '{}' ({})", dataType.name(),
+                                dataType.dataClass());
                         final DataRepository<?> repository = DataRepository.of(dataType, connection);
-                        repositories.put(dataType, repository);
-                        final DataDefinition dataDefinition = DataDefinition.of(dataTypeInstance);
+                        repositories.put(dataType.dataClass(), repository);
+                        final DataDefinition dataDefinition = DataDefinition.of(dataType);
                         DataRepository.of(DataDefinition.class, connection).store(dataDefinition);
-                        final List<DataAttributeDefinition> attributeDefinitions = DataAttributeDefinition.of(
-                                dataTypeInstance);
+                        final List<DataAttributeDefinition> attributeDefinitions = DataAttributeDefinition.of(dataType);
                         DataRepository.of(DataAttributeDefinition.class, connection).store(attributeDefinitions);
-                        final List<DataReferenceEntry> attributeReferences = DataReferenceEntry.of(dataTypeInstance);
+                        final List<DataReferenceEntry> attributeReferences = DataReferenceEntry.of(dataType);
                         DataRepository.of(DataReferenceEntry.class, connection).store(attributeReferences);
                     } catch (Exception e) {
                         throw new RuntimeException("Error initializing record store for datatype " + dataType, e);

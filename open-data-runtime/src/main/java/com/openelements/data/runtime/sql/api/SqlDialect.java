@@ -46,4 +46,12 @@ public interface SqlDialect {
         }
         throw new IllegalArgumentException("Unsupported SQL dialect: " + dialectName);
     }
+
+    default void loadDriver() {
+        try {
+            Class.forName(getDriverClassName());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Cannot load JDBC driver " + getDriverClassName(), e);
+        }
+    }
 }

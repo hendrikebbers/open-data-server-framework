@@ -4,19 +4,18 @@ import com.openelements.data.runtime.sql.api.SqlConnection;
 import com.openelements.data.runtime.sql.h2.H2Dialect;
 import com.openelements.data.runtime.sql.postgres.PostgresDialect;
 import com.openelements.data.runtime.sql.types.AbstractSqlTypeSupport;
+import java.sql.Date;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.Set;
 
-public class YearMonthSupport extends AbstractSqlTypeSupport<YearMonth, Timestamp> {
+public class YearMonthSupport extends AbstractSqlTypeSupport<YearMonth, LocalDate> {
 
     public YearMonthSupport() {
-        super(YearMonth.class, "TIMESTAMP WITH TIME ZONE");
+        super(YearMonth.class, "DATE");
     }
 
     @Override
@@ -25,43 +24,42 @@ public class YearMonthSupport extends AbstractSqlTypeSupport<YearMonth, Timestam
     }
 
     @Override
-    public YearMonth convertToJavaValue(Timestamp sqlValue, SqlConnection connection) throws SQLException {
+    public YearMonth convertToJavaValue(LocalDate sqlValue, SqlConnection connection) throws SQLException {
         if (sqlValue == null) {
             return null; // Handle null case
         }
-        return YearMonth.from(sqlValue.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate());
+        return YearMonth.of(sqlValue.getYear(), sqlValue.getMonthValue());
     }
 
     @Override
-    public Timestamp convertToSqlValue(YearMonth javaValue, SqlConnection connection) throws SQLException {
+    public LocalDate convertToSqlValue(YearMonth javaValue, SqlConnection connection) throws SQLException {
         if (javaValue == null) {
             return null; // Handle null case
         }
-        final Date date = Date.from(javaValue.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        return new Timestamp(date.getTime());
+        return LocalDate.of(javaValue.getYear(), javaValue.getMonthValue(), 1);
     }
 
     @Override
-    public Class<Timestamp> getSqlType() {
-        return Timestamp.class;
+    public Class<LocalDate> getSqlType() {
+        return LocalDate.class;
     }
 
     @Override
     public int getJdbcTypeCode() {
-        return Types.TIMESTAMP_WITH_TIMEZONE;
+        return Types.DATE;
     }
 
     @Override
-    public Timestamp normalizeSqlValue(Object sqlValue) throws SQLException {
+    public LocalDate normalizeSqlValue(Object sqlValue) throws SQLException {
         if (sqlValue == null) {
             return null; // Handle null case
         }
         if (sqlValue instanceof OffsetDateTime offsetDateTime) {
-            // Convert OffsetTime to Timestamp
-            final Date date = Date.from(offsetDateTime.toInstant());
-            return new Timestamp(date.getTime());
+            return LocalDate.of(offsetDateTime.getYear(), offsetDateTime.getMonthValue(),
+                    offsetDateTime.getDayOfMonth());
+        }
+        if (sqlValue instanceof Date date) {
+            return date.toLocalDate();
         }
         return super.normalizeSqlValue(sqlValue);
     }
